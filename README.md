@@ -4,6 +4,6 @@
 ### Natalia Granados Rosales  |  2021144286
 ### Alice Arias Salazar  |  2023104639
 
-### Estado del proyecto: Bueno, finalizado con la documentación completa.
+### Estado del proyecto: Muy bueno, finalizado con la documentación completa.
 ### Enlace del video:
 Recordar que el video debe ser público para ser visto por el profesor
