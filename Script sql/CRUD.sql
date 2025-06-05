@@ -354,7 +354,7 @@ begin
     where t.IdTelefonoHospedaje = @IdTelefonoHospedaje
 end
 
---actualizar tel�fono de hospedaje
+--actualizar tel�fono de hospedaje --falta
 create procedure ActualizarTelefonoHospedaje
     @IdTelefonoHospedaje int,
     @NumeroTelefono varchar(20)

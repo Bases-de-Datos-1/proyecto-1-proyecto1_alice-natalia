@@ -12,11 +12,28 @@ end
 use SistemaGestionHotelera
 
 --Creacion de las tablas catalogo 
+
+---------------------------------------------------------------------------------
 --Tabla catalogo Provincia
 create table Provincia (
 	IdProvincia int identity(1,1) primary key,
 	NombreProvincia varchar(50) not null
 );
+
+-- Inserts Provincia
+insert into Provincia(NombreProvincia) 
+values
+	('San Jose'),
+	('Alajuela'),
+	('Cartago'),
+	('Heredia'),
+	('Guanacaste'),
+	('Puntarenas'),
+	('Limon');
+
+--select * from Provincia
+
+---------------------------------------------------------------------------------
 
 --Tabla catalogo RedSocial
 create table RedSocial (
@@ -24,11 +41,45 @@ create table RedSocial (
 	NombreRedSocial varchar(50) not null
 );
 
+-- Inserts RedSocial
+insert into RedSocial (NombreRedSocial)
+values 
+    ('Facebook'),
+    ('Instagram'),
+    ('Twitter'),
+    ('TikTok'),
+    ('Snapchat'),
+    ('YouTube'),
+    ('WhatsApp'),
+    ('Telegram')
+
+--select * from RedSocial 
+
+---------------------------------------------------------------------------------
+
 --Tabla catalogo TipoHospedaje
 create table TipoHospedaje(
 	IdTipoHospedaje int identity(1,1) primary key,
 	NombreTipoHospedaje varchar(50) not null
 );
+
+--Inserts TipoHospedaje
+insert into TipoHospedaje(NombreTipoHospedaje) 
+values
+    ('Hotel'),
+    ('Hostal'),
+    ('Casa'),
+    ('Departamento'),
+    ('Cuarto compartido'),
+	('Camping'),
+    ('Albergue'),
+    ('Bungalow'),
+    ('Casa rural'),
+    ('Motel');
+
+--select * from TipoHospedaje
+
+---------------------------------------------------------------------------------
 
 --Tabla catalogo Servicio
 create table Servicio(
@@ -37,6 +88,24 @@ create table Servicio(
 	Descripcion text not null
 );
 
+--Tabla catalogo Servicio
+insert into Servicio(NombreServicio, Descripcion)
+values
+	('Piscina', 'Piscina disponible para huespedes'),
+    ('WiFi', 'Acceso a internet inalambrico'),
+    ('Parqueo', 'Estacionamiento disponible'),
+    ('Restaurante', 'Restaurante en el establecimiento'),
+    ('Bar', 'Bar disponible en el establecimiento'),
+    ('Ranch', 'Areas de rancho para actividades'),
+    ('Aire acondicionado', 'Habitaciones con aire acondicionado'),
+    ('Desayuno incluido', 'Desayuno incluido en la estadia'),
+    ('Servicio a la habitacion', 'Room service disponible'),
+    ('Gimnasio', 'Area de ejercicio disponible');
+
+--select * from Servicio
+
+---------------------------------------------------------------------------------
+
 --Tabla catalogo TipoCama
 create table TipoCama(
 	IdTipoCama int identity(1,1) primary key,
@@ -44,11 +113,49 @@ create table TipoCama(
 	Descripcion text not null
 );
 
+--Inserts TipoCama
+insert into TipoCama(NombreTipoCama, Descripcion)
+values
+	('Individual', 'Cama individual (90-100 cm)'),
+    ('Matrimonial', 'Cama doble estandar (135-150 cm)'),
+    ('Queen', 'Cama queen size (160 cm)'),
+    ('King', 'Cama king size (180-200 cm)'),
+    ('Super King', 'Cama extra grande (200 cm+)'),
+    ('Litera', 'Camas apiladas'),
+    ('Sofa cama', 'Sofa que se convierte en cama');
+
+--select * from TipoCama
+
+---------------------------------------------------------------------------------
+
 --Tabla catalogo Comodidad
 create table Comodidad(
 	IdComodidad int identity(1,1) primary key,
 	NombreComodidad varchar(50) not null
 );
+
+--Insert Comodidad
+insert into Comodidad(NombreComodidad)
+values
+	('WiFi en habitacion'),
+    ('Aire acondicionado'),
+    ('Ventilador'),
+    ('Agua caliente'),
+    ('TV pantalla plana'),
+    ('Minibar'),
+    ('Caja fuerte'),
+    ('Telefono'),
+    ('Escritorio'),
+    ('Tetera/Cafetera'),
+    ('Secador de pelo'),
+    ('Plancha'),
+    ('Baño privado'),
+    ('Jacuzzi'),
+    ('Balcon');
+
+--select * from Comodidad
+
+---------------------------------------------------------------------------------
 
 --Tabla catalogo TipoIdentidad
 create table TipoIdentidad(
@@ -56,6 +163,19 @@ create table TipoIdentidad(
 	NombreTipoIdentidad varchar(50) not null,
 	Descripcion text not null
 );
+
+--Inserts TipoIdentidad
+insert into TipoIdentidad(NombreTipoIdentidad, Descripcion) 
+values
+	('Cedula nacional', 'Documento de identidad nacional para ciudadanos costarricenses'),
+	('DIMEX', 'Documento de Identidad Migratorio para Extranjeros residentes en Costa Rica'),
+	('Cedula juridica', 'Documento de identidad para empresas y organizaciones legalmente constituidas en Costa Rica'),
+	('Pasaporte', 'Documento de identidad internacional para extranjeros'),
+	('Cedula de residencia', 'Documento para extranjeros con estatus de residentes permanentes');
+
+--select * from TipoIdentidad
+
+---------------------------------------------------------------------------------
 
 --Tabla Catalogo Pais
 create table Pais(
@@ -65,11 +185,69 @@ create table Pais(
 	Abrebiacion varchar(3) not null
 );
 
+--Inserts Pa�s
+insert into Pais(NombrePais, CodigoPais, Abrebiacion)
+values 
+	('Costa Rica', '506', 'CR'),
+	('Estados Unidos', '1', 'USA'),
+	('Canada', '1', 'CAN'),
+	('Mexico', '52', 'MEX'),
+	('Panama', '507', 'PAN'),
+	('Nicaragua', '505', 'NIC'),
+	('El Salvador', '503', 'SLV'),
+	('Honduras', '504', 'HND'),
+	('Guatemala', '502', 'GTM'),
+	('Republica Dominicana', '1', 'DOM'),
+	('Cuba', '53', 'CUB'),
+	('Jamaica', '1', 'JAM'),
+	('España', '34', 'ESP'),
+	('Francia', '33', 'FRA'),
+	('Alemania', '49', 'DEU'),
+	('Reino Unido', '44', 'GBR'),
+	('Italia', '39', 'ITA'),
+	('Paises Bajos', '31', 'NLD'),
+	('Suiza', '41', 'CHE'),
+	('Belgica', '32', 'BEL'),
+	('Suecia', '46', 'SWE'),
+	('Portugal', '351', 'PRT'),
+	('Austria', '43', 'AUT'),
+	('Irlanda', '353', 'IRL'),
+	('Brasil', '55', 'BRA'),
+	('Argentina', '54', 'ARG'),
+	('Colombia', '57', 'COL'),
+	('Chile', '56', 'CHL'),
+	('Peru', '51', 'PER'),
+	('Ecuador', '593', 'ECU'),
+	('Venezuela', '58', 'VEN'),
+	('Uruguay', '598', 'URY'),
+	('China', '86', 'CHN'),
+	('Japon', '81', 'JPN'),
+	('Corea del Sur', '82', 'KOR'),
+	('Australia', '61', 'AUS'),
+	('Nueva Zelanda', '64', 'NZL'),
+	('India', '91', 'IND'),
+	('Israel', '972', 'ISR'),
+	('Emiratos arabes Unidos', '971', 'ARE');
+
+--select * from Pais
+
+---------------------------------------------------------------------------------
+
 --Tabla catalogo TipoPago
 create table TipoPago(
 	IdTipoPago int identity(1,1) primary key,
 	NombreTipoPago varchar(50) not null,
 );
+
+--Inserts TipoPago
+insert into TipoPago(NombreTipoPago)
+values
+	('Efectivo'),
+    ('Tarjeta credito');
+
+--select * from TipoPago
+
+---------------------------------------------------------------------------------
 
 --Tabla catalogo TipoServicio
 create table TipoServicio (
@@ -78,6 +256,23 @@ create table TipoServicio (
 	Descripcion text not null
 );
 
+--Inserts TipoServicio
+insert into TipoServicio(NombreServicio, Descripcion)
+values
+	('Transporte', 'Servicio de transporte incluido'),
+    ('Comida', 'Servicio de alimentacion incluido'),
+    ('Guia', 'Servicio de guia turistico'),
+    ('Equipo', 'Alquiler de equipo especializado'),
+    ('Fotografia', 'Servicio fotografico profesional'),
+    ('Seguro', 'Seguro de viaje incluido'),
+    ('Bebidas', 'Bebidas incluidas'),
+    ('Hotel', 'Incluye estadia en hotel'),
+    ('Entradas', 'Incluye entradas a atracciones');
+
+--select * from TipoServicio
+
+---------------------------------------------------------------------------------
+
 --Tabla catalogo TipoActividad
 create table TipoActividad (
 	IdActividad int identity(1,1) primary key not null,
@@ -85,9 +280,28 @@ create table TipoActividad (
 	Descripcion text not null
 );
 
+--Inserts TipoActividad
+insert into TipoActividad(NombreActividad, Descripcion)
+values 
+	('Tour en bote', 'Paseos recreativos en bote'),
+    ('Tour en lancha', 'Paseos en lancha rapida'),
+    ('Tour en catamaran', 'Paseos en catamaran'),
+    ('Kayak', 'Alquiler o tours en kayak'),
+    ('Snorkeling', 'Tour de snorkeling'),
+    ('Buceo', 'Tour de buceo'),
+    ('Senderismo', 'Tours de senderismo guiados'),
+    ('Cabalgata', 'Paseos a caballo'),
+    ('Rappel', 'Actividades de rappel'),
+    ('Canopy', 'Tours de canopy'),
+    ('Observacion de aves', 'Tours de observacion de aves'),
+    ('Tour cultural', 'Visitas culturales guiadas');
 
---Creacion de las tablas
---Hospedajes
+--select * from TipoActividad
+
+---------------------------------------------------------------------------------
+
+--Creacion de las tablas principal Hospedajes
+
 --Tabla de Hospedaje
 create table Hospedaje (
 	IdHospedaje int identity(1,1) primary key,
@@ -99,6 +313,26 @@ create table Hospedaje (
     ReferenciasGPS varchar(100) not null,
     constraint FK_TipoHospedaje foreign key (TipoHospedaje) references TipoHospedaje(IdTipoHospedaje)
 );
+
+-- Se agrega la restriccion de cedula juridica para que inicie con un numero del 1 al 8 y tenga una longitud entre 10 y 20 caracteres
+ALTER TABLE Hospedaje
+ADD CONSTRAINT chk_CedulaJuridica CHECK (CedulaJuridica LIKE '[1-8]%' AND LEN(CedulaJuridica) BETWEEN 10 AND 20);
+
+--Insertar hospedajes
+insert into Hospedaje (CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS) 
+values
+	('3-501-778899', 'Lodge Arenal', 4, 'http://www.lodgearenal.com', 'contacto@lodgearenal.com', '10.4700, -84.7034'),
+	('3-101-123456', 'Hotel Buenavista', 1, 'http://www.hotelbuenavista.com', 'reservaciones@hotelbuenavista.com', '9.9281, -84.0907'),
+	('3-102-654321', 'Hotel Playa Hermosa', 1, 'http://www.hotelplayahermosa.com', 'info@hotelplayahermosa.com', '10.5667, -85.6833'),
+	('3-103-789123', 'Hotel Monteverde', 1, 'http://www.hotelmonteverde.com', 'contacto@hotelmonteverde.com', '10.2705, -84.8248'),
+	('3-201-456789', 'Hostel Pura Vida', 2, 'http://www.hostelpuravida.com', 'bookings@hostelpuravida.com', '9.9355, -84.0791'),
+	('3-202-987654', 'Hostel Caribe', 2, NULL, 'reservas@hostelarenal.com', '10.4631, -84.7033'),
+	('3-301-112233', 'Casa Tropical', 3, 'http://www.casatropical.com', 'info@casatropical.com', '9.9123, -84.0567'),
+	('3-401-445566', 'Cabañas del Bosque', 6, NULL, 'cabanas@delbosque.com', '10.3012, -84.8123');
+
+--select * from Hospedaje
+
+---------------------------------------------------------------------------------
 
 --Tabla de DireccionHospedaje
 create table DireccionHospedaje (
@@ -113,13 +347,44 @@ create table DireccionHospedaje (
 	constraint FK_ProvinciaHospedaje foreign key (Provincia) references Provincia(IdProvincia)
 );
 
+--Tabla DireccionesHospedaje
+insert into DireccionHospedaje (IdHospedaje, SenasExactas, Barrio, Provincia, Canton, Distrito) 
+values
+	(1, '200 metros norte del Banco Nacional Cahuita', 'Barrio Escalante', 1, 'Limon', 'Carmen'),
+	(2, 'Frente a la playa principal', 'Playa Hermosa', 6, 'Limon', 'Playa Hermosa'),
+	(3, '500 metros este de la reserva', 'Santa Elena', 5, 'Monteverde', 'Santa Elena'),
+	(4, 'Calle 15, entre avenidas 8 y 10', 'La California', 1, 'San Jose', 'Uruca'),
+	(5, '1 km al este del volcan', 'La Fortuna', 2, 'San Carlos', 'La Fortuna'),
+	(6, 'Casa color amarillo con porton negro', 'Rohrmoser', 1, 'San Jose', 'Pavas'),
+	(7, 'Entrada principal del bosque, segunda cabaña', 'Monteverde', 5, 'Monteverde', 'Santa Elena');
+	
+--select * from DireccionHospedaje
+
+---------------------------------------------------------------------------------
+
 --Tabla de TelefonoHospedaje
 create table TelefonoHospedaje(
 	IdTelefonoHospedaje int identity(1,1) primary key,
-	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+506%' and NumeroTelefono not like '%[^0-9+ -]%'), --permite el ingreso de n�meros y el caracter + y - para el codigo
+	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+506%' and NumeroTelefono not like '%[^0-9+ -]%'), --permite el ingreso de n�meros y el caracter + y - para el codigo
 	IdHospedaje int not null,
 	constraint FK_TelefonoHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
 );
+
+--Tabla TelefonoHospedaje
+insert into TelefonoHospedaje (NumeroTelefono, IdHospedaje)
+values
+	('+506 2222-3333', 1),
+	('+506 2222-4444', 1),
+	('+506 2654-1234', 2),
+	('+506 2645-7890', 3),
+	('+506 2233-4455', 4),
+	('+506 2479-8080', 5),
+	('+506 8877-6655', 6),
+	('+506 8345-6789', 7);
+
+--select * from TelefonoHospedaje
+
+---------------------------------------------------------------------------------
 
 --Tabla de ServicioHospedaje
 create table ServicioHospedaje (
@@ -129,6 +394,26 @@ create table ServicioHospedaje (
 	constraint FK_ServicioHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje),
 	constraint FK_Servicio foreign key (IdServicio) references Servicio(IdServicio)
 );
+
+--Tabla ServiciosHospedaje
+insert into	ServicioHospedaje (IdHospedaje, IdServicio) 
+values
+	(1, 1), 
+	(1, 2), 
+	(1, 3), 
+	(1, 4), 
+	(1, 6), 
+	(2, 1), 
+	(2, 2), 
+	(2, 3), 
+	(2, 7), 
+	(4, 2), 
+	(4, 3),
+	(7, 2);
+
+--select * from ServicioHospedaje
+
+---------------------------------------------------------------------------------
 
 --Tabla de RedSocialHospedaje
 create table RedSocialHospedaje(
@@ -140,6 +425,23 @@ create table RedSocialHospedaje(
 	constraint FK_RedSocialHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje),
 	constraint FK_RedSocial foreign key (IdRedSocial) references RedSocial(IdRedSocial)
 );
+
+--Tabla RedesSocialesHospedaje
+insert into RedSocialHospedaje (IdHospedaje, IdRedSocial, NombreUsuario, UrlPerfil)
+values 
+	(1, 1, 'HotelBuenavistaCR', 'http://www.facebook.com/HotelBuenavistaCR'),
+	(1, 2, '@HotelBuenavista', 'http://www.instagram.com/HotelBuenavista'),
+	(2, 1, 'PlayaHermosaHotel', 'http://www.facebook.com/PlayaHermosaHotel'),
+	(2, 3, '@PHHotelCR', 'http://www.twitter.com/PHHotelCR'),
+	(4, 1, 'HostelPuraVida', 'http://www.facebook.com/HostelPuraVida'),
+	(4, 2, '@PuraVidaHostel', 'http://www.instagram.com/PuraVidaHostel'),
+	(4, 4, '@Reserva', 'http://wa.me/50683456789'),
+	(7, 2, '@CabanasDelBosque', 'http://www.instagram.com/CabanasDelBosque');
+
+
+--select * from RedSocialHospedaje 
+
+---------------------------------------------------------------------------------
 
 --Tabla de TipoHabitacion
 create table TipoHabitacion(
@@ -154,6 +456,23 @@ create table TipoHabitacion(
 	constraint FK_TipoHabitacionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
 );
 
+--Tabla TipoHabitacion
+insert into TipoHabitacion (NombreTipoHabitacion, IdTipoCama, IdHospedaje, Capacidad, Descripcion, Precio) 
+values
+	('Habitacion Estandar', 1, 1, 2, 'Habitacion comoda con cama individual, ideal para viajeros solos', 75.00),
+	('Habitacion Doble', 2, 1, 2, 'Habitacion con cama matrimonial, perfecta para parejas', 95.00),
+	('Suite Ejecutiva', 4, 1, 3, 'Amplia suite con cama king, sala de estar y amenities de lujo', 150.00),
+	('Bungalow Vista Mar', 3, 2, 2, 'Encantador bungalow con cama queen y vista directa al mar', 120.00),
+	('Suite Familiar', 5, 2, 4, 'Suite con dos camas individuales, ideal para familias', 180.00),
+	('Dormitorio Compartido', 6, 4, 6, 'Amplio dormitorio con literas para 6 personas', 25.00),
+	('Habitacion Privada', 1, 4, 1, 'Habitacion privada con cama individual', 40.00),
+	('Cabaña Romantica', 3, 7, 2, 'Acogedora cabaña con cama queen y chimenea', 110.00),
+	('Cabaña Familiar', 2, 7, 4, 'Amplia caba�-ña con cama matrimonial y litera', 160.00);
+
+--select * from TipoHabitacion
+
+---------------------------------------------------------------------------------
+
 --Tabla de ComodidadHabitacion 
 create table ComodidadHabitacion (
 	IdComodidadHabitacion int identity(1,1) primary key,
@@ -163,6 +482,39 @@ create table ComodidadHabitacion (
 	constraint FK_TipoHabitacionComodidad foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion)
 );
 
+--Tabla ComodidadHabitacion
+insert into ComodidadHabitacion (IdComodidad, IdTipoHabitacion) 
+values
+	(2, 1), 
+	(6, 1), 
+	(7, 1),
+	(1, 2), 
+	(3, 2), 
+	(6, 2), 
+	(7, 2),
+	(1, 3), 
+	(3, 3), 
+	(4, 3), 
+	(5, 3), 
+	(6, 3), 
+	(7, 3), 
+	(9, 3), 
+	(1, 4), 
+	(3, 4), 
+	(6, 4), 
+	(7, 4),
+	(10, 4),
+	(2, 6), 
+	(6, 6), 
+	(7, 6),
+	(2, 8), 
+	(6, 8), 
+	(7, 8);
+
+--select * from ComodidadHabitacion
+
+---------------------------------------------------------------------------------
+
 --Tabla de FotoHabitacion
 create table FotoHabitacion (
 	IdFotoHabitacion int identity(1,1) primary key,
@@ -170,6 +522,28 @@ create table FotoHabitacion (
 	Foto image not null,
 	constraint FK_FotoTipoHabotacion foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion)
 );
+
+--FotoHabitacion
+insert into FotoHabitacion (IdTipoHabitacion, Foto) 
+values
+	(1, 0x1234567890ABCDEF),
+	(1, 0xFEDCBA0987654321),
+	(2, 0xABCDEF1234567890),
+	(2, 0x0987654321FEDCBA),
+	(2, 0x1122334455667788),
+	(3, 0x3344556677889900),
+	(3, 0xAABBCCDDEEFF0011),
+	(3, 0x556677889900AABB),
+	(4, 0x6677889900AABBCC),
+	(4, 0xDDEEFF0011223344),
+	(6, 0x77889900AABBCCDD),
+	(8, 0xEEFF001122334455),
+	(8, 0x9900AABBCCDDEEFF),
+	(8, 0x0011223344556677);
+
+--select * from FotoHabitacion 
+
+---------------------------------------------------------------------------------
 
 --Tabla de Habitacion
 create table Habitacion (
@@ -181,6 +555,27 @@ create table Habitacion (
 	constraint FK_TipoHabitacion foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion),
 	constraint FK_HabitacionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
 );
+
+--Tabla de Habitacion
+insert into Habitacion (NumeroHabitacion, IdTipoHabitacion, IdHospedaje, CantidadPersonas) 
+values 
+	(101, 1, 1, 1),  
+	(102, 1, 1, 1),
+	(201, 2, 1, 2),  
+	(202, 2, 1, 2),
+	(301, 3, 1, 3), 
+	(10, 4, 2, 2),  
+	(11, 4, 2, 2),
+	(20, 5, 2, 4),
+	(1, 6, 4, 6),   
+	(2, 6, 4, 6),
+	(3, 7, 4, 1),
+	(1, 8, 7, 2),   
+	(2, 9, 7, 4);
+
+--select * from Habitacion
+
+---------------------------------------------------------------------------------
 
 --Tabla de Cliente
 create table Cliente (
@@ -195,17 +590,44 @@ create table Cliente (
 	PaisResidencia int not null,
 	constraint FK_IdTipoIdentidad foreign key (TipoIdentidad) references TipoIdentidad(IdTipoIdentidad),
 	constraint FK_PaisResidencia foreign key (PaisResidencia) references Pais(IdPais)
-
 );
+
+--Tabla de Cliente
+insert into Cliente (IdentificacionCliente, PrimerApellido, SegundoApellido, Nombre, CorreoElectronico, FechaNacimiento, TipoIdentidad, PaisResidencia) 
+values
+	('1-1234-5678', 'Gonzalez', 'Perez', 'Maria', 'maria.gonzalez@email.com', '1985-06-15', 1, 1),
+	('1-2345-6789', 'Rodriguez', 'Hernandez', 'Juan', 'juan.rodriguez@email.com', '1990-11-22', 1, 1),
+	('1-3456-7890', 'Martinez', 'Lopez', 'Ana', 'ana.martinez@email.com', '1978-03-10', 1, 1),
+	('AB123456', 'Smith', 'Johnson', 'John', 'john.smith@email.com', '1982-09-05', 3, 2),
+	('CD789012', 'Garcia', 'Fernandez', 'Carlos', 'carlos.garcia@email.com', '1995-07-30', 3, 3),
+	('EF345678', 'Brown', 'Vasques', 'Emily', 'emily.brown@email.com', '1992-12-18', 3, 4);
+
+--select * from  Cliente
+
+---------------------------------------------------------------------------------
 
 --Tabla de TelefonoCliente
 create table TelefonoCliente (
 	IdTelefonoCliente int identity(1,1) primary key,
 	IdCliente int not null,
 	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+%' and NumeroTelefono not like '%[^0-9+ -]%'),
-	TipoTelefono varchar(20) not null check(TipoTelefono in ('M�vil', 'Casa', 'Trabajo', 'Otro')),
+	TipoTelefono varchar(20) not null check(TipoTelefono in ('Movil', 'Casa', 'Trabajo', 'Otro')),
 	constraint FK_TelefonoCliente foreign key (IdCliente) references Cliente(IdCliente)
 );
+
+--Tabla de TelefonoCliente
+insert into TelefonoCliente (IdCliente, NumeroTelefono, TipoTelefono) 
+values
+	(1, '+506 8888-9999', 'Movil'),
+	(2, '+506 2222-3333', 'Casa'),
+	(3, '+506 7777-6666', 'Movil'),
+	(4, '+506 6666-5555', 'Movil'),
+	(5, '+1 213-555-1234', 'Movil'),
+	(6, '+34 91 555 12 34', 'Trabajo')
+
+--select * from  TelefonoCliente
+
+---------------------------------------------------------------------------------
 
 --Tabla de DireccionCliente
 create table DireccionCliente (
@@ -218,6 +640,20 @@ create table DireccionCliente (
 	constraint FK_ProvinciaCliente foreign key (Provincia) references Provincia(IdProvincia),
 	constraint CHK_DireccionCostarricense check((Provincia is null and Canton is null and Distrito is null) or (Provincia is not null and Canton is not null and Distrito is not null))
 );
+
+--Tabla de DireccionCliente
+insert into DireccionCliente (IdCliente, Provincia, Canton, Distrito) 
+values
+	(1, 1, 'San Jose', 'Carmen'),
+	(2, 1, 'Escazu', 'San Rafael'),
+	(3, 2, 'Alajuela', 'Alajuela Centro'),
+	(4, NULL, NULL, NULL),
+	(5, NULL, NULL, NULL),
+	(6, NULL, NULL, NULL);
+
+--select * from  DireccionCliente
+
+---------------------------------------------------------------------------------
 
 --Tabla de Reservacion
 create table Reservacion (
@@ -236,6 +672,20 @@ create table Reservacion (
 	constraint FK_ReservaCliente foreign key (IdCliente) references Cliente(IdCliente)
 );
 
+
+-- Tabla de Reservacion con fechas a partir del 5 de agosto de 2025
+insert into Reservacion (NumeroReserva, IdHabitacion, CantidadPersonas, IdCliente, FechaIngreso, FechaSalida, HoraIngreso, HoraSalida, PoseeVehiculo)
+values 
+	('RES250115001', 1, 1, 1, '2025-08-05', '2025-08-08', '15:00:00', '11:00:00', 0),
+	('RES250119002', 3, 2, 2, '2025-08-10', '2025-08-14', '14:00:00', '10:30:00', 1),
+	('RES250208003', 5, 3, 3, '2025-08-15', '2025-08-22', '16:00:00', '12:00:00', 1),
+	('RES250205004', 6, 2, 4, '2025-08-23', '2025-08-28', '13:00:00', '11:45:00', 0),
+	('RES250318005', 7, 4, 5, '2025-08-29', '2025-09-04', '12:00:00', '10:00:00', 0);
+
+--select * from  Reservacion
+
+---------------------------------------------------------------------------------
+
 --Tabla de Facturacion
 create table Facturacion (
 	IdFactura int identity(1,1) primary key,
@@ -249,16 +699,41 @@ create table Facturacion (
 	constraint FK_MetodoPago foreign key (IdTipoPago) references TipoPago(IdTipoPago)
 );
 
+insert into Facturacion (NumeroFacturacion,IdReserva,CantidadNoches, ImporteTotal, IdTipoPago)
+values 
+	('FAC250115001',6, datediff(day, '2025-01-15', '2025-01-19'), 4 * 75.00, 2),
+	('FAC250119002',2, datediff(day, '2025-01-19', '2025-01-23'), 4 * 95.00, 1),
+	('FAC250208003',3, datediff(day, '2025-02-01', '2025-02-08'), 7 * 150.00, 1),
+	('FAC250205004',4, datediff(day, '2025-02-05', '2025-02-11'), 6 * 120.00, 2),
+	('FAC250318005',5, datediff(day, '2025-03-12', '2025-03-18'), 6 * 25.00, 2);
+
+--select * from  Facturacion
+
+---------------------------------------------------------------------------------
+
 --Empresas Recreativas
 --Tabla de EmpresaRecreativa
 create table EmpresaRecreativa (
 	IdEmpresaRecreativa int identity(1,1) primary key,
-	CedulaJuridicaEmpresa varchar(20) not null check(CedulaJuridicaEmpresa like '%[0-9]%' and len(CedulaJuridicaEmpresa) between 10 and 20),
+	CedulaJuridicaEmpresa varchar(20) not null check(CedulaJuridicaEmpresa like '%[1-8]%' and len(CedulaJuridicaEmpresa) between 10 and 20),
 	NombreEmpresas varchar(50) not null,
-	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%@%.%'),--correo que sea �nico
+	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%@%.%'),--correo que sea unico
 	NombrePersonal varchar(150) not null, 
-	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+506%' and NumeroTelefono not like '%[^0-9+ -]%') --permite el ingreso de n�meros y el caracter + y - para el codigo
+	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+506%' and NumeroTelefono not like '%[^0-9+ -]%') --permite el ingreso de numeros y el caracter + y - para el codigo
 );
+
+--Tabla EmpresaRecreativa
+insert into EmpresaRecreativa (CedulaJuridicaEmpresa, NombreEmpresas, CorreoElectronico, NombrePersonal, NumeroTelefono)
+values
+	('3-101-234567', 'Caribe Aventura', 'info@caribeaventura.com', 'Roberto Mendez', '+506 2758-1234'),
+	('3-102-345678', 'EcoTours Cahuita', 'reservas@ecotourscahuita.com', 'Maria Fern�ndez', '+506 2755-5678'),
+	('3-103-456789', 'Dive Limon', 'contact@divelimon.com', 'Carlos Rodriguez', '+506 2750-9012'),
+	('3-104-567890', 'Canopy del Caribe', 'aventuras@canopycaribe.com', 'Ana Vargas', '+506 2756-3456');
+
+
+--select * from  EmpresaRecreativa 
+
+---------------------------------------------------------------------------------
 
 --Tabla de EmpresaServicio
 create table EmpresaServicio(
@@ -270,6 +745,24 @@ create table EmpresaServicio(
 	constraint FK_ServicioEmpresa foreign key (IdServicio) references TipoServicio(IdServicio),
 	constraint FK_EmpresaRecreativaServicio foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa)
 );
+
+--Tabla de EmpresaServicio
+insert into EmpresaServicio (CostoAdicional, Descripcion, IdServicio, IdEmpresaRecreativa)
+values 
+	(15.00, 'Transporte desde hoteles en Limon centro', 1, 1),
+	(25.00, 'Almuerzo tipico caribeño incluido', 2, 1),
+	(10.00, 'Guia bilingue (español/ingles)', 3, 1),
+	(0.00, 'Equipo de snorkeling incluido', 4, 2),
+	(20.00, 'Fotografo profesional durante el tour', 5, 2),
+	(0.00, 'Todo el equipo de buceo incluido', 4, 3),
+	(15.00, 'Seguro de viaje para actividades acuaticas', 6, 3),
+	(10.00, 'Bebidas refrescantes despues del tour', 7, 3),
+	(0.00, 'Equipo de seguridad profesional incluido', 4, 4),
+	(12.00, 'Transporte desde Puerto Viejo', 1, 4);
+
+--select * from  EmpresaServicio
+
+---------------------------------------------------------------------------------
 
 --Tabla de EmpresaActividad
 create table EmpresaActividad(
@@ -287,6 +780,22 @@ create table EmpresaActividad(
 	constraint CHK_MaxMinParticipantes check(MinimoParticipantes <= MaximoParticipantes)
 );
 
+--Tabla de EmpresaActividad
+insert into EmpresaActividad (precio, MaximoParticipantes, MinimoParticipantes, Duracion, Descripcion, Horarios, IdActividad, IdEmpresaRecreativa)
+values 
+	(65.00, 12, 4, 120, 'Tour en bote por los canales de Tortuguero con avistamiento de vida silvestre', 'Lunes a Sabado: 8:00 am y 1:00 pm', 1, 1),
+	(85.00, 8, 2, 180, 'Tour en lancha rapida hacia Punta Uva con parada para snorkeling', 'Todos los dias: 9:00 am', 2, 1),
+	(45.00, 15, 1, 90, 'Tour de snorkeling en el arrecife de Cahuita', 'Martes a Domingo: 8:00 am y 2:00 pm', 5, 2),
+	(30.00, 20, 1, 120, 'Senderismo guiado por el Parque Nacional Cahuita', 'Todos los dias: 7:00 am y 3:00 pm', 7, 2),
+	(120.00, 6, 2, 240, 'Tour de buceo en el arrecife de Manzanillo', 'Lunes, Miercoles, Viernes: 7:30 am', 6, 3),
+	(75.00, 10, 1, 180, 'Curso de snorkeling para principiantes', 'Todos los dias: 10:00 am', 5, 3),
+	(55.00, 8, 2, 150, 'Tour de canopy por la selva con 12 plataformas', 'Todos los dias: 8:00 am, 11:00 am, 2:00 pm', 10, 4),
+	(40.00, 12, 4, 90, 'Tour de observacion de aves en la reserva privada', 'Martes a Domingo: 6:00 am y 4:00 pm', 11, 4);
+
+--select * from  EmpresaActividad
+
+---------------------------------------------------------------------------------
+
 --Tabla de DireccionEmpresa
 create table DireccionEmpresa (
     IdDireccionEmpresa int identity(1,1) primary key,
@@ -298,3 +807,15 @@ create table DireccionEmpresa (
 	constraint FK_DireccionEmpresaRecreativa foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa),
 	constraint FK_ProvinciaEmpresa foreign key (Provincia) references Provincia(IdProvincia)
 );
+
+--Tabla de DireccionEmpresa
+insert into DireccionEmpresa (IdEmpresaRecreativa, SenasExactas, Provincia, Canton, Distrito)
+values 
+	(1, '200 metros oeste del muelle principal', 7, 'Limon', 'Limon'),
+	(2, 'Frente a la entrada principal del Parque Nacional Cahuita', 7, 'Talamanca', 'Cahuita'),
+	(3, '50 metros norte del Supermercado Puerto Viejo', 7, 'Talamanca', 'Puerto Viejo'),
+	(4, '3 km al sur de la entrada a Veragua Rainforest', 7, 'Limon', 'Matama');
+
+--select * from  DireccionEmpresa
+
+---------------------------------------------------------------------------------
