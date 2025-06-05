@@ -1,12 +1,21 @@
 -- Bases de datos I
 -- Sistema de Gestion Hotelera
+--CRUD de la base de datos
 
 use SistemaGestionHotelera
 
---CRUD de la base de datos
+--------------------
+--Tabla Hospedajes:
+--------------------
 
---Tabla Hospedaje
---registrar hospedajes
+-- ============================================= ============================================= =============================================
+-- Nombre: RegistrarHospedaje
+-- Descripción: Este procedimiento almacenado permite registrar un nuevo hospedaje en la base de datos. 
+-- Recibe como parámetros los datos del hospedaje, como cédula jurídica, nombre, tipo, sitio web (opcional), correo electrónico y referencias GPS.
+-- Si la inserción es exitosa, retorna el IdHospedaje recién generado.
+-- Si ocurre un error durante la ejecución, captura y retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
+
 create procedure RegistrarHospedaje
     @CedulaJuridica varchar(20),
     @NombreHospedaje varchar(50),
@@ -17,98 +26,93 @@ create procedure RegistrarHospedaje
 as
 begin
 	begin try
-		insert into Hospedaje (
-            CedulaJuridica,
-            NombreHospedaje,
-            TipoHospedaje,
-            UrlSitioWeb,
-            CorreoElectronico,
-            ReferenciasGPS
-        )
-        values (
-            @CedulaJuridica,
-            @NombreHospedaje,
-            @TipoHospedaje,
-            @UrlSitioWeb,
-            @CorreoElectronico,
-            @ReferenciasGPS
-        )
-        select scope_identity() as IdHospedaje
+		insert into Hospedaje (CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS )
+        values (@CedulaJuridica, @NombreHospedaje, @TipoHospedaje, @UrlSitioWeb, @CorreoElectronico, @ReferenciasGPS )
+        -- Devuelve el ID del hospedaje recién insertado
+        select scope_identity() as IdHospedaje --Devuelve el último valor de una columna IDENTITY que fue generado automáticamente en la misma sesión y el mismo bloque de código después de hacer un INSERT.
 	end try 
-	begin catch
+	begin catch 
+        -- Captura y devuelve información del error
 		select
 			error_number() as NumeroError,
 			error_message() as MensajeError
-		end catch
+	end catch
 end
 
---consultar hospedajes
+
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarHospedajes
+-- Descripción: Este procedimiento almacenado permite obtener la lista completa de hospedajes
+-- desde la tabla Hospedaje, mostrando sus datos principales como IdHospedaje, CedulaJuridica, 
+-- NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico y ReferenciasGPS.
+-- No recibe parámetros y retorna todos los registros almacenados.
+-- ============================================= ============================================= =============================================
+
 create procedure ConsultarHospedajes
 as 
 begin 
-	select 
-        IdHospedaje,
-        CedulaJuridica,
-        NombreHospedaje,
-        TipoHospedaje,
-        UrlSitioWeb,
-        CorreoElectronico,
-        ReferenciasGPS
-    from Hospedaje
+	select IdHospedaje, CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS from Hospedaje
 end
 
---consultar un hospedaje por Id
+
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarHospedajePorId
+-- Descripción: Este procedimiento almacenado permite obtener la información de un hospedaje 
+-- específico a partir de su IdHospedaje. 
+-- Recibe como parámetro el IdHospedaje y retorna los datos correspondientes a ese hospedaje,
+-- incluyendo CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico y ReferenciasGPS.
+-- ============================================= ============================================= =============================================
+
 create procedure ConsultarHospedajePorId
 	@IdHospedaje int 
 as
 begin 
-	select 
-        IdHospedaje,
-        CedulaJuridica,
-        NombreHospedaje,
-        TipoHospedaje,
-        UrlSitioWeb,
-        CorreoElectronico,
-        ReferenciasGPS
+	select IdHospedaje, CedulaJuridica, NombreHospedaje,TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS
     from Hospedaje
     where IdHospedaje = @IdHospedaje
 end
 
---consultar hospedajes por tipo
+
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarHospedajePorTipo
+-- Descripción: Este procedimiento almacenado permite obtener una lista de hospedajes filtrados 
+-- por un tipo específico. 
+-- Recibe como parámetro el TipoHospedaje y retorna los hospedajes que coinciden con ese tipo.
+-- ============================================= ============================================= =============================================
+
 create procedure ConsultarHospedajePorTipo
     @TipoHospedaje int
 as 
 begin
-	select
-        IdHospedaje,
-        CedulaJuridica,
-        NombreHospedaje,
-        TipoHospedaje,
-        UrlSitioWeb,
-        CorreoElectronico,
-        ReferenciasGPS
+	select IdHospedaje, CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS
     from Hospedaje
     where TipoHospedaje = @TipoHospedaje
 end
 
---consultar hospedaje por nombre
+
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarHospedajesPorNombre
+-- Descripción: Este procedimiento almacenado permite buscar hospedajes cuyo nombre contenga
+-- una cadena específica. 
+-- Recibe como parámetro @NombreHospedaje y retorna todos los hospedajes cuyo nombre incluya ese texto.
+-- ============================================= ============================================= =============================================
+
 create procedure ConsultarHospeajesPorNombre
 	@NombreHospedaje varchar(50)
 as
 begin
-	select
-        IdHospedaje,
-        CedulaJuridica,
-        NombreHospedaje,
-        TipoHospedaje,
-        UrlSitioWeb,
-        CorreoElectronico,
-        ReferenciasGPS
+	select IdHospedaje, CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS
     from Hospedaje
     where NombreHospedaje like '%' + @NombreHospedaje + '%'
 end
 
---actualizar informacion Hospedaje
+-- ============================================= ============================================= =============================================
+-- Nombre: ActualizarInfoHospedaje
+-- Descripción: Este procedimiento almacenado permite actualizar la información de un hospedaje
+-- existente en la base de datos. 
+-- Recibe como parámetros todos los campos relevantes del hospedaje, incluyendo el IdHospedaje para identificarlo.
+-- En caso de éxito, retorna resultado = 1. Si ocurre un error, captura y retorna el número y mensaje de error.
+-- ============================================= ============================================= =============================================
 create procedure ActualizarInfoHospedaje
     @IdHospedaje int,
     @CedulaJuridica varchar(20),
@@ -129,7 +133,7 @@ begin
             ReferenciasGPS = @ReferenciasGPS
         where IdHospedaje = @IdHospedaje
         
-		select 1 as resultado 
+		select 1 as resultado --para que el procedimiento salió bien.
     end try
 	begin catch
 		select 
@@ -137,24 +141,74 @@ begin
 			error_message() as MensajeError
     end catch
 end
-  
---Eliminar Hospedaje
-create procedure EliminarHospedaje
-	@IdHospedaje int
-as 
-begin
-	begin try
-		delete from Hospedaje
-		where IdHospedaje = @IdHospedaje
 
-		select 1 as resulta 
-	end try
-	begin catch
+
+-- ============================================= ============================================= =============================================
+-- Nombre: EliminarHospedaje
+-- Descripción: Este procedimiento elimina un hospedaje solo si no tiene reservas activas en sus habitaciones.
+-- Una reserva activa es cuando la fecha actual está entre la fecha de ingreso y la fecha de salida.
+-- Recibe como parámetro el IdHospedaje para identificar qué hospedaje eliminar.
+-- Si hay reservas activas, no elimina y devuelve un error.
+-- Si elimina correctamente, retorna resultado = 1.
+-- Si hay un error, captura y devuelve el número y mensaje de error.
+-- ============================================= ============================================= =============================================
+
+create procedure EliminarHospedaje
+    @IdHospedaje int
+as
+begin
+    begin try
+        -- Verificar si existen reservas para alguna habitación del hospedaje
+        If exists  (
+            select 1 from Reservacion r
+            inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+            where h.IdHospedaje = @IdHospedaje
+        )
+        begin
+            raiserror('No se puede eliminar el hospedaje porque tiene reservas asociadas.', 16, 1);
+            return;
+        end
+        -- Borrar fotos relacionadas a tipos de habitación
+        delete fh from FotoHabitacion fh
+        inner join TipoHabitacion th on fh.IdTipoHabitacion = th.IdTipoHabitacion
+        where th.IdHospedaje = @IdHospedaje;
+
+        -- Borrar comodidades de tipos de habitación
+        delete ch from ComodidadHabitacion ch
+        inner join TipoHabitacion th on ch.IdTipoHabitacion = th.IdTipoHabitacion
+        where th.IdHospedaje = @IdHospedaje;
+
+        delete from Habitacion where IdHospedaje = @IdHospedaje;
+        delete from TipoHabitacion where IdHospedaje = @IdHospedaje;
+        delete from TelefonoHospedaje where IdHospedaje = @IdHospedaje;
+        delete from DireccionHospedaje where IdHospedaje = @IdHospedaje;
+        delete from ServicioHospedaje where IdHospedaje = @IdHospedaje;
+        delete from RedSocialHospedaje where IdHospedaje = @IdHospedaje;
+        delete from Hospedaje where IdHospedaje = @IdHospedaje;
+
+        select 1 as Resultado; 
+    end try
+    begin catch
 		select 
 			error_number() as NumeroError,
-			error_message() as MensajeErro
-	end catch
-end
+			error_message() as MensajeError
+    end catch
+end;
+
+-- ============================================= ============================================= =============================================
+-- Nombre: VistaHospedajes
+-- Descripción: Vista que muestra información completa de los hospedajes,
+-- incluyendo datos principales y el nombre del tipo de hospedaje.
+-- Combina la tabla Hospedaje con TipoHospedaje para mostrar el nombre del tipo.
+-- ============================================= ============================================= =============================================
+
+create view VistaHospedajes AS
+select h.IdHospedaje, h.CedulaJuridica, h.NombreHospedaje, t.NombreTipoHospedaje, h.UrlSitioWeb, h.CorreoElectronico, h.ReferenciasGPS
+from Hospedaje h 
+inner join TipoHospedaje t ON h.TipoHospedaje = t.IdTipoHospedaje;
+
+select * from VistaHospedajes;
+
 
 --Tabla DireccionHospeadaje
 --registrar la direcci�n Hospedajes
