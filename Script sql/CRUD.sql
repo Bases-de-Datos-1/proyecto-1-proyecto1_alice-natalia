@@ -2293,9 +2293,38 @@ begin
 end
 
 
-
+---------------------------
 --Tabla Empresaservicio
---registrar empresa servicio
+---------------------------
+
+-- ===========================================================================================
+-- Nombre: Vista_EmpresaServicio
+-- Descripción: Vista que combina los datos de los servicios ofrecidos por las empresas
+-- recreativas con la información del tipo de servicio y la empresa correspondiente.
+-- Muestra el ID del servicio ofrecido, su costo adicional, descripción, tipo de servicio,
+-- y la empresa asociada.
+-- ===========================================================================================
+create view Vista_EmpresaServicio
+as
+    select
+        es.IdEmpresaservicio,
+        es.CostoAdicional,
+        es.descripcion,
+        es.IdServicio,
+        ts.NombreServicio,
+        es.IdEmpresaRecreativa,
+        er.NombreEmpresas
+    from Empresaservicio es
+        inner join TipoServicio ts on es.IdServicio = ts.IdServicio
+        inner join EmpresaRecreativa er on es.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+
+-- ===========================================================================================
+-- Nombre: RegistrarEmpresaservicio
+-- Descripción: Registra un nuevo servicio que ofrece una empresa recreativa.
+-- Verifica que no exista previamente la misma combinación de empresa y tipo de servicio.
+-- Retorna el ID generado si el registro es exitoso, y -1 si ya existe la combinación.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure RegistrarEmpresaservicio
     @CostoAdicional decimal(10,2),
     @descripcion text,
@@ -2304,25 +2333,14 @@ create procedure RegistrarEmpresaservicio
 as
 begin
     begin try
-        if not exists (select 1
-    from Empresaservicio
-    where IdServicio = @IdServicio
+        if not exists (select 1 from Empresaservicio where IdServicio = @IdServicio
         and IdEmpresaRecreativa = @IdEmpresaRecreativa)
+
         begin
         insert into Empresaservicio
-            (
-            CostoAdicional,
-            descripcion,
-            IdServicio,
-            IdEmpresaRecreativa
-            )
+            (CostoAdicional,descripcion,IdServicio,IdEmpresaRecreativa)
         values
-            (
-                @CostoAdicional,
-                @descripcion,
-                @IdServicio,
-                @IdEmpresaRecreativa
-            )
+            ( @CostoAdicional,@descripcion,@IdServicio,@IdEmpresaRecreativa )
 
         select scope_identity() as IdEmpresaservicio
     end
@@ -2338,67 +2356,49 @@ begin
     end catch
 end
 
---consultar todos los servicios de empresas
+-- ===========================================================================================
+-- Nombre: ConsultarEmpresaservicios
+-- Descripción: Devuelve la lista completa de todos los servicios ofrecidos por las empresas
+-- recreativas, mostrando información relacionada del servicio y la empresa.
+-- ===========================================================================================
 create procedure ConsultarEmpresaservicios
 as
 begin
-    select
-        es.IdEmpresaservicio,
-        es.CostoAdicional,
-        es.descripcion,
-        es.IdServicio,
-        ts.NombreServicio,
-        es.IdEmpresaRecreativa,
-        er.NombreEmpresas
-    from Empresaservicio es
-        inner join TipoServicio ts on es.IdServicio = ts.IdServicio
-        inner join EmpresaRecreativa er on es.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+    select * from Vista_EmpresaServicio
 end
 
---consultar servicios por empresa
+-- ===========================================================================================
+-- Nombre: ConsultarServiciosPorEmpresa
+-- Descripción: Devuelve todos los servicios que ofrece una empresa recreativa específica,
+-- identificada por su ID.
+-- ===========================================================================================
 create procedure ConsultarServiciosPorEmpresa
     @IdEmpresaRecreativa int
 as
 begin
-    select
-        es.IdEmpresaservicio,
-        es.CostoAdicional,
-        es.descripcion,
-        es.IdServicio,
-        ts.NombreServicio,
-        case 
-            when es.CostoAdicional is null then ts.PrecioBase
-            else ts.PrecioBase + es.CostoAdicional
-        end as PrecioTotal
-    from Empresaservicio es
-        inner join TipoServicio ts on es.IdServicio = ts.IdServicio
-    where es.IdEmpresaRecreativa = @IdEmpresaRecreativa
+    select * from Vista_EmpresaServicio
+    where IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
---consultar empresas por tipo de servicio
+-- ===========================================================================================
+-- Nombre: ConsultarEmpresasPorServicio
+-- Descripción: Devuelve todas las empresas recreativas que ofrecen un tipo de servicio
+-- específico, identificado por su ID.
+-- ===========================================================================================
 create procedure ConsultarEmpresasPorServicio
     @IdServicio int
 as
 begin
-    select
-        es.IdEmpresaservicio,
-        es.CostoAdicional,
-        es.descripcion,
-        er.IdEmpresaRecreativa,
-        er.NombreEmpresas,
-        er.NombrePersonal,
-        er.NumeroTelefono,
-        case 
-            when es.CostoAdicional is null then ts.PrecioBase
-            else ts.PrecioBase + es.CostoAdicional
-        end as PrecioTotal
-    from Empresaservicio es
-        inner join EmpresaRecreativa er on es.IdEmpresaRecreativa = er.IdEmpresaRecreativa
-        inner join TipoServicio ts on es.IdServicio = ts.IdServicio
-    where es.IdServicio = @IdServicio
+    select * from Vista_EmpresaServicio
+    where IdServicio = @IdServicio
 end
 
---actualizar empresaservicio
+-- ===========================================================================================
+-- Nombre: ActualizarEmpresaservicio
+-- Descripción: Actualiza los datos de un servicio ofrecido por una empresa recreativa,
+-- específicamente el costo adicional y la descripción.
+-- Retorna 1 si la actualización es exitosa. En caso de error, devuelve el número y mensaje.
+-- ===========================================================================================
 create procedure ActualizarEmpresaservicio
     @IdEmpresaservicio int,
     @CostoAdicional decimal(10,2),
@@ -2406,7 +2406,7 @@ create procedure ActualizarEmpresaservicio
 as
 begin
     begin try
-       update Empresaservicio set
+        update Empresaservicio set
             CostoAdicional = @CostoAdicional,
             descripcion = @descripcion
         where IdEmpresaservicio = @IdEmpresaservicio
@@ -2420,7 +2420,11 @@ begin
     end catch
 end
 
---eliminar empresa servicio
+-- ===========================================================================================
+-- Nombre: EliminarEmpresaservicio
+-- Descripción: Elimina el registro de un servicio ofrecido por una empresa recreativa.
+-- Retorna 1 si se elimina correctamente. En caso de error, devuelve el número y mensaje.
+-- ===========================================================================================
 create procedure EliminarEmpresaservicio
     @IdEmpresaservicio int
 as
@@ -2438,8 +2442,38 @@ begin
     end catch
 end
 
+---------------------------
 --Tabla EmpresaActividad
---registrar empresa actividad
+---------------------------
+
+-- ===========================================================================================
+-- Nombre: Vista_EmpresaActividad
+-- Descripción: Muestra información detallada de las actividades ofrecidas por las empresas,
+--              incluyendo nombre de la actividad y nombre de la empresa.
+-- ===========================================================================================
+create view Vista_EmpresaActividad
+as 
+    select
+        ea.IdEmpresaActividad,
+        ea.Precio,
+        ea.MaximoParticipantes,
+        ea.MinimoParticipantes,
+        ea.Duracion,
+        ea.descripcion,
+        ea.Horarios,
+        ea.IdActividad,
+        ta.NombreActividad,
+        ea.IdEmpresaRecreativa,
+        er.NombreEmpresas
+    from EmpresaActividad ea
+        inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
+        inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+
+-- ===========================================================================================
+-- Nombre: RegistrarEmpresaActividad
+-- Descripción: Registra una nueva actividad ofrecida por una empresa recreativa.Si ya existe una relación entre empresa y actividad, retorna -1.
+-- De lo contrario, inserta el registro y retorna el ID generado.
+-- ===========================================================================================
 create procedure RegistrarEmpresaActividad
     @Precio decimal(10,2),
     @MaximoParticipantes int,
@@ -2452,33 +2486,13 @@ create procedure RegistrarEmpresaActividad
 as
 begin
     begin try
-        if not exists (select 1
-    from EmpresaActividad
-    where IdActividad = @IdActividad
-        and IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        if not exists (select 1 from EmpresaActividad where IdActividad = @IdActividad and IdEmpresaRecreativa = @IdEmpresaRecreativa)
+
         begin
         insert into EmpresaActividad
-            (
-            Precio,
-            MaximoParticipantes,
-            MinimoParticipantes,
-            Duracion,
-            descripcion,
-            Horarios,
-            IdActividad,
-            IdEmpresaRecreativa
-            )
+            (Precio,MaximoParticipantes,MinimoParticipantes,Duracion,descripcion,Horarios,IdActividad,IdEmpresaRecreativa)
         values
-            (
-                @Precio,
-                @MaximoParticipantes,
-                @MinimoParticipantes,
-                @Duracion,
-                @descripcion,
-                @Horarios,
-                @IdActividad,
-                @IdEmpresaRecreativa
-            )
+            (@Precio,@MaximoParticipantes,@MinimoParticipantes,@Duracion,@descripcion,@Horarios,@IdActividad,@IdEmpresaRecreativa)
 
         select scope_identity() as IdEmpresaActividad
     end
@@ -2494,90 +2508,58 @@ begin
     end catch
 end
 
---consultar todas las actividades de empresas
+-- ===========================================================================================
+-- Nombre: ConsultarEmpresaActividades
+-- Descripción: Devuelve todas las actividades registradas por las empresas recreativas.
+-- ===========================================================================================
 create procedure ConsultarEmpresaActividades
 as
 begin
-    select
-        ea.IdEmpresaActividad,
-        ea.Precio,
-        ea.MaximoParticipantes,
-        ea.MinimoParticipantes,
-        ea.Duracion,
-        ea.descripcion,
-        ea.Horarios,
-        ea.IdActividad,
-        ta.NombreActividad,
-        ea.IdEmpresaRecreativa,
-        er.NombreEmpresas
-    from EmpresaActividad ea
-        inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
-        inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+    select * from Vista_EmpresaActividad
 end
 
---consultar actividades por empresa
+-- ===========================================================================================
+-- Nombre: ConsultarActividadesPorEmpresa
+-- Descripción: Devuelve todas las actividades ofrecidas por una empresa específica.
+-- ===========================================================================================
 create procedure ConsultarActividadesPorEmpresa
     @IdEmpresaRecreativa int
 as
 begin
-    select
-        ea.IdEmpresaActividad,
-        ea.Precio,
-        ea.MaximoParticipantes,
-        ea.MinimoParticipantes,
-        ea.Duracion,
-        ea.descripcion,
-        ea.Horarios,
-        ea.IdActividad,
-        ta.NombreActividad
-    from EmpresaActividad ea
-        inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
-    where ea.IdEmpresaRecreativa = @IdEmpresaRecreativa
+    select * from Vista_EmpresaActividad
+    where IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
---consultar empresas por tipo de actividad
+-- ===========================================================================================
+-- Nombre: ConsultarEmpresasPorActividad
+-- Descripción: Devuelve todas las empresas que ofrecen una actividad específica.
+-- ===========================================================================================
 create procedure ConsultarEmpresasPorActividad
     @IdActividad int
 as
 begin
-    select
-        ea.IdEmpresaActividad,
-        ea.Precio,
-        ea.MaximoParticipantes,
-        ea.MinimoParticipantes,
-        er.IdEmpresaRecreativa,
-        er.NombreEmpresas,
-        er.NombrePersonal,
-        er.NumeroTelefono
-    from EmpresaActividad ea
-        inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
-    where ea.IdActividad = @IdActividad
+    select * from Vista_EmpresaActividad
+    where IdActividad = @IdActividad
 end
 
---consultar actividad específica
+-- ===========================================================================================
+-- Nombre: ConsultarEmpresaActividadPorId
+-- Descripción: Devuelve la información completa de una actividad específica registrada
+-- por una empresa, usando su ID.
+-- ===========================================================================================
 create procedure ConsultarEmpresaActividadPorId
     @IdEmpresaActividad int
 as
 begin
-    select
-        ea.IdEmpresaActividad,
-        ea.Precio,
-        ea.MaximoParticipantes,
-        ea.MinimoParticipantes,
-        ea.Duracion,
-        ea.descripcion,
-        ea.Horarios,
-        ea.IdActividad,
-        ta.NombreActividad,
-        ea.IdEmpresaRecreativa,
-        er.NombreEmpresas
-    from EmpresaActividad ea
-        inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
-        inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
-    where ea.IdEmpresaActividad = @IdEmpresaActividad
+    select * from Vista_EmpresaActividad
+    where IdEmpresaActividad = @IdEmpresaActividad
 end
 
---actualizar empresa actividad
+-- ===========================================================================================
+-- Nombre: ActualizarEmpresaActividad
+-- Descripción: Actualiza la información de una actividad registrada por una empresa recreativa.
+-- Retorna 1 si se actualiza correctamente. En caso de error, devuelve detalles.
+-- ===========================================================================================
 create procedure ActualizarEmpresaActividad
     @IdEmpresaActividad int,
     @Precio decimal(10,2),
@@ -2589,7 +2571,7 @@ create procedure ActualizarEmpresaActividad
 as
 begin
     begin try
-       update EmpresaActividad set
+        update EmpresaActividad set
             Precio = @Precio,
             MaximoParticipantes = @MaximoParticipantes,
             MinimoParticipantes = @MinimoParticipantes,
@@ -2607,7 +2589,11 @@ begin
     end catch
 end
 
---eliminar empresa actividad
+-- ===========================================================================================
+-- Nombre: EliminarEmpresaActividad
+-- Descripción: Elimina el registro de una actividad ofrecida por una empresa recreativa.
+-- Retorna 1 si se elimina correctamente. En caso de error, retorna detalles.
+-- ===========================================================================================
 create procedure EliminarEmpresaActividad
     @IdEmpresaActividad int
 as
@@ -2625,7 +2611,16 @@ begin
     end catch
 end
 
---registrar direccion empresa
+-------------------------
+--Tabla DireccionEmpresa
+-------------------------
+
+-- ===========================================================================================
+-- Nombre: RegistrarDireccionEmpresa
+-- Descripción: Registra la dirección de una empresa recreativa. 
+-- Si la empresa ya tiene una dirección registrada, retorna -1.
+--  De lo contrario, inserta el registro y retorna el ID generado.
+-- ===========================================================================================
 create procedure RegistrarDireccionEmpresa
     @IdEmpresaRecreativa int,
     @SenasExactas varchar(255),
@@ -2635,26 +2630,13 @@ create procedure RegistrarDireccionEmpresa
 as
 begin
     begin try
-        if not exists (select 1
-    from DireccionEmpresa
-    where IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        if not exists (select 1 from DireccionEmpresa where IdEmpresaRecreativa = @IdEmpresaRecreativa)
+
         begin
         insert into DireccionEmpresa
-            (
-            IdEmpresaRecreativa,
-            SenasExactas,
-            Provincia,
-            Canton,
-            Distrito
-            )
+            ( IdEmpresaRecreativa, SenasExactas, Provincia, Canton, Distrito )
         values
-            (
-                @IdEmpresaRecreativa,
-                @SenasExactas,
-                @Provincia,
-                @Canton,
-                @Distrito
-            )
+            (@IdEmpresaRecreativa, @SenasExactas, @Provincia, @Canton,@Distrito)
 
         select scope_identity() as IdDireccionEmpresa
     end
@@ -2670,10 +2652,13 @@ begin
     end catch
 end
 
---consultar todas las direcciones de empresas
-create procedure ConsultarDireccionesEmpresas
+-- ===========================================================================================
+-- Nombre: Vista_DireccionesEmpresas
+-- Descripción: Muestra información detallada de las direcciones de empresas recreativas,
+-- incluyendo nombre de la empresa y nombre de la provincia.
+-- ===========================================================================================
+create view Vista_DireccionesEmpresas
 as
-begin
     select
         de.IdDireccionEmpresa,
         de.IdEmpresaRecreativa,
@@ -2686,44 +2671,47 @@ begin
     from DireccionEmpresa de
         inner join EmpresaRecreativa er on de.IdEmpresaRecreativa = er.IdEmpresaRecreativa
         inner join Provincia p on de.Provincia = p.IdProvincia
+
+-- ===========================================================================================
+-- Nombre: ConsultarDireccionesEmpresas
+-- Descripción: Devuelve todas las direcciones registradas de las empresas recreativas.
+-- ===========================================================================================
+create procedure ConsultarDireccionesEmpresas
+as
+begin
+    select * from Vista_DireccionesEmpresas
 end
 
---consultar dirección por empresa
+-- ===========================================================================================
+-- Nombre: ConsultarDireccionPorEmpresa
+-- Descripción: Devuelve la dirección de una empresa recreativa específica.
+-- ===========================================================================================
 create procedure ConsultarDireccionPorEmpresa
     @IdEmpresaRecreativa int
 as
 begin
-    select
-        de.IdDireccionEmpresa,
-        de.SenasExactas,
-        de.Provincia,
-        p.NombreProvincia,
-        de.Canton,
-        de.Distrito
-    from DireccionEmpresa de
-        inner join Provincia p on de.Provincia = p.IdProvincia
+    select * from Vista_DireccionesEmpresas
     where de.IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
---consultar empresas por provincia
+-- ===========================================================================================
+-- Nombre: ConsultarEmpresasPorProvincia
+-- Descripción: Devuelve todas las empresas recreativas ubicadas en una provincia específica.
+-- ===========================================================================================
 create procedure ConsultarEmpresasPorProvincia
     @IdProvincia int
 as
 begin
-    select
-        er.IdEmpresaRecreativa,
-        er.NombreEmpresas,
-        er.CorreoElectronico,
-        er.NumeroTelefono,
-        de.SenasExactas,
-        de.Canton,
-        de.Distrito
-    from DireccionEmpresa de
-        inner join EmpresaRecreativa er on de.IdEmpresaRecreativa = er.IdEmpresaRecreativa
-    where de.Provincia = @IdProvincia
+    select *
+    from Vista_DireccionesEmpresas
+    where Provincia = @IdProvincia
 end
 
---actualizar direccion empresa
+-- ===========================================================================================
+-- Nombre: ActualizarDireccionEmpresa
+-- Descripción: Actualiza los datos de la dirección de una empresa recreativa.
+-- Retorna 1 si se actualiza correctamente. En caso de error, retorna detalles.
+-- ===========================================================================================
 create procedure ActualizarDireccionEmpresa
     @IdDireccionEmpresa int,
     @SenasExactas varchar(255),
@@ -2733,7 +2721,7 @@ create procedure ActualizarDireccionEmpresa
 as
 begin
     begin try
-       update DireccionEmpresa set
+        update DireccionEmpresa set
             SenasExactas = @SenasExactas,
             Provincia = @Provincia,
             Canton = @Canton,
@@ -2749,7 +2737,11 @@ begin
     end catch
 end
 
---eliminar direccion empresa
+-- ===========================================================================================
+-- Nombre: EliminarDireccionEmpresa
+-- Descripción: Elimina el registro de la dirección de una empresa recreativa.
+-- Retorna 1 si se elimina correctamente. En caso de error, retorna detalles.
+-- ===========================================================================================
 create procedure EliminarDireccionEmpresa
     @IdDireccionEmpresa int
 as
