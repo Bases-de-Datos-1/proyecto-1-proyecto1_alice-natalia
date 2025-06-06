@@ -20,7 +20,6 @@ create table Provincia (
 	NombreProvincia varchar(50) not null
 );
 
--- Inserts Provincia
 insert into Provincia(NombreProvincia) 
 values
 	('San Jose'),
@@ -41,7 +40,6 @@ create table RedSocial (
 	NombreRedSocial varchar(50) not null
 );
 
--- Inserts RedSocial
 insert into RedSocial (NombreRedSocial)
 values 
     ('Facebook'),
@@ -63,7 +61,6 @@ create table TipoHospedaje(
 	NombreTipoHospedaje varchar(50) not null
 );
 
---Inserts TipoHospedaje
 insert into TipoHospedaje(NombreTipoHospedaje) 
 values
     ('Hotel'),
@@ -88,7 +85,6 @@ create table Servicio(
 	Descripcion text not null
 );
 
---Tabla catalogo Servicio
 insert into Servicio(NombreServicio, Descripcion)
 values
 	('Piscina', 'Piscina disponible para huespedes'),
@@ -113,7 +109,6 @@ create table TipoCama(
 	Descripcion text not null
 );
 
---Inserts TipoCama
 insert into TipoCama(NombreTipoCama, Descripcion)
 values
 	('Individual', 'Cama individual (90-100 cm)'),
@@ -134,7 +129,6 @@ create table Comodidad(
 	NombreComodidad varchar(50) not null
 );
 
---Insert Comodidad
 insert into Comodidad(NombreComodidad)
 values
 	('WiFi en habitacion'),
@@ -185,7 +179,6 @@ create table Pais(
 	Abrebiacion varchar(3) not null
 );
 
---Inserts Pa�s
 insert into Pais(NombrePais, CodigoPais, Abrebiacion)
 values 
 	('Costa Rica', '506', 'CR'),
@@ -239,7 +232,6 @@ create table TipoPago(
 	NombreTipoPago varchar(50) not null,
 );
 
---Inserts TipoPago
 insert into TipoPago(NombreTipoPago)
 values
 	('Efectivo'),
@@ -256,7 +248,6 @@ create table TipoServicio (
 	Descripcion text not null
 );
 
---Inserts TipoServicio
 insert into TipoServicio(NombreServicio, Descripcion)
 values
 	('Transporte', 'Servicio de transporte incluido'),
@@ -280,7 +271,6 @@ create table TipoActividad (
 	Descripcion text not null
 );
 
---Inserts TipoActividad
 insert into TipoActividad(NombreActividad, Descripcion)
 values 
 	('Tour en bote', 'Paseos recreativos en bote'),
@@ -318,7 +308,6 @@ create table Hospedaje (
 ALTER TABLE Hospedaje
 ADD CONSTRAINT chk_CedulaJuridica CHECK (CedulaJuridica LIKE '[1-8]%' AND LEN(CedulaJuridica) BETWEEN 10 AND 20);
 
---Insertar hospedajes
 insert into Hospedaje (CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS) 
 values
 	('3-501-778899', 'Lodge Arenal', 4, 'http://www.lodgearenal.com', 'contacto@lodgearenal.com', '10.4700, -84.7034'),
@@ -347,17 +336,16 @@ create table DireccionHospedaje (
 	constraint FK_ProvinciaHospedaje foreign key (Provincia) references Provincia(IdProvincia)
 );
 
---Tabla DireccionesHospedaje
 insert into DireccionHospedaje (IdHospedaje, SenasExactas, Barrio, Provincia, Canton, Distrito) 
 values
-	(1, '200 metros norte del Banco Nacional Cahuita', 'Barrio Escalante', 1, 'Limon', 'Carmen'),
-	(2, 'Frente a la playa principal', 'Playa Hermosa', 6, 'Limon', 'Playa Hermosa'),
-	(3, '500 metros este de la reserva', 'Santa Elena', 5, 'Monteverde', 'Santa Elena'),
+	(1, '100 metros al este del parque central', 'Carmen', 1, 'San Jose', 'Carmen'),
+	(2, '200 metros al sur de la playa', 'Playa Hermosa', 5, 'Guanacaste', 'Carrillo'),
+	(3, 'A 5 minutos del centro de la ciudad', 'Alajuela Centro', 2, 'Alajuela', 'Alajuela Centro'),
 	(4, 'Calle 15, entre avenidas 8 y 10', 'La California', 1, 'San Jose', 'Uruca'),
 	(5, '1 km al este del volcan', 'La Fortuna', 2, 'San Carlos', 'La Fortuna'),
-	(6, 'Casa color amarillo con porton negro', 'Rohrmoser', 1, 'San Jose', 'Pavas'),
+	(6, 'A 300 metros del parque central', 'Santa Elena', 5, 'Monteverde', 'Santa Elena'),
 	(7, 'Entrada principal del bosque, segunda cabaña', 'Monteverde', 5, 'Monteverde', 'Santa Elena');
-	
+
 --select * from DireccionHospedaje
 
 ---------------------------------------------------------------------------------
@@ -370,7 +358,6 @@ create table TelefonoHospedaje(
 	constraint FK_TelefonoHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
 );
 
---Tabla TelefonoHospedaje
 insert into TelefonoHospedaje (NumeroTelefono, IdHospedaje)
 values
 	('+506 2222-3333', 1),
@@ -395,7 +382,6 @@ create table ServicioHospedaje (
 	constraint FK_Servicio foreign key (IdServicio) references Servicio(IdServicio)
 );
 
---Tabla ServiciosHospedaje
 insert into	ServicioHospedaje (IdHospedaje, IdServicio) 
 values
 	(1, 1), 
@@ -417,7 +403,7 @@ values
 
 --Tabla de RedSocialHospedaje
 create table RedSocialHospedaje(
-	IdRedSocilaHospedaje int identity(1,1) primary key,
+	IdRedSocialHospedaje int identity(1,1) primary key,
 	IdHospedaje int not null, 
 	IdRedSocial int not null,
 	NombreUsuario varchar(50) not null,
@@ -426,7 +412,6 @@ create table RedSocialHospedaje(
 	constraint FK_RedSocial foreign key (IdRedSocial) references RedSocial(IdRedSocial)
 );
 
---Tabla RedesSocialesHospedaje
 insert into RedSocialHospedaje (IdHospedaje, IdRedSocial, NombreUsuario, UrlPerfil)
 values 
 	(1, 1, 'HotelBuenavistaCR', 'http://www.facebook.com/HotelBuenavistaCR'),
@@ -436,7 +421,7 @@ values
 	(4, 1, 'HostelPuraVida', 'http://www.facebook.com/HostelPuraVida'),
 	(4, 2, '@PuraVidaHostel', 'http://www.instagram.com/PuraVidaHostel'),
 	(4, 4, '@Reserva', 'http://wa.me/50683456789'),
-	(7, 2, '@CabanasDelBosque', 'http://www.instagram.com/CabanasDelBosque');
+	(3, 2, '@CabanasDelBosque', 'http://www.instagram.com/CabanasDelBosque');
 
 
 --select * from RedSocialHospedaje 
@@ -456,7 +441,6 @@ create table TipoHabitacion(
 	constraint FK_TipoHabitacionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
 );
 
---Tabla TipoHabitacion
 insert into TipoHabitacion (NombreTipoHabitacion, IdTipoCama, IdHospedaje, Capacidad, Descripcion, Precio) 
 values
 	('Habitacion Estandar', 1, 1, 2, 'Habitacion comoda con cama individual, ideal para viajeros solos', 75.00),
@@ -482,7 +466,6 @@ create table ComodidadHabitacion (
 	constraint FK_TipoHabitacionComodidad foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion)
 );
 
---Tabla ComodidadHabitacion
 insert into ComodidadHabitacion (IdComodidad, IdTipoHabitacion) 
 values
 	(2, 1), 
@@ -523,7 +506,6 @@ create table FotoHabitacion (
 	constraint FK_FotoTipoHabotacion foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion)
 );
 
---FotoHabitacion
 insert into FotoHabitacion (IdTipoHabitacion, Foto) 
 values
 	(1, 0x1234567890ABCDEF),
@@ -556,7 +538,6 @@ create table Habitacion (
 	constraint FK_HabitacionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
 );
 
---Tabla de Habitacion
 insert into Habitacion (NumeroHabitacion, IdTipoHabitacion, IdHospedaje, CantidadPersonas) 
 values 
 	(101, 1, 1, 1),  
@@ -592,7 +573,6 @@ create table Cliente (
 	constraint FK_PaisResidencia foreign key (PaisResidencia) references Pais(IdPais)
 );
 
---Tabla de Cliente
 insert into Cliente (IdentificacionCliente, PrimerApellido, SegundoApellido, Nombre, CorreoElectronico, FechaNacimiento, TipoIdentidad, PaisResidencia) 
 values
 	('1-1234-5678', 'Gonzalez', 'Perez', 'Maria', 'maria.gonzalez@email.com', '1985-06-15', 1, 1),
@@ -615,7 +595,6 @@ create table TelefonoCliente (
 	constraint FK_TelefonoCliente foreign key (IdCliente) references Cliente(IdCliente)
 );
 
---Tabla de TelefonoCliente
 insert into TelefonoCliente (IdCliente, NumeroTelefono, TipoTelefono) 
 values
 	(1, '+506 8888-9999', 'Movil'),
@@ -629,7 +608,6 @@ values
 
 ---------------------------------------------------------------------------------
 
---Tabla de DireccionCliente
 create table DireccionCliente (
 	IdDirreccionCliente int identity(1,1) primary key,
 	IdCliente int not null unique, --para que cada cliente solo pueda tener una direccion
@@ -641,7 +619,6 @@ create table DireccionCliente (
 	constraint CHK_DireccionCostarricense check((Provincia is null and Canton is null and Distrito is null) or (Provincia is not null and Canton is not null and Distrito is not null))
 );
 
---Tabla de DireccionCliente
 insert into DireccionCliente (IdCliente, Provincia, Canton, Distrito) 
 values
 	(1, 1, 'San Jose', 'Carmen'),
@@ -673,7 +650,6 @@ create table Reservacion (
 );
 
 
--- Tabla de Reservacion con fechas a partir del 5 de agosto de 2025
 insert into Reservacion (NumeroReserva, IdHabitacion, CantidadPersonas, IdCliente, FechaIngreso, FechaSalida, HoraIngreso, HoraSalida, PoseeVehiculo)
 values 
 	('RES250115001', 1, 1, 1, '2025-08-05', '2025-08-08', '15:00:00', '11:00:00', 0),
@@ -712,6 +688,7 @@ values
 ---------------------------------------------------------------------------------
 
 --Empresas Recreativas
+
 --Tabla de EmpresaRecreativa
 create table EmpresaRecreativa (
 	IdEmpresaRecreativa int identity(1,1) primary key,
@@ -722,7 +699,6 @@ create table EmpresaRecreativa (
 	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+506%' and NumeroTelefono not like '%[^0-9+ -]%') --permite el ingreso de numeros y el caracter + y - para el codigo
 );
 
---Tabla EmpresaRecreativa
 insert into EmpresaRecreativa (CedulaJuridicaEmpresa, NombreEmpresas, CorreoElectronico, NombrePersonal, NumeroTelefono)
 values
 	('3-101-234567', 'Caribe Aventura', 'info@caribeaventura.com', 'Roberto Mendez', '+506 2758-1234'),
@@ -746,7 +722,6 @@ create table EmpresaServicio(
 	constraint FK_EmpresaRecreativaServicio foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa)
 );
 
---Tabla de EmpresaServicio
 insert into EmpresaServicio (CostoAdicional, Descripcion, IdServicio, IdEmpresaRecreativa)
 values 
 	(15.00, 'Transporte desde hoteles en Limon centro', 1, 1),
@@ -780,7 +755,6 @@ create table EmpresaActividad(
 	constraint CHK_MaxMinParticipantes check(MinimoParticipantes <= MaximoParticipantes)
 );
 
---Tabla de EmpresaActividad
 insert into EmpresaActividad (precio, MaximoParticipantes, MinimoParticipantes, Duracion, Descripcion, Horarios, IdActividad, IdEmpresaRecreativa)
 values 
 	(65.00, 12, 4, 120, 'Tour en bote por los canales de Tortuguero con avistamiento de vida silvestre', 'Lunes a Sabado: 8:00 am y 1:00 pm', 1, 1),
@@ -808,7 +782,6 @@ create table DireccionEmpresa (
 	constraint FK_ProvinciaEmpresa foreign key (Provincia) references Provincia(IdProvincia)
 );
 
---Tabla de DireccionEmpresa
 insert into DireccionEmpresa (IdEmpresaRecreativa, SenasExactas, Provincia, Canton, Distrito)
 values 
 	(1, '200 metros oeste del muelle principal', 7, 'Limon', 'Limon'),

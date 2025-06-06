@@ -8,6 +8,24 @@ use SistemaGestionHotelera
 --Tabla Hospedajes:
 --------------------
 
+/* ============================================= ============================================= =============================================
+Nombre: VistaHospedajes
+Descripción: Vista que muestra información completa de los hospedajes, incluyendo datos principales y el nombre del tipo de hospedaje. 
+Combina la tabla Hospedaje con TipoHospedaje para mostrar el nombre del tipo.
+============================================= ============================================= =============================================*/
+create view VistaHospedajes
+as
+    select
+        h.IdHospedaje,
+        h.CedulaJuridica,
+        h.NombreHospedaje,
+        t.NombreTipoHospedaje,
+        h.UrlSitioWeb,
+        h.CorreoElectronico,
+        h.ReferenciasGPS
+    from Hospedaje h
+        inner join TipoHospedaje t ON h.TipoHospedaje = t.IdTipoHospedaje;
+
 -- ============================================= ============================================= =============================================
 -- Nombre: RegistrarHospedaje
 -- Descripción: Este procedimiento almacenado permite registrar un nuevo hospedaje en la base de datos. 
@@ -15,7 +33,6 @@ use SistemaGestionHotelera
 -- Si la inserción es exitosa, retorna el IdHospedaje recién generado.
 -- Si ocurre un error durante la ejecución, captura y retorna el número y mensaje del error.
 -- ============================================= ============================================= =============================================
-
 create procedure RegistrarHospedaje
     @CedulaJuridica varchar(20),
     @NombreHospedaje varchar(50),
@@ -25,20 +42,20 @@ create procedure RegistrarHospedaje
     @ReferenciasGPS varchar(100)
 as
 begin
-	begin try
-		insert into Hospedaje (CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS )
-        values (@CedulaJuridica, @NombreHospedaje, @TipoHospedaje, @UrlSitioWeb, @CorreoElectronico, @ReferenciasGPS )
-        -- Devuelve el ID del hospedaje recién insertado
+    begin try
+		insert into Hospedaje
+        (CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS )
+    values
+        (@CedulaJuridica, @NombreHospedaje, @TipoHospedaje, @UrlSitioWeb, @CorreoElectronico, @ReferenciasGPS )
         select scope_identity() as IdHospedaje --Devuelve el último valor de una columna IDENTITY que fue generado automáticamente en la misma sesión y el mismo bloque de código después de hacer un INSERT.
 	end try 
 	begin catch 
         -- Captura y devuelve información del error
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
-
 
 -- ============================================= ============================================= =============================================
 -- Nombre: ConsultarHospedajes
@@ -47,14 +64,12 @@ end
 -- NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico y ReferenciasGPS.
 -- No recibe parámetros y retorna todos los registros almacenados.
 -- ============================================= ============================================= =============================================
-
 create procedure ConsultarHospedajes
-as 
-begin 
-	select IdHospedaje, CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS from Hospedaje
+as
+begin
+    select *
+    from VistaHospedajes;
 end
-
-
 -- ============================================= ============================================= =============================================
 -- Nombre: ConsultarHospedajePorId
 -- Descripción: Este procedimiento almacenado permite obtener la información de un hospedaje 
@@ -62,16 +77,14 @@ end
 -- Recibe como parámetro el IdHospedaje y retorna los datos correspondientes a ese hospedaje,
 -- incluyendo CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico y ReferenciasGPS.
 -- ============================================= ============================================= =============================================
-
 create procedure ConsultarHospedajePorId
-	@IdHospedaje int 
+    @IdHospedaje int
 as
-begin 
-	select IdHospedaje, CedulaJuridica, NombreHospedaje,TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS
-    from Hospedaje
+begin
+    select *
+    from VistaHospedajes
     where IdHospedaje = @IdHospedaje
 end
-
 
 -- ============================================= ============================================= =============================================
 -- Nombre: ConsultarHospedajePorTipo
@@ -82,13 +95,12 @@ end
 
 create procedure ConsultarHospedajePorTipo
     @TipoHospedaje int
-as 
+as
 begin
-	select IdHospedaje, CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS
+    select IdHospedaje, CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS
     from Hospedaje
     where TipoHospedaje = @TipoHospedaje
 end
-
 
 -- ============================================= ============================================= =============================================
 -- Nombre: ConsultarHospedajesPorNombre
@@ -98,11 +110,11 @@ end
 -- ============================================= ============================================= =============================================
 
 create procedure ConsultarHospeajesPorNombre
-	@NombreHospedaje varchar(50)
+    @NombreHospedaje varchar(50)
 as
 begin
-	select IdHospedaje, CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS
-    from Hospedaje
+    select *
+    from VistaHospedajes
     where NombreHospedaje like '%' + @NombreHospedaje + '%'
 end
 
@@ -121,9 +133,9 @@ create procedure ActualizarInfoHospedaje
     @UrlSitioWeb varchar(255) = null,
     @CorreoElectronico varchar(100),
     @ReferenciasGPS varchar(100)
-as 
+as
 begin
-	begin try 
+    begin try 
 		update Hospedaje set
             CedulaJuridica = @CedulaJuridica,
             NombreHospedaje = @NombreHospedaje,
@@ -136,12 +148,11 @@ begin
 		select 1 as resultado --para que el procedimiento salió bien.
     end try
 	begin catch
-		select 
-			error_number() as NumeroError,
-			error_message() as MensajeError
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
-
 
 -- ============================================= ============================================= =============================================
 -- Nombre: EliminarHospedaje
@@ -159,15 +170,15 @@ as
 begin
     begin try
         -- Verificar si existen reservas para alguna habitación del hospedaje
-        If exists  (
-            select 1 from Reservacion r
-            inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-            where h.IdHospedaje = @IdHospedaje
+        If exists  ( select 1
+    from Reservacion r
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+    where h.IdHospedaje = @IdHospedaje
         )
         begin
-            raiserror('No se puede eliminar el hospedaje porque tiene reservas asociadas.', 16, 1);
-            return;
-        end
+        raiserror('No se puede eliminar el hospedaje porque tiene reservas asociadas.', 16, 1);
+        return;
+    end
         -- Borrar fotos relacionadas a tipos de habitación
         delete fh from FotoHabitacion fh
         inner join TipoHabitacion th on fh.IdTipoHabitacion = th.IdTipoHabitacion
@@ -189,29 +200,45 @@ begin
         select 1 as Resultado; 
     end try
     begin catch
-		select 
-			error_number() as NumeroError,
-			error_message() as MensajeError
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end;
 
--- ============================================= ============================================= =============================================
--- Nombre: VistaHospedajes
--- Descripción: Vista que muestra información completa de los hospedajes,
--- incluyendo datos principales y el nombre del tipo de hospedaje.
--- Combina la tabla Hospedaje con TipoHospedaje para mostrar el nombre del tipo.
--- ============================================= ============================================= =============================================
-
-create view VistaHospedajes AS
-select h.IdHospedaje, h.CedulaJuridica, h.NombreHospedaje, t.NombreTipoHospedaje, h.UrlSitioWeb, h.CorreoElectronico, h.ReferenciasGPS
-from Hospedaje h 
-inner join TipoHospedaje t ON h.TipoHospedaje = t.IdTipoHospedaje;
-
-select * from VistaHospedajes;
-
-
+------------------------------
 --Tabla DireccionHospeadaje
---registrar la direcci�n Hospedajes
+------------------------------
+-- ============================================= ============================================= =============================================
+-- Nombre: Vista_DireccionesHospedaje
+-- Descripción: Esta vista muestra todas las direcciones registradas de hospedajes. Incluye datos como:
+-- Id de la dirección, Id del hospedaje, nombre del hospedaje, señas exactas, barrio, provincia (código y nombre),
+-- cantón y distrito. Se realiza un JOIN con la tabla Hospedaje y la tabla Provincia para obtener nombres asociados.
+-- ============================================= ============================================= =============================================
+create view Vista_DireccionesHospedaje
+as
+    select
+        d.IdDireccion,
+        d.IdHospedaje,
+        h.NombreHospedaje,
+        d.SenasExactas,
+        d.Barrio,
+        d.Provincia,
+        p.NombreProvincia,
+        d.Canton,
+        d.Distrito
+    from DireccionHospedaje d
+        inner join Hospedaje h on d.IdHospedaje = h.IdHospedaje
+        inner join Provincia p on d.Provincia = p.IdProvincia
+
+-- ============================================= ============================================= =============================================
+-- Nombre: RegistrarDireccionHospedaje
+-- Descripción: Este procedimiento almacenado permite registrar la dirección correspondiente a un hospedaje.
+-- Recibe como parámetros el IdHospedaje y los datos detallados de la dirección como señas exactas, barrio,
+-- provincia, cantón y distrito.
+-- Si la inserción es exitosa, retorna el Id de la dirección recién generado.
+-- Si ocurre un error durante la ejecución, captura y retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure RegistrarDireccionHospedaje
     @IdHospedaje int,
     @SenasExactas varchar(255),
@@ -219,94 +246,71 @@ create procedure RegistrarDireccionHospedaje
     @Provincia int,
     @Canton varchar(50),
     @Distrito varchar(50)
-as 
+as
 begin
-	begin try
-		insert into DireccionHospedaje (
-            IdHospedaje,
-            SenasExactas,
-            Barrio,
-            Provincia,
-            Canton,
-            Distrito
-        )
-        values (
-            @IdHospedaje,
-            @SenasExactas,
-            @Barrio,
-            @Provincia,
-            @Canton,
-            @Distrito
-        )
+    begin try
+		insert into DireccionHospedaje
+        (IdHospedaje, SenasExactas, Barrio, Provincia, Canton, Distrito)
+    values
+        ( @IdHospedaje, @SenasExactas, @Barrio, @Provincia, @Canton, @Distrito)
         
 		select scope_identity() as IdDireccion
 	end try
 	begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeErro
+        error_number() as NumeroError,
+        error_message() as MensajeErro
 	end catch
-end 
-			
---consultar todas las direcciones
+end
+
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarDireccionesHospedaje
+-- Descripción: Este procedimiento permite consultar todas las direcciones de hospedajes registradas,
+-- utilizando la vista 'Vista_DireccionesHospedaje' para retornar información completa, incluyendo nombre del hospedaje
+-- y nombre de la provincia.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarDireccionesHospedaje
 as
 begin
-	select
-        d.IdDireccion,
-        d.IdHospedaje,
-        h.NombreHospedaje,
-        d.SenasExactas,
-        d.Barrio,
-        d.Provincia,
-        p.NombreProvincia,
-        d.Canton,
-        d.Distrito
-    from DireccionHospedaje d
-    inner join Hospedaje h on d.IdHospedaje = h.IdHospedaje
-    inner join Provincia p on d.Provincia = p.IdProvincia
+    select *
+    from Vista_DireccionesHospedaje
 end
 
---consultar la direcci�n por IdDireccion
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarDireccionHospedajePorId
+-- Descripción: Consulta una dirección específica de hospedaje a partir del IdDireccion proporcionado.
+-- Utiliza la vista 'Vista_DireccionesHospedaje' para devolver la información completa relacionada a la dirección.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarDireccionHospedajePorId
     @IdDireccion int
 as
 begin
-	select 
-        d.IdDireccion,
-        d.IdHospedaje,
-        h.NombreHospedaje,
-        d.SenasExactas,
-        d.Barrio,
-        d.Provincia,
-        p.NombreProvincia,
-        d.Canton,
-        d.Distrito
-    from DireccionHospedaje d
-    inner join Hospedaje h on d.IdHospedaje = h.IdHospedaje
-    inner join Provincia p on d.Provincia = p.IdProvincia
+    select *
+    from Vista_DireccionesHospedaje
     where d.IdDireccion = @IdDireccion
 end
 
---consultar la direcci�n por Hospedaje
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarDireccionPorHospedaje
+-- Descripción: Consulta la dirección asociada a un hospedaje específico, filtrando por el IdHospedaje.
+-- Utiliza la vista 'Vista_DireccionesHospedaje' para obtener toda la información relacionada.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarDireccionPorHospedaje
     @IdHospedaje int
 as
 begin
-	select 
-        d.IdDireccion,
-        d.SenasExactas,
-        d.Barrio,
-        d.Provincia,
-        p.NombreProvincia,
-        d.Canton,
-        d.Distrito
-    from DireccionHospedaje d
-    inner join Provincia p on d.Provincia = p.IdProvincia
+    select *
+    from Vista_DireccionesHospedaje
     where d.IdHospedaje = @IdHospedaje
 end
 
--- actualizar direcci�n de hospedaje
+-- ============================================= ============================================= =============================================
+-- Nombre: ActualizarDireccionHospedaje
+-- Descripción: Permite actualizar los datos de una dirección de hospedaje existente, a partir del IdDireccion.
+-- Recibe como parámetros las nuevas señas exactas, barrio, provincia, cantón y distrito.
+-- Si la actualización es exitosa, retorna 1 como resultado.
+-- En caso de error, captura y retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure ActualizarDireccionHospedaje
     @IdDireccion int,
     @SenasExactas varchar(255),
@@ -314,9 +318,9 @@ create procedure ActualizarDireccionHospedaje
     @Provincia int,
     @Canton varchar(50),
     @Distrito varchar(50)
-as 
+as
 begin
-	begin try
+    begin try
 		update DireccionHospedaje set
             SenasExactas = @SenasExactas,
             Barrio = @Barrio,
@@ -324,111 +328,145 @@ begin
             Canton = @Canton,
             Distrito = @Distrito
 		where IdDireccion = @IdDireccion
-
 		select 1 as resultado
-
     end try
     begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeErro
+        error_number() as NumeroError,
+        error_message() as MensajeErro
 	end catch
 end
 
---eliminar direccion de hospedaje
+-- ============================================= ============================================= =============================================
+-- Nombre: EliminarDireccionHospedaje
+-- Descripción: Elimina una dirección de hospedaje a partir de su IdDireccion,sin importar si el hospedaje asociado queda sin direcciones.
+-- Si la eliminación es exitosa, retorna 1.
+-- Si ocurre un error en tiempo de ejecución, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure EliminarDireccionHospedaje
     @IdDireccion int
 as
 begin
     begin try
-		
+        -- Eliminar la dirección directamente
         delete from DireccionHospedaje
         where IdDireccion = @IdDireccion
-        
-        select 1 as resultado 
-	end try
-	begin catch
-		select
-            error_number() as NumeroError,
-			error_message() as MensajeErro
-	end catch
+        -- Retornar resultado exitoso , aunque no exista la direccion se va a retornar 1
+        select 1 as Resultado
+    end try
+    begin catch
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeErro
+    end catch
 end
 
+
+------------------------------
 -- Tabla TelefonoHospedaje
--- registrar tel�fono de hospedaje
+------------------------------
+
+-- ============================================= ============================================= =============================================
+-- Nombre: Vista_TelefonosHospedaje
+-- Descripción: Vista que muestra todos los teléfonos registrados junto con el nombre del hospedaje al que pertenecen.
+-- ============================================= ============================================= =============================================
+create view Vista_TelefonosHospedaje
+as
+    select
+        t.IdTelefonoHospedaje,
+        t.NumeroTelefono,
+        t.IdHospedaje,
+        h.NombreHospedaje
+    from TelefonoHospedaje t
+        inner join Hospedaje h on t.IdHospedaje = h.IdHospedaje
+
+-- ============================================= ============================================= =============================================
+-- Nombre: RegistarTelefonoHospedaje
+-- Descripción: Registra un nuevo número de teléfono y lo asocia a un hospedaje existente.
+-- Parámetros:
+-- Si el registro es exitoso, retorna el Id del nuevo teléfono insertado.
+-- Si ocurre un error en tiempo de ejecución, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
+
 create procedure RegistarTelefonoHospedaje
     @NumeroTelefono varchar(20),
     @IdHospedaje int
 as
 begin
     begin try
-		insert into TelefonoHospedaje (
-            NumeroTelefono,
-            IdHospedaje
-        )
-        values (
-            @NumeroTelefono,
-            @IdHospedaje
-        )
+		insert into TelefonoHospedaje
+        ( NumeroTelefono, IdHospedaje )
+    values
+        ( @NumeroTelefono, @IdHospedaje)
         
 		select scope_identity() as IdTelefonoHospedaje
     end try
 	begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeErro
+        error_number() as NumeroError,
+        error_message() as MensajeErro
 	end catch
 end
 
---Consultar todos los tel�fonos
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarTelefonosHospedaje
+-- Descripción: Consulta todos los teléfonos de hospedaje registrados en la base de datos.
+-- Utiliza la vista Vista_TelefonosHospedaje para incluir información del hospedaje asociado.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarTelefonosHospedaje
 as
 begin
-    select 
-        t.IdTelefonoHospedaje,
-        t.NumeroTelefono,
-        t.IdHospedaje,
-        h.NombreHospedaje
-    from TelefonoHospedaje t
-	inner join Hospedaje h on t.IdHospedaje = h.IdHospedaje
+    select *
+    from Vista_TelefonosHospedaje
 end
 
---Consultar tel�fono por ID
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarTelefonoHospedajePorId
+-- Descripción: Consulta los datos de un teléfono de hospedaje específico por su Id.
+-- Parámetros:
+--   @IdTelefonoHospedaje: identificador del teléfono que se desea consultar.
+-- Utiliza la vista Vista_TelefonosHospedaje para mostrar la información asociada.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarTelefonoHospedajePorId
     @IdTelefonoHospedaje int
 as
 begin
-    select 
-        t.IdTelefonoHospedaje,
-        t.NumeroTelefono,
-        t.IdHospedaje,
-        h.NombreHospedaje
-    from TelefonoHospedaje t
-    inner join Hospedaje h on t.IdHospedaje = h.IdHospedaje
+    select *
+    from Vista_TelefonosHospedaje
     where t.IdTelefonoHospedaje = @IdTelefonoHospedaje
 end
 
---actualizar tel�fono de hospedaje --falta
+-- ============================================= ============================================= =============================================
+-- Nombre: ActualizarTelefonoHospedaje
+-- Descripción: Actualiza el número telefónico de un registro existente de teléfono de hospedaje.
+-- Parámetros:
+-- Si la actualización es exitosa, retorna 1.
+-- Si ocurre un error en tiempo de ejecución, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure ActualizarTelefonoHospedaje
     @IdTelefonoHospedaje int,
     @NumeroTelefono varchar(20)
 as
 begin
     begin try
-      update TelefonoHospedaje set
-            NumeroTelefono = @NumeroTelefono
+        update TelefonoHospedaje set NumeroTelefono = @NumeroTelefono
         where IdTelefonoHospedaje = @IdTelefonoHospedaje
         
         select 1 as resultado 
 	end try
 	begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeErro
+        error_number() as NumeroError,
+        error_message() as MensajeErro
 	end catch
 end
 
---eliminar tel�fono de hospedaje
+-- ============================================= ============================================= =============================================
+-- Nombre: EliminarTelefonoHospedaje
+-- Descripción: Elimina un número de teléfono de hospedaje a partir de su IdTelefonoHospedaje.
+-- Si la eliminación es exitosa, retorna 1.
+-- Si ocurre un error en tiempo de ejecución, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure EliminarTelefonoHospedaje
     @IdTelefonoHospedaje int
 as
@@ -436,56 +474,27 @@ begin
     begin try
 		delete from TelefonoHospedaje
         where IdTelefonoHospedaje = @IdTelefonoHospedaje
-        
-        select 1 as resultado 
 
+        select 1 as resultado 
     end try
     begin catch
-		select 
-            error_number() as NumeroError,
-			error_message() as MensajeErro
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeErro
     end catch
 end
 
-
+------------------------------
 --Tabla ServicioHospedaje
---registrar servicio a hospedaje
-create procedure RegistrarServicioHospedaje
-    @IdHospedaje int,
-    @IdServicio int
-as
-begin
-    begin try
-		if not exists (select 1 from ServicioHospedaje where IdHospedaje = @IdHospedaje and IdServicio = @IdServicio) 
-        begin
-			insert into ServicioHospedaje (
-                IdHospedaje,
-                IdServicio
-            )
-            values (
-                @IdHospedaje,
-                @IdServicio
-            )
-            
-			select scope_identity() as IdServicioHospedaje
-        end
-        else
-        begin
-            select -1 as IdServicioHospedaje 
-        end
-	end try
-	begin catch
-		select 
-            error_number() as NumeroError,
-			error_message() as MensajeErro
-    end catch
-end
+------------------------------
 
---consultar todos los servicios de hospedajes
-create procedure ConsultarServiciosHospedajes
-as 
-begin
-	select
+-- ============================================= ============================================= =============================================
+-- Nombre: Vista_ServicioHospedaje
+-- Descripción: Vista que muestra los servicios asociados a cada hospedaje.
+-- ============================================= ============================================= =============================================
+create view Vista_ServicioHospedaje
+as
+    select
         sh.IdServicioHospedaje,
         sh.IdHospedaje,
         h.NombreHospedaje,
@@ -493,118 +502,189 @@ begin
         s.NombreServicio,
         s.descripcion
     from ServicioHospedaje sh
-	inner join Hospedaje h on sh.IdHospedaje = h.IdHospedaje
-    inner joinServicio s on sh.IdServicio = s.IdServicio
+        inner join Hospedaje h on sh.IdHospedaje = h.IdHospedaje
+        inner join Servicio s on sh.IdServicio = s.IdServicio
+
+
+-- ============================================= ============================================= =============================================
+-- Nombre: RegistrarServicioHospedaje
+-- Descripción: Registra la asociación de un servicio a un hospedaje si no existe previamente.
+-- Si la relación no existe, la inserta y retorna el nuevo IdServicioHospedaje.
+-- Si la relación ya existe, retorna -1 para indicar que no se realizó la inserción.
+-- Si ocurre un error en tiempo de ejecución, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
+create procedure RegistrarServicioHospedaje
+    @IdHospedaje int,
+    @IdServicio int
+as
+begin
+    begin try
+		if not exists (select 1
+    from ServicioHospedaje
+    where IdHospedaje = @IdHospedaje and IdServicio = @IdServicio) 
+            begin
+        insert into ServicioHospedaje
+            ( IdHospedaje, IdServicio)
+        values
+            ( @IdHospedaje, @IdServicio)
+
+        select scope_identity() as IdServicioHospedaje
+    end
+        else
+            begin
+        select -1 as IdServicioHospedaje
+    end
+	    end try
+	    begin catch
+		    select
+        error_number() as NumeroError,
+        error_message() as MensajeErro
+    end catch
 end
 
---consultar servicios por hospedaje
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarServiciosHospedajes
+-- Descripción: Consulta todos los servicios asociados a todos los hospedajes.
+-- Utiliza la vista Vista_ServicioHospedaje para mostrar la información relacionada.
+-- ============================================= ============================================= =============================================
+create procedure ConsultarServiciosHospedajes
+as
+begin
+    select *
+    from Vista_ServicioHospedaje
+end
+
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarServiciosPorHospedaje
+-- Descripción: Consulta todos los servicios asociados a un hospedaje específico.
+-- Parámetros:
+-- Utiliza la vista Vista_ServicioHospedaje para mostrar la información detallada.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarServiciosPorHospedaje
     @IdHospedaje int
 as
 begin
-	select 
-        sh.IdServicioHospedaje,
-        sh.IdServicio,
-        s.NombreServicio,
-        s.descripcion
-    from ServicioHospedaje sh
-	inner join Servicio s on sh.IdServicio = s.IdServicio
-    where sh.IdHospedaje = @IdHospedaje
+    select *
+    from Vista_ServicioHospedaje
+    where IdHospedaje = @IdHospedaje
 end
 
---eliminar servicio de hospedaje por ID
+-- ============================================= ============================================= =============================================
+-- Nombre: EliminarServicioHospedajePorIds
+-- Descripción: Elimina la asociación entre un hospedaje y un servicio específico.
+-- Si la eliminación es exitosa, retorna 1.
+-- Si ocurre un error en tiempo de ejecución, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure EliminarServicioHospedajePorIds
     @IdHospedaje int,
     @IdServicio int
-as 
+as
 begin
-	begin try
+    begin try
 		delete from ServicioHospedaje
         where IdHospedaje = @IdHospedaje and IdServicio = @IdServicio
 
 		select 1 as resultado
 	end try
 	begin catch
-		select 
-            error_number() as NumeroError,
-			error_message() as MensajeErro
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeErro
     end catch
 end
 
---registrar red social a hospedaje
+---------------------------------
+--Tabla RedSocialHospedaje
+---------------------------------
+
+-- ============================================= ============================================= =============================================
+-- Nombre: Vista_RedSocialHospedaje
+-- Descripción: Vista que muestra la relación entre hospedajes y sus redes sociales, incluyendo información del hospedaje, la red social, el nombre de usuario y la URL del perfil.
+-- ============================================= ============================================= =============================================
+Create view Vista_RedSocialHospedaje
+as
+    select
+        rsh.IdRedSocialHospedaje,
+        rsh.IdHospedaje,
+        h.NombreHospedaje,
+        rsh.IdRedSocial,
+        rs.NombreRedSocial,
+        rsh.NombreUsuario,
+        rsh.UrlPerfil
+    from RedSocialHospedaje rsh
+        inner join Hospedaje h on rsh.IdHospedaje = h.IdHospedaje
+        inner join RedSocial rs on rsh.IdRedSocial = rs.IdRedSocial
+
+-- ============================================= ============================================= =============================================
+-- Nombre: RegistraarRedSocialHospedaje
+-- Descripción: Registra una red social asociada a un hospedaje con su nombre de usuario y URL de perfil.
+-- Verifica que la combinación IdHospedaje e IdRedSocial no exista previamente para evitar duplicados.
+-- Si la inserción es exitosa, retorna el Id generado (IdRedSocialHospedaje).
+-- Si la combinación ya existe, retorna -1.
+-- Si ocurre un error en tiempo de ejecución, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure RegistraarRedSocialHospedaje
     @IdHospedaje int,
     @IdRedSocial int,
     @NombreUsuario varchar(50),
     @UrlPerfil varchar(255)
 as
-begin 
+begin
     begin try
-        if not exists (select 1 from RedSocialHospedaje 
-                      where IdHospedaje = @IdHospedaje and IdRedSocial = @IdRedSocial)
+        if not exists (select 1
+    from RedSocialHospedaje
+    where IdHospedaje = @IdHospedaje and IdRedSocial = @IdRedSocial)
         begin
-            insert into RedSocialHospedaje (
-                IdHospedaje,
-                IdRedSocial,
-                NombreUsuario,
-                UrlPerfil
-            )
-            values (
-                @IdHospedaje,
-                @IdRedSocial,
-                @NombreUsuario,
-                @UrlPerfil
-            )
-            
-			select scope_identity() as IdRedSocialHospedaje
-		end 
+        insert into RedSocialHospedaje
+            ( IdHospedaje, IdRedSocial,NombreUsuario, UrlPerfil)
+        values
+            ( @IdHospedaje, @IdRedSocial, @NombreUsuario, @UrlPerfil)
+
+        select scope_identity() as IdRedSocialHospedaje
+    end 
 		else
-		begin 
-            select -1 as IdRedSocialHospedaje -- Ya existe
-        end
+		begin
+        select -1 as IdRedSocialHospedaje
+    end
     end try
 	begin catch
-		select 
-            error_number() as NumeroError,
-			error_message() as MensajeErro
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeErro
     end catch
 end
 
---consultar todas las redes sociales de hospedajes
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarRedesSocialesHospedajes
+-- Descripción: Consulta todas las redes sociales asociadas a los hospedajes.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarRedesSocialesHospedajes
-as 
+as
 begin
-    select 
-        rsh.IdRedSocialHospedaje,
-        rsh.IdHospedaje,
-        h.NombreHospedaje,
-        rsh.IdRedSocial,
-        rs.NombreRedSocial,
-        rs.Icono,
-        rsh.NombreUsuario,
-        rsh.UrlPerfil
-    from RedSocialHospedaje rsh
-	inner join Hospedaje h on rsh.IdHospedaje = h.IdHospedaje
-    inner join RedSocial rs on rsh.IdRedSocial = rs.IdRedSocial
+    select *
+    from Vista_RedSocialHospedaje
 end
 
---consultar hospedajes por red social
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarHospedajesPorRedSocial
+-- Descripción: Consulta todos los hospedajes que están asociados a una red social específica.
+-- Retorna: Todas las filas de la vista Vista_RedSocialHospedaje filtradas por la red social indicada.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarHospedajesPorRedSocial
     @IdRedSocial int
 as
-begin 
-    select  
-        rsh.IdRedSocialHospedaje,
-        rsh.IdHospedaje,
-        h.NombreHospedaje,
-        rsh.NombreUsuario,
-        rsh.UrlPerfil
-    from RedSocialHospedaje rsh
-	inner join Hospedaje h on rsh.IdHospedaje = h.IdHospedaje
-    where rsh.IdRedSocial = @IdRedSocial
+begin
+    select *
+    from Vista_RedSocialHospedaje
+    where IdRedSocial = @IdRedSocial
 end
 
---actualizar red social de hospedaje
+-- ============================================= ============================================= =============================================
+-- Nombre: ActualizarRedSocialHospedaje
+-- Descripción: Actualiza el nombre de usuario y la URL del perfil de una red social asociada a un hospedaje, identificada por IdRedSocialHospedaje.
+-- Si la actualización es exitosa, retorna 1.
+-- Si ocurre un error en tiempo de ejecución, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure ActualizarRedSocialHospedaje
     @IdRedSocialHospedaje int,
     @NombreUsuario varchar(50),
@@ -612,41 +692,73 @@ create procedure ActualizarRedSocialHospedaje
 as
 begin
     begin try
-       update RedSocialHospedaje set
-            NombreUsuario = @NombreUsuario,
-            UrlPerfil = @UrlPerfil
+        update RedSocialHospedaje set NombreUsuario = @NombreUsuario, UrlPerfil = @UrlPerfil
         where IdRedSocialHospedaje = @IdRedSocialHospedaje
         
 		select 1 as resultado
 	end try
 	begin catch
-		select 
-            error_number() as NumeroError,
-			error_message() as MensajeErro
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeErro
     end catch
 end
 
---eliminar red social de hospedaje por IDs
+-- ============================================= ============================================= =============================================
+-- Nombre: EliminarRedSocialHospedajePorIds
+-- Descripción: Elimina la asociación entre un hospedaje y una red social específica.
+-- Si la eliminación es exitosa, retorna 1.
+-- Si ocurre un error en tiempo de ejecución, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure EliminarRedSocialHospedajePorIds
     @IdHospedaje int,
     @IdRedSocial int
 as
 begin
-	begin try
+    begin try
 		delete from RedSocialHospedaje
 		where  IdHospedaje = @IdHospedaje and IdRedSocial = @IdRedSocial 
-   
+
         select 1 as resultado
 	end try
 	begin catch
-		select 
-            error_number() as NumeroError,
-			error_message() as MensajeErro
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeErro
     end catch
 end
 
---Table TipoHabitacion
---registro de tipo de habitaci�n
+------------------------------
+--Tabla TipoHabitacion
+------------------------------
+
+-- ============================================= ============================================= =============================================
+-- Nombre: Vista_TipoHabitacion
+-- Descripción: Vista que muestra los tipos de habitación disponibles, combinando información del tipo de cama, hospedaje, capacidad, 
+--descripción y precio.
+-- ============================================= ============================================= =============================================
+create view Vista_TipoHabitacion
+as
+    select
+        th.IdTipoHabitacion,
+        th.NombreTipoHabitacion,
+        th.IdTipoCama,
+        tc.NombreTipoCama,
+        th.IdHospedaje,
+        h.NombreHospedaje,
+        th.Capacidad,
+        th.descripcion,
+        th.Precio
+    from TipoHabitacion th
+        inner join TipoCama tc on th.IdTipoCama = tc.IdTipoCama
+        inner join Hospedaje h on th.IdHospedaje = h.IdHospedaje
+
+-- ============================================= ============================================= =============================================
+-- Nombre: RegistrarTipoHabitacion
+-- Descripción: Registra un nuevo tipo de habitación para un hospedaje específico, incluyendo el tipo de cama, la capacidad, la descripción y el precio.
+-- Si es exitoso, devuelve el ID insertado.
+-- Si ocurre un error, devuelve el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure RegistrarTipoHabitacion
     @NombreTipoHabitacion varchar(50),
     @IdTipoCama int,
@@ -654,94 +766,68 @@ create procedure RegistrarTipoHabitacion
     @Capacidad int,
     @descripcion text,
     @Precio decimal(10,2)
-as 
-begin 
-	begin try
-		insert into TipoHabitacion (
-            NombreTipoHabitacion,
-            IdTipoCama,
-            IdHospedaje,
-            Capacidad,
-            descripcion,
-            Precio
-        )
-        values (
-            @NombreTipoHabitacion,
-            @IdTipoCama,
-            @IdHospedaje,
-            @Capacidad,
-            @descripcion,
-            @Precio
-        )
+as
+begin
+    begin try
+		insert into TipoHabitacion
+        ( NombreTipoHabitacion, IdTipoCama,IdHospedaje,Capacidad,descripcion,Precio)
+    values
+        ( @NombreTipoHabitacion, @IdTipoCama, @IdHospedaje, @Capacidad, @descripcion, @Precio)
         
 		select scope_identity() as IdTipoHabitacion
 	end try
 	begin catch
-		select 
-			error_number() as NumeroError,
-			error_message() as MensajeError
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
 
--- Consultar todos los tipos de habitaci�n
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarTiposHabitacion
+-- Descripción: Consulta todos los tipos de habitación disponibles en la vista Vista_TipoHabitacion.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarTiposHabitacion
 as
 begin
-	select 
-        th.IdTipoHabitacion,
-        th.NombreTipoHabitacion,
-        th.IdTipoCama,
-        tc.NombreTipoCama,
-        th.IdHospedaje,
-        h.NombreHospedaje,
-        th.Capacidad,
-        th.descripcion,
-        th.Precio
-    from TipoHabitacion th
-	inner join TipoCama tc on th.IdTipoCama = tc.IdTipoCama
-    inner join Hospedaje h on th.IdHospedaje = h.IdHospedaje
-end 
+    select *
+    from Vista_TipoHabitacion
+end
 
--- Consultar tipo de habitaci�n por ID
+
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsultarTipoHabitacionPorId
+-- Descripción: Consulta un tipo de habitación específico según su identificador.
+-- ============================================= ============================================= =============================================
 create procedure ConsultarTipoHabitacionPorId
     @IdTipoHabitacion int
 as
 begin
-	select 
-        th.IdTipoHabitacion,
-        th.NombreTipoHabitacion,
-        th.IdTipoCama,
-        tc.NombreTipoCama,
-        th.IdHospedaje,
-        h.NombreHospedaje,
-        th.Capacidad,
-        th.descripcion,
-        th.Precio
-    from TipoHabitacion th
-    inner join TipoCama tc on th.IdTipoCama = tc.IdTipoCama
-    inner join Hospedaje h on th.IdHospedaje = h.IdHospedaje
-    where th.IdTipoHabitacion = @IdTipoHabitacion
+    select *
+    from Vista_TipoHabitacion
+    where IdTipoHabitacion = @IdTipoHabitacion
 end
 
---consultar tipos de habitaci�n por hospedaje
+-- ============================================= ============================================= =============================================
+-- Nombre: ConsutalarTiposHabitacionPorHospedaje
+-- Descripción: Consulta todos los tipos de habitación asociados a un hospedaje específico.
+-- Retorna: Todos los tipos de habitación registrados bajo ese hospedaje.
+-- ============================================= ============================================= =============================================
 create procedure ConsutalarTiposHabitacionPorHospedaje
     @IdHospedaje int
 as
 begin
-	select 
-        th.IdTipoHabitacion,
-        th.NombreTipoHabitacion,
-        th.IdTipoCama,
-        tc.NombreTipoCama,
-        th.Capacidad,
-        th.descripcion,
-        th.Precio
-    from TipoHabitacion th
-	inner join TipoCama tc on th.IdTipoCama = tc.IdTipoCama
-    where th.IdHospedaje = @IdHospedaje
+    select *
+    from Vista_TipoHabitacion
+    where IdHospedaje = @IdHospedaje
 end
 
---actualizar tipo de habitaci�n
+-- ============================================= ============================================= =============================================
+-- Nombre: ActualizarTipoHabitacion
+-- Descripción: Actualiza los datos de una habitación existente como su nombre, tipo de cama, capacidad, descripción y precio.
+-- Retorna 1 si la actualización fue exitosa.
+-- En caso de error, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure ActualizarTipoHabitacion
     @IdTipoHabitacion int,
     @NombreTipoHabitacion varchar(50),
@@ -751,8 +837,8 @@ create procedure ActualizarTipoHabitacion
     @Precio decimal(10,2)
 as
 begin
-	begin try
-       update TipoHabitacion set
+    begin try
+        update TipoHabitacion set
             NombreTipoHabitacion = @NombreTipoHabitacion,
             IdTipoCama = @IdTipoCama,
             Capacidad = @Capacidad,
@@ -763,111 +849,165 @@ begin
         select 1 as resultado 
     end try
 	begin catch
-		select 
-			error_number() as NumeroError,
-			error_message() as MensajeError
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
---eliminar tipo de habitaci�n
+
+-- ============================================= ============================================= =============================================
+-- Nombre: EliminarTipoHabitacion
+-- Descripción: Elimina un tipo de habitación de la tabla TipoHabitacion basado en su ID. si se eliminó correctamente.
+-- Si ocurre un error, retorna el número y mensaje del error.
+-- ============================================= ============================================= =============================================
 create procedure EliminarTipoHabitacion
     @IdTipoHabitacion int
 as
 begin
-	begin tryF
-        delete from TipoHabitacion
+    begin try
+    delete from TipoHabitacion
         where IdTipoHabitacion = @IdTipoHabitacion
-        
-        select 1 as resultado
+
+    select 1 as resultado
     end try
 	begin catch
-		select 
-			error_number() as NumeroError,
-			error_message() as MensajeError
+    select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
--- registrar comodidad a tipo de habitaci�n
+
+----------------------------
+--Tabla ComodidadHabitacion
+----------------------------
+
+-- ===============================================================================================
+-- Nombre: Vista_ComodidadHabitacion
+-- Descripción: Vista que muestra la relación entre las comodidades y los tipos de habitación,
+-- información completa y legible sobre las comodidades asociadas a cada tipo de habitación.
+-- ===============================================================================================
+create view Vista_ComodidadHabitacion
+as
+select
+        ch.IdComodidadHabitacion,
+        ch.IdComodidad,
+        c.NombreComodidad,
+        th.Descripcion, 
+        ch.IdTipoHabitacion,
+        th.NombreTipoHabitacion
+    from ComodidadHabitacion ch
+        inner join Comodidad c on ch.IdComodidad = c.IdComodidad
+        inner join TipoHabitacion th on ch.IdTipoHabitacion = th.IdTipoHabitacion
+
+-- ===============================================================================================
+-- Nombre: RegistrarComodidadHabitacion
+-- Descripción: Inserta una nueva relación entre una comodidad y un tipo de habitación,
+-- validando que no exista previamente. Si ya existe, retorna -1.
+-- Si ocurre un error, retorna el número y mensaje del error.
+-- ===============================================================================================
 create procedure RegistrarComodidadHabitacion
     @IdComodidad int,
     @IdTipoHabitacion int
 as
 begin
-	begin try
-		if not exists (select 1 from ComodidadHabitacion 
-                      where IdComodidad = @IdComodidad and IdTipoHabitacion = @IdTipoHabitacion)
-		begin 
-			insert to ComodidadHabitacion (
-                IdComodidad,
-                IdTipoHabitacion
-            )
-            values (
-                @IdComodidad,
-                @IdTipoHabitacion
-            )
+    begin try
+		if not exists (select 1
+    from ComodidadHabitacion
+    where IdComodidad = @IdComodidad and IdTipoHabitacion = @IdTipoHabitacion)
+		begin
+        insert to ComodidadHabitacion
+        (IdComodidad,IdTipoHabitacion)
+        values
+        (@IdComodidad,@IdTipoHabitacion)
 
-            select scope_identity() as IdComodidadHabitacion
-        end
+        select scope_identity() as IdComodidadHabitacion
+    end
 		else
 		begin
-            select -1 as IdComodidadHabitacion
-        end
+        select -1 as IdComodidadHabitacion
+    end
     end try
     begin catch
-		select 
-			error_number() as NumeroError,
-			error_message() as MensajeError
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
 
---consultar todas las comodidades de habitaciones
+-- ===============================================================================================
+-- Nombre: ConsultarComodidadesHabitaciones
+-- Descripción: Devuelve todas las relaciones entre tipos de habitación y comodidades,
+-- consultando directamente la vista Vista_ComodidadHabitacion.
+-- ===============================================================================================
 create procedure ConsultarComodidadesHabitaciones
 as
-begin 
-	select 
-        ch.IdComodidadHabitacion,
-        ch.IdComodidad,
-        c.NombreComodidad,
-        c.descripcion as descripcionComodidad,
-        ch.IdTipoHabitacion,
-        th.NombreTipoHabitacion
-    from ComodidadHabitacion ch
-    inner join Comodidad c on ch.IdComodidad = c.IdComodidad
-    inner join TipoHabitacion th on ch.IdTipoHabitacion = th.IdTipoHabitacion
+begin
+    select *from Vista_ComodidadHabitacion
 end
 
---consultar comodidades por tipo de habitaci�n
+-- ===============================================================================================
+-- Nombre: ConsultarComodidadesPorTipoHabitacion
+-- Descripción: Devuelve todas las comodidades asociadas a un tipo de habitación específico,
+-- ===============================================================================================
 create procedure ConsultarComodidadesPorTipoHabitacion
     @IdTipoHabitacion int
 as
-begin	
-	select
-        ch.IdComodidadHabitacion,
-        ch.IdComodidad,
-        c.NombreComodidad,
-        c.descripcion
-    from ComodidadHabitacion ch
-    inner join Comodidad c on ch.IdComodidad = c.IdComodidad
-    where ch.IdTipoHabitacion = @IdTipoHabitacion
+begin
+    select * from Vista_ComodidadHabitacion
+    where IdTipoHabitacion = @IdTipoHabitacion
 end
 
--- Eliminar comodidad de habitaci�n
+-- ===============================================================================================
+-- Nombre: ActualizarComodidadHabitacion
+-- Descripción: Actualiza la relación entre una comodidad y un tipo de habitación en la tabla
+-- ComodidadHabitacion, identificada por el parámetro @IdComodidadHabitacion. Permite modificar
+-- tanto la comodidad como el tipo de habitación relacionados.
+-- ===============================================================================================
+create procedure ActualizarComodidadHabitacion
+    @IdComodidadHabitacion int,
+    @IdComodidad int,
+    @IdTipoHabitacion int
+as
+begin
+    begin try
+        update ComodidadHabitacion
+        set IdComodidad = @IdComodidad,
+            IdTipoHabitacion = @IdTipoHabitacion
+        where IdComodidadHabitacion = @IdComodidadHabitacion
+
+        select 1 as resultado  
+    end try
+    begin catch
+        select
+            error_number() as NumeroError,
+            error_message() as MensajeError
+    end catch
+end
+
+-- ===============================================================================================
+-- Nombre: EliminarComodidadHabitacion
+-- Descripción: Elimina una relación específica entre una comodidad y un tipo de habitación,
+-- ===============================================================================================
 create procedure EliminarComodidadHabitacion
     @IdComodidadHabitacion int
-as 
+as
 begin
-	begin try
+    begin try
 		delete from ComodidadHabitacion
         where IdComodidadHabitacion = @IdComodidadHabitacion
         
         select 1 as resultado 
 	end try
 	begin catch
-		select 
-			error_number() as NumeroError,
-			error_message() as MensajeError
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
+
+
 
 --Tabla FotoHabitacion
 --agregar foto de la habitacion
@@ -875,25 +1015,27 @@ create procedure AgregarFotoHabitacion
     @IdTipoHabitacion int,
     @Foto image
 as
-begin 
-	begin try
-		insert into FotoHabitacion (IdTipoHabitacion, Foto)
-        values (@IdTipoHabitacion, @Foto)
+begin
+    begin try
+		insert into FotoHabitacion
+        (IdTipoHabitacion, Foto)
+    values
+        (@IdTipoHabitacion, @Foto)
 
 		select scope_identity() as IdFotoHabitacion
 	end try
 	begin catch
-		select 
-			error_number() as NumeroError,
-			error_message() as MensajeError
+		select
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
 
 --consultar todas las fotos
 create procedure ConsultarTodasFotosHabitacion
-as 
+as
 begin
-	select  
+    select
         IdFotoHabitacion,
         IdTipoHabitacion,
         Foto
@@ -903,9 +1045,9 @@ end
 --consultar fotos por tipo de habitaci�n
 create procedure ConsultarFotosPorTipoHabitacion
     @IdTipoHabitacion int
-as 
+as
 begin
-	select
+    select
         IdFotoHabitacion,
         Foto
     from FotoHabitacion
@@ -916,9 +1058,9 @@ end
 create procedure ActualizarFotoHabitacion
     @IdFotoHabitacion int,
     @Foto image
-as 
-begin 
-	begin try
+as
+begin
+    begin try
 		update FotoHabitacion
 		set Foto = @Foto
 		where @IdFotoHabitacion = @IdFotoHabitacion
@@ -927,8 +1069,8 @@ begin
 	end try
 	begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
 
@@ -937,7 +1079,7 @@ create procedure EliminarFotoHabitacion
     @IdFotoHabitacion int
 as
 begin
-	begin try 
+    begin try 
 		delete from FotaHabitacion
 		where @IdFotoHabitacion = @IdFotoHabitacion
 
@@ -945,8 +1087,8 @@ begin
 	end try
 	begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
 
@@ -957,45 +1099,48 @@ create procedure RegistrarHabitacion
     @IdTipoHabitacion int,
     @IdHospedaje int,
     @CantidadPersonas int
-as 
+as
 begin
-	begin try
-		if not exists (select 1 from Habitacion 
-                      where NumeroHabitacion = @NumeroHabitacion 
-                      and IdHospedaje = @IdHospedaje)
+    begin try
+		if not exists (select 1
+    from Habitacion
+    where NumeroHabitacion = @NumeroHabitacion
+        and IdHospedaje = @IdHospedaje)
         begin
-			insert into Habitacion (
-                NumeroHabitacion,
-                IdTipoHabitacion,
-                IdHospedaje,
-                CantidadPersonas
+        insert into Habitacion
+            (
+            NumeroHabitacion,
+            IdTipoHabitacion,
+            IdHospedaje,
+            CantidadPersonas
             )
-            values (
+        values
+            (
                 @NumeroHabitacion,
                 @IdTipoHabitacion,
                 @IdHospedaje,
                 @CantidadPersonas
             )
 
-			select scope_identity() as IdHabitacion
-		end 
+        select scope_identity() as IdHabitacion
+    end 
 		else
 		begin
-			select -1 as IdHabitacion
-		end
+        select -1 as IdHabitacion
+    end
 	end try
 	begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
 
 --consultar todas las habitaciones
 create procedure ConsultarTodasHabitaciones
-as 
+as
 begin
-	select
+    select
         h.IdHabitacion,
         h.NumeroHabitacion,
         h.IdTipoHabitacion,
@@ -1004,8 +1149,8 @@ begin
         hp.NombreHospedaje,
         h.CantidadPersonas
     from Habitacion h
-	inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-    inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
 end
 
 --consultar habitaci�n por ID
@@ -1013,7 +1158,7 @@ create procedure ConsultarHabitacionPorId
     @IdHabitacion int
 as
 begin
-	select 
+    select
         h.IdHabitacion,
         h.NumeroHabitacion,
         h.IdTipoHabitacion,
@@ -1022,7 +1167,8 @@ begin
         hp.NombreHospedaje,
         h.CantidadPersonas
     from Habitacion h
-    inner join TipoHabitacion th in h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join TipoHabitacion th 
+    in h.IdTipoHabitacion = th.IdTipoHabitacion
     inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
     where h.IdHabitacion = @IdHabitacion
 end
@@ -1030,16 +1176,16 @@ end
 --consultar habitaciones por hospedaje
 create procedure ConsultarHabitacionesPorHospedaje
     @IdHospedaje int
-as 
+as
 begin
-	select
+    select
         h.IdHabitacion,
         h.NumeroHabitacion,
         h.IdTipoHabitacion,
         th.NombreTipoHabitacion,
         h.CantidadPersonas
     from Habitacion h
-    inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
     where h.IdHospedaje = @IdHospedaje
     order by h.NumeroHabitacion
 end
@@ -1052,33 +1198,36 @@ create procedure ActualizarHabitacion
     @CantidadPersonas int
 as
 begin
-	begin try
+    begin try
 		declare @IdHospedaje int
-		select @IdHospedaje = @IdHospedaje from Habitacion where @IdHabitacion = @IdHabitacion
+		select @IdHospedaje = @IdHospedaje
+    from Habitacion
+    where @IdHabitacion = @IdHabitacion
 		
-		if not exists (select 1 from Habitacion 
-                      where NumeroHabitacion = @NumeroHabitacion 
-                      and IdHospedaje = @IdHospedaje
-                      and IdHabitacion <> @IdHabitacion)
+		if not exists (select 1
+    from Habitacion
+    where NumeroHabitacion = @NumeroHabitacion
+        and IdHospedaje = @IdHospedaje
+        and IdHabitacion <> @IdHabitacion)
 
         begin
-			update Habitacion set
+        update Habitacion set
                 NumeroHabitacion = @NumeroHabitacion,
                 IdTipoHabitacion = @IdTipoHabitacion,
                 CantidadPersonas = @CantidadPersonas
             where IdHabitacion = @IdHabitacion
-            
-            select 1 as resultado
-		end 
+
+        select 1 as resultado
+    end 
 		else
 		begin
-			select -1 as resultado
-		end
+        select -1 as resultado
+    end
     end try
 	begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
 
@@ -1087,7 +1236,7 @@ create procedure EliminarHabitacion
     @IdHabitacion int
 as
 begin
-	begin try
+    begin try
 		delete from Habitacion
 		where @IdHabitacion = @IdHabitacion
 
@@ -1095,8 +1244,8 @@ begin
 	end try
 	begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
 
@@ -1113,22 +1262,28 @@ create procedure ConsultarCliente
     @PaisResidencia int
 as
 begin
-	begin try
-		if not exists (select 1 from Cliente where IdentificacionCliente = @IdentificacionCliente)
+    begin try
+		if not exists (select 1
+    from Cliente
+    where IdentificacionCliente = @IdentificacionCliente)
 		begin
-			if not exists (select 1 from Cliente where CorreoElectronico = @CorreoElectronico)
+        if not exists (select 1
+        from Cliente
+        where CorreoElectronico = @CorreoElectronico)
             begin
-				insert into Cliente(
-                    IdentificacionCliente,
-                    PrimerApellido,
-                    SegundoApellido,
-                    Nombre,
-                    CorreoElectronico,
-                    FechaNacimiento,
-                    TipoIdentidad,
-                    PaisResidencia
+            insert into Cliente
+                (
+                IdentificacionCliente,
+                PrimerApellido,
+                SegundoApellido,
+                Nombre,
+                CorreoElectronico,
+                FechaNacimiento,
+                TipoIdentidad,
+                PaisResidencia
                 )
-                values (
+            values
+                (
                     @IdentificacionCliente,
                     @PrimerApellido,
                     @SegundoApellido,
@@ -1138,24 +1293,24 @@ begin
                     @TipoIdentidad,
                     @PaisResidencia
                 )
-                
-				
-                select scope_identity() as IdCliente
-			end
+
+
+            select scope_identity() as IdCliente
+        end
 			else
 			begin
-				select -1 as IdCliente
-			end
+            select -1 as IdCliente
         end
+    end
 		else
 		begin
-			select -1 as IdCliente
-		end 
+        select -1 as IdCliente
+    end 
 	end try
 	begin catch
 		select
-			error_number() as NumeroError,
-			error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
 	end catch
 end
 
@@ -1163,7 +1318,7 @@ end
 create procedure ConsultarTodosClientes
 as
 begin
-    select 
+    select
         c.IdCliente,
         c.IdentificacionCliente,
         c.PrimerApellido,
@@ -1178,8 +1333,8 @@ begin
         c.PaisResidencia,
         p.NombrePais
     from Cliente c
-    inner join TipoIdentidad ti on c.TipoIdentidad = ti.IdTipoIdentidad
-    inner join Pais p on c.PaisResidencia = p.IdPais
+        inner join TipoIdentidad ti on c.TipoIdentidad = ti.IdTipoIdentidad
+        inner join Pais p on c.PaisResidencia = p.IdPais
 end
 
 --consultar cliente por ID
@@ -1187,7 +1342,7 @@ create procedure ConsultarClientePorId
     @IdCliente int
 as
 begin
-    select 
+    select
         c.IdCliente,
         c.IdentificacionCliente,
         c.PrimerApellido,
@@ -1202,8 +1357,8 @@ begin
         c.PaisResidencia,
         p.NombrePais
     from Cliente c
-    inner join TipoIdentidad ti on c.TipoIdentidad = ti.IdTipoIdentidad
-    inner join Pais p on c.PaisResidencia = p.IdPais
+        inner join TipoIdentidad ti on c.TipoIdentidad = ti.IdTipoIdentidad
+        inner join Pais p on c.PaisResidencia = p.IdPais
     where c.IdCliente = @IdCliente
 end
 
@@ -1212,7 +1367,7 @@ create procedure ConsultarClientesPorNombre
     @Busqueda varchar(100)
 as
 begin
-	select
+    select
         c.IdCliente,
         c.IdentificacionCliente,
         c.PrimerApellido,
@@ -1223,8 +1378,8 @@ begin
         c.FechaNacimiento
     from Cliente c
     where c.Nombre like '%' + @Busqueda + '%'
-       or c.PrimerApellido like '%' + @Busqueda + '%'
-       or c.SegundoApellido like '%' + @Busqueda + '%'
+        or c.PrimerApellido like '%' + @Busqueda + '%'
+        or c.SegundoApellido like '%' + @Busqueda + '%'
 end
 
 create procedure ActualizarCliente
@@ -1240,15 +1395,17 @@ create procedure ActualizarCliente
 as
 begin
     begin try
-        if not exists(select 1 from Cliente 
-                      where IdentificacionCliente = @IdentificacionCliente 
-                      and IdCliente <> @IdCliente)
+        if not exists(select 1
+    from Cliente
+    where IdentificacionCliente = @IdentificacionCliente
+        and IdCliente <> @IdCliente)
         begin
-            if not exists(select 1 from Cliente 
-                          where CorreoElectronico = @CorreoElectronico 
-                          and IdCliente <> @IdCliente)
+        if not exists(select 1
+        from Cliente
+        where CorreoElectronico = @CorreoElectronico
+            and IdCliente <> @IdCliente)
             begin
-               update Cliente set
+            update Cliente set
                     IdentificacionCliente = @IdentificacionCliente,
                     PrimerApellido = @PrimerApellido,
                     SegundoApellido = @SegundoApellido,
@@ -1258,23 +1415,23 @@ begin
                     TipoIdentidad = @TipoIdentidad,
                     PaisResidencia = @PaisResidencia
                 where IdCliente = @IdCliente
-                
-                select 1 as resultado 
-            end
+
+            select 1 as resultado
+        end
             else
             begin
-                select -2 as resultado 
-            end
+            select -2 as resultado
         end
+    end
         else
         begin
-            select -1 as resultado 
-        end
+        select -1 as resultado
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1290,9 +1447,9 @@ begin
         select 1 as resultado 
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1305,32 +1462,35 @@ create procedure ResgistrarTelefonoCliente
 as
 begin
     begin try
-        if not exists (select 1 from TelefonoCliente 
-                      where IdCliente = @IdCliente 
-                      and NumeroTelefono = @NumeroTelefono)
+        if not exists (select 1
+    from TelefonoCliente
+    where IdCliente = @IdCliente
+        and NumeroTelefono = @NumeroTelefono)
         begin
-            insert into TelefonoCliente (
-                IdCliente,
-                NumeroTelefono,
-                TipoTelefono
+        insert into TelefonoCliente
+            (
+            IdCliente,
+            NumeroTelefono,
+            TipoTelefono
             )
-            values (
+        values
+            (
                 @IdCliente,
                 @NumeroTelefono,
                 @TipoTelefono
             )
-            
-            select scope_identity() as IdTelefonoCliente
-        end
+
+        select scope_identity() as IdTelefonoCliente
+    end
         else
         begin
-            select -1 as IdTelefonoCliente
-        end
+        select -1 as IdTelefonoCliente
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1339,7 +1499,7 @@ create procedure ConsultarTelefonosCliente
     @IdCliente int
 as
 begin
-    select 
+    select
         IdTelefonoCliente,
         NumeroTelefono,
         TipoTelefono
@@ -1363,29 +1523,32 @@ as
 begin
     begin try
         declare @IdCliente int
-        select @IdCliente = IdCliente from TelefonoCliente where IdTelefonoCliente = @IdTelefonoCliente
+        select @IdCliente = IdCliente
+    from TelefonoCliente
+    where IdTelefonoCliente = @IdTelefonoCliente
         
-        if not exists (select 1 from TelefonoCliente 
-                      where IdCliente = @IdCliente 
-                      and NumeroTelefono = @NumeroTelefono
-                      and IdTelefonoCliente <> @IdTelefonoCliente)
+        if not exists (select 1
+    from TelefonoCliente
+    where IdCliente = @IdCliente
+        and NumeroTelefono = @NumeroTelefono
+        and IdTelefonoCliente <> @IdTelefonoCliente)
         begin
-           update TelefonoCliente set
+        update TelefonoCliente set
                 NumeroTelefono = @NumeroTelefono,
                 TipoTelefono = @TipoTelefono
             where IdTelefonoCliente = @IdTelefonoCliente
-            
-            select 1 as resultado
-        end
+
+        select 1 as resultado
+    end
         else
         begin
-            select -1 as resultado 
-        end
+        select -1 as resultado
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1401,9 +1564,9 @@ begin
         select 1 as resultado 
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1423,27 +1586,30 @@ as
 begin
     begin try
         if not exists (
-            select 1 from Reservacion 
-            where IdHabitacion = @IdHabitacion
-            and (
+            select 1
+    from Reservacion
+    where IdHabitacion = @IdHabitacion
+        and (
                 (@FechaIngreso between FechaIngreso and Fechasalida) or
-                (@Fechasalida between FechaIngreso and Fechasalida) or
-                (FechaIngreso between @FechaIngreso and @Fechasalida)
+        (@Fechasalida between FechaIngreso and Fechasalida) or
+        (FechaIngreso between @FechaIngreso and @Fechasalida)
             )
         )
         begin
-            insert into Reservacion (
-                Numeroreserva,
-                IdHabitacion,
-                CantidadPersonas,
-                IdCliente,
-                FechaIngreso,
-                Fechasalida,
-                HoraIngreso,
-                Horasalida,
-                PoseeVehiculo
+        insert into Reservacion
+            (
+            Numeroreserva,
+            IdHabitacion,
+            CantidadPersonas,
+            IdCliente,
+            FechaIngreso,
+            Fechasalida,
+            HoraIngreso,
+            Horasalida,
+            PoseeVehiculo
             )
-            values (
+        values
+            (
                 @Numeroreserva,
                 @IdHabitacion,
                 @CantidadPersonas,
@@ -1454,18 +1620,18 @@ begin
                 @Horasalida,
                 @PoseeVehiculo
             )
-            
-            select scope_identity() as IdReserva
-        end
+
+        select scope_identity() as IdReserva
+    end
         else
         begin
-            select -1 as IdReserva 
-        end
+        select -1 as IdReserva
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1473,7 +1639,7 @@ end
 create procedure ConsultarTodasReservaciones
 as
 begin
-    select 
+    select
         r.IdReserva,
         r.Numeroreserva,
         r.IdHabitacion,
@@ -1490,10 +1656,10 @@ begin
         r.Horasalida,
         r.PoseeVehiculo
     from Reservacion r
-    inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-    inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-    inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
-    inner join Cliente c on r.IdCliente = c.IdCliente
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+        inner join Cliente c on r.IdCliente = c.IdCliente
 end
 
 --consultar reservación por ID
@@ -1501,7 +1667,7 @@ create procedure ConsultarReservacionPorId
     @IdReserva int
 as
 begin
-    select 
+    select
         r.IdReserva,
         r.Numeroreserva,
         r.IdHabitacion,
@@ -1518,10 +1684,10 @@ begin
         r.Horasalida,
         r.PoseeVehiculo
     from Reservacion r
-    inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-    inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-    inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
-    inner join Cliente c on r.IdCliente = c.IdCliente
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+        inner join Cliente c on r.IdCliente = c.IdCliente
     where r.IdReserva = @IdReserva
 end
 
@@ -1530,7 +1696,7 @@ create procedure ConsultarReservacionesPorCliente
     @IdCliente int
 as
 begin
-    select 
+    select
         r.IdReserva,
         r.Numeroreserva,
         r.IdHabitacion,
@@ -1546,8 +1712,8 @@ begin
             else 'Finalizada'
         end as Estado
     from Reservacion r
-    inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-    inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
     where r.IdCliente = @IdCliente
     order by r.FechaIngreso desc
 end
@@ -1558,7 +1724,7 @@ create procedure ConsultarReservacionesPorFecha
     @FechaFin date
 as
 begin
-    select 
+    select
         r.IdReserva,
         r.Numeroreserva,
         r.IdHabitacion,
@@ -1570,10 +1736,10 @@ begin
         datediff(day, r.FechaIngreso, r.Fechasalida) as Noches,
         r.PoseeVehiculo
     from Reservacion r
-    inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-    inner join Cliente c on r.IdCliente = c.IdCliente
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join Cliente c on r.IdCliente = c.IdCliente
     where r.FechaIngreso between @FechaInicio and @FechaFin
-       or r.Fechasalida between @FechaInicio and @FechaFin
+        or r.Fechasalida between @FechaInicio and @FechaFin
     order by r.FechaIngreso
 end
 
@@ -1591,17 +1757,18 @@ as
 begin
     begin try
         if not exists (
-            select 1 from Reservacion 
-            where IdHabitacion = @IdHabitacion
-            and IdReserva <> @IdReserva
-            and (
+            select 1
+    from Reservacion
+    where IdHabitacion = @IdHabitacion
+        and IdReserva <> @IdReserva
+        and (
                 (@FechaIngreso between FechaIngreso and Fechasalida) or
-                (@Fechasalida between FechaIngreso and Fechasalida) or
-                (FechaIngreso between @FechaIngreso and @Fechasalida)
+        (@Fechasalida between FechaIngreso and Fechasalida) or
+        (FechaIngreso between @FechaIngreso and @Fechasalida)
             )
         )
         begin
-           update Reservacion set
+        update Reservacion set
                 IdHabitacion = @IdHabitacion,
                 CantidadPersonas = @CantidadPersonas,
                 FechaIngreso = @FechaIngreso,
@@ -1610,18 +1777,18 @@ begin
                 Horasalida = @Horasalida,
                 PoseeVehiculo = @PoseeVehiculo
             where IdReserva = @IdReserva
-            
-            select 1 as resultado 
-        end
+
+        select 1 as resultado
+    end
         else
         begin
-            select -1 as resultado 
-        end
+        select -1 as resultado
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1631,22 +1798,24 @@ create procedure EliminarReservacion
 as
 begin
     begin try
-        if not exists (select 1 from Facturacion where IdReserva = @IdReserva)
+        if not exists (select 1
+    from Facturacion
+    where IdReserva = @IdReserva)
         begin
-            delete from Reservacion
+        delete from Reservacion
             where IdReserva = @IdReserva
-            
-            select 1 as resultado 
-        end
+
+        select 1 as resultado
+    end
         else
         begin
-            select -1 as resultado 
-        end
+        select -1 as resultado
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1661,34 +1830,38 @@ create procedure RegistrarFacturacion
 as
 begin
     begin try
-        if not exists (select 1 from Facturacion where IdReserva = @IdReserva)
+        if not exists (select 1
+    from Facturacion
+    where IdReserva = @IdReserva)
         begin
-            if @CantidadNoches is null or @ImporteTotal is null
+        if @CantidadNoches is null or @ImporteTotal is null
             begin
-                declare @FechaIngreso date, @Fechasalida date, @Precionoche decimal(10,2)
-                
-                select 
-                    @FechaIngreso = r.FechaIngreso,
-                    @Fechasalida = r.Fechasalida,
-                    @Precionoche = th.Precio
-                from Reservacion r
+            declare @FechaIngreso date, @Fechasalida date, @Precionoche decimal(10,2)
+
+            select
+                @FechaIngreso = r.FechaIngreso,
+                @Fechasalida = r.Fechasalida,
+                @Precionoche = th.Precio
+            from Reservacion r
                 inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
                 inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-                where r.IdReserva = @IdReserva
-                
-                set @CantidadNoches = datediff(day, @FechaIngreso, @Fechasalida)
-                set @ImporteTotal = @CantidadNoches * @Precionoche
-            end
-            
-            insert into Facturacion (
-                NumeroFacturacion,
-                IdReserva,
-                FechaEmision,
-                CantidadNoches,
-                ImporteTotal,
-                IdTipoPago
+            where r.IdReserva = @IdReserva
+
+            set @CantidadNoches = datediff(day, @FechaIngreso, @Fechasalida)
+            set @ImporteTotal = @CantidadNoches * @Precionoche
+        end
+
+        insert into Facturacion
+            (
+            NumeroFacturacion,
+            IdReserva,
+            FechaEmision,
+            CantidadNoches,
+            ImporteTotal,
+            IdTipoPago
             )
-            values (
+        values
+            (
                 @NumeroFacturacion,
                 @IdReserva,
                 getdate(),
@@ -1696,18 +1869,18 @@ begin
                 @ImporteTotal,
                 @IdTipoPago
             )
-            
-            select scope_identity() as IdFactura
-        end
+
+        select scope_identity() as IdFactura
+    end
         else
         begin
-            select -1 as IdFactura 
-        end
+        select -1 as IdFactura
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1715,7 +1888,7 @@ end
 create procedure ConsultarTodasFacturas
 as
 begin
-    select 
+    select
         f.IdFactura,
         f.NumeroFacturacion,
         f.IdReserva,
@@ -1729,11 +1902,11 @@ begin
         h.NumeroHabitacion,
         hp.NombreHospedaje
     from Facturacion f
-    inner join Reservacion r on f.IdReserva = r.IdReserva
-    inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
-    inner join Cliente c on r.IdCliente = c.IdCliente
-    inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-    inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+        inner join Reservacion r on f.IdReserva = r.IdReserva
+        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
+        inner join Cliente c on r.IdCliente = c.IdCliente
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
 end
 
 --cosultar factura por ID
@@ -1741,7 +1914,7 @@ create procedure ConsultarFacturaPorId
     @IdFactura int
 as
 begin
-    select 
+    select
         f.IdFactura,
         f.NumeroFacturacion,
         f.IdReserva,
@@ -1760,12 +1933,12 @@ begin
         r.Fechasalida,
         r.PoseeVehiculo
     from Facturacion f
-    inner join Reservacion r on f.IdReserva = r.IdReserva
-    inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
-    inner join Cliente c on r.IdCliente = c.IdCliente
-    inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-    inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-    inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+        inner join Reservacion r on f.IdReserva = r.IdReserva
+        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
+        inner join Cliente c on r.IdCliente = c.IdCliente
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
     where f.IdFactura = @IdFactura
 end
 
@@ -1774,7 +1947,7 @@ create procedure ConsultarFacturasPorCliente
     @IdCliente int
 as
 begin
-    select 
+    select
         f.IdFactura,
         f.NumeroFacturacion,
         f.FechaEmision,
@@ -1786,10 +1959,10 @@ begin
         r.FechaIngreso,
         r.Fechasalida
     from Facturacion f
-    inner join Reservacion r on f.IdReserva = r.IdReserva
-    inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
-    inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-    inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join Reservacion r on f.IdReserva = r.IdReserva
+        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
     where r.IdCliente = @IdCliente
     order by f.FechaEmision desc
 end
@@ -1800,7 +1973,7 @@ create procedure ConsultarFacturasPorFecha
     @FechaFin date
 as
 begin
-    select 
+    select
         f.IdFactura,
         f.NumeroFacturacion,
         f.FechaEmision,
@@ -1810,11 +1983,11 @@ begin
         h.NumeroHabitacion,
         hp.NombreHospedaje
     from Facturacion f
-    inner join Reservacion r on f.IdReserva = r.IdReserva
-    inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
-    inner join Cliente c on r.IdCliente = c.IdCliente
-    inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-    inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+        inner join Reservacion r on f.IdReserva = r.IdReserva
+        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
+        inner join Cliente c on r.IdCliente = c.IdCliente
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
     where f.FechaEmision between @FechaInicio and @FechaFin
     order by f.FechaEmision
 end
@@ -1830,21 +2003,21 @@ begin
     begin try
         if @CantidadNoches is null or @ImporteTotal is null
         begin
-            declare @FechaIngreso date, @Fechasalida date, @Precionoche decimal(10,2)
-            
-            select 
-                @FechaIngreso = r.FechaIngreso,
-                @Fechasalida = r.Fechasalida,
-                @Precionoche = th.Precio
-            from Facturacion f
+        declare @FechaIngreso date, @Fechasalida date, @Precionoche decimal(10,2)
+
+        select
+            @FechaIngreso = r.FechaIngreso,
+            @Fechasalida = r.Fechasalida,
+            @Precionoche = th.Precio
+        from Facturacion f
             inner join Reservacion r on f.IdReserva = r.IdReserva
             inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
             inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-            where f.IdFactura = @IdFactura
-            
-            set @CantidadNoches = datediff(day, @FechaIngreso, @Fechasalida)
-            set @ImporteTotal = @CantidadNoches * @Precionoche
-        end
+        where f.IdFactura = @IdFactura
+
+        set @CantidadNoches = datediff(day, @FechaIngreso, @Fechasalida)
+        set @ImporteTotal = @CantidadNoches * @Precionoche
+    end
         
        update Facturacion set
             IdTipoPago = @IdTipoPago,
@@ -1855,9 +2028,9 @@ begin
         select 1 as resultado 
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1873,9 +2046,9 @@ begin
         select 1 as resultado 
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1891,41 +2064,47 @@ create procedure RegistrarEmpresaRecreativa
 as
 begin
     begin try
-        if not exists (select 1 from EmpresaRecreativa where CedulaJuridicaEmpresa = @CedulaJuridicaEmpresa)
+        if not exists (select 1
+    from EmpresaRecreativa
+    where CedulaJuridicaEmpresa = @CedulaJuridicaEmpresa)
         begin
-            if not exists (select 1 from EmpresaRecreativa where CorreoElectronico = @CorreoElectronico)
+        if not exists (select 1
+        from EmpresaRecreativa
+        where CorreoElectronico = @CorreoElectronico)
             begin
-                insert into EmpresaRecreativa (
-                    CedulaJuridicaEmpresa,
-                    NombreEmpresas,
-                    CorreoElectronico,
-                    NombrePersonal,
-                    NumeroTelefono
+            insert into EmpresaRecreativa
+                (
+                CedulaJuridicaEmpresa,
+                NombreEmpresas,
+                CorreoElectronico,
+                NombrePersonal,
+                NumeroTelefono
                 )
-                values (
+            values
+                (
                     @CedulaJuridicaEmpresa,
                     @NombreEmpresas,
                     @CorreoElectronico,
                     @NombrePersonal,
                     @NumeroTelefono
                 )
-                
-                select scope_identity() as IdEmpresaRecreativa
-            end
+
+            select scope_identity() as IdEmpresaRecreativa
+        end
             else
             begin
-                select -2 as IdEmpresaRecreativa 
-            end
+            select -2 as IdEmpresaRecreativa
         end
+    end
         else
         begin
-            select -1 as IdEmpresaRecreativa 
-        end
+        select -1 as IdEmpresaRecreativa
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1933,7 +2112,7 @@ end
 create procedure ConsultarEmpresasRecreativas
 as
 begin
-    select 
+    select
         IdEmpresaRecreativa,
         CedulaJuridicaEmpresa,
         NombreEmpresas,
@@ -1949,7 +2128,7 @@ create procedure ConsultarEmpresaRecreativaPorId
     @IdEmpresaRecreativa int
 as
 begin
-    select 
+    select
         IdEmpresaRecreativa,
         CedulaJuridicaEmpresa,
         NombreEmpresas,
@@ -1965,7 +2144,7 @@ create procedure ConsultarEmpresasRecreativas
     @Nombre varchar(50)
 as
 begin
-    select 
+    select
         IdEmpresaRecreativa,
         CedulaJuridicaEmpresa,
         NombreEmpresas,
@@ -1987,28 +2166,29 @@ create procedure ActualizarEmpresaRecreativa
 as
 begin
     begin try
-        if not exists (select 1 from EmpresaRecreativa 
-                      where CorreoElectronico = @CorreoElectronico 
-                      and IdEmpresaRecreativa <> @IdEmpresaRecreativa)
+        if not exists (select 1
+    from EmpresaRecreativa
+    where CorreoElectronico = @CorreoElectronico
+        and IdEmpresaRecreativa <> @IdEmpresaRecreativa)
         begin
-           update EmpresaRecreativa set
+        update EmpresaRecreativa set
                 NombreEmpresas = @NombreEmpresas,
                 CorreoElectronico = @CorreoElectronico,
                 NombrePersonal = @NombrePersonal,
                 NumeroTelefono = @NumeroTelefono
             where IdEmpresaRecreativa = @IdEmpresaRecreativa
-            
-            select 1 as resultado 
-        end
+
+        select 1 as resultado
+    end
         else
         begin
-            select -1 as resultado 
-        end
+        select -1 as resultado
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2018,22 +2198,24 @@ create procedure EliminarEmpresaRecreativa
 as
 begin
     begin try
-        if not exists (select 1 from Empresaservicio where IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        if not exists (select 1
+    from Empresaservicio
+    where IdEmpresaRecreativa = @IdEmpresaRecreativa)
         begin
-            delete from EmpresaRecreativa
+        delete from EmpresaRecreativa
             where IdEmpresaRecreativa = @IdEmpresaRecreativa
-            
-            select 1 as resultado 
-        end
+
+        select 1 as resultado
+    end
         else
         begin
-            select -1 as resultado
-        end
+        select -1 as resultado
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2047,34 +2229,37 @@ create procedure RegistrarEmpresaservicio
 as
 begin
     begin try
-        if not exists (select 1 from Empresaservicio 
-                      where IdServicio = @IdServicio 
-                      and IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        if not exists (select 1
+    from Empresaservicio
+    where IdServicio = @IdServicio
+        and IdEmpresaRecreativa = @IdEmpresaRecreativa)
         begin
-            insert into Empresaservicio (
-                CostoAdicional,
-                descripcion,
-                IdServicio,
-                IdEmpresaRecreativa
+        insert into Empresaservicio
+            (
+            CostoAdicional,
+            descripcion,
+            IdServicio,
+            IdEmpresaRecreativa
             )
-            values (
+        values
+            (
                 @CostoAdicional,
                 @descripcion,
                 @IdServicio,
                 @IdEmpresaRecreativa
             )
-            
-            select scope_identity() as IdEmpresaservicio
-        end
+
+        select scope_identity() as IdEmpresaservicio
+    end
         else
         begin
-            select -1 as IdEmpresaservicio 
-        end
+        select -1 as IdEmpresaservicio
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2082,7 +2267,7 @@ end
 create procedure ConsultarEmpresaservicios
 as
 begin
-    select 
+    select
         es.IdEmpresaservicio,
         es.CostoAdicional,
         es.descripcion,
@@ -2091,8 +2276,8 @@ begin
         es.IdEmpresaRecreativa,
         er.NombreEmpresas
     from Empresaservicio es
-    inner join TipoServicio ts on es.IdServicio = ts.IdServicio
-    inner join EmpresaRecreativa er on es.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+        inner join TipoServicio ts on es.IdServicio = ts.IdServicio
+        inner join EmpresaRecreativa er on es.IdEmpresaRecreativa = er.IdEmpresaRecreativa
 end
 
 --consultar servicios por empresa
@@ -2100,7 +2285,7 @@ create procedure ConsultarServiciosPorEmpresa
     @IdEmpresaRecreativa int
 as
 begin
-    select 
+    select
         es.IdEmpresaservicio,
         es.CostoAdicional,
         es.descripcion,
@@ -2111,7 +2296,7 @@ begin
             else ts.PrecioBase + es.CostoAdicional
         end as PrecioTotal
     from Empresaservicio es
-    inner join TipoServicio ts on es.IdServicio = ts.IdServicio
+        inner join TipoServicio ts on es.IdServicio = ts.IdServicio
     where es.IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
@@ -2120,7 +2305,7 @@ create procedure ConsultarEmpresasPorServicio
     @IdServicio int
 as
 begin
-    select 
+    select
         es.IdEmpresaservicio,
         es.CostoAdicional,
         es.descripcion,
@@ -2133,8 +2318,8 @@ begin
             else ts.PrecioBase + es.CostoAdicional
         end as PrecioTotal
     from Empresaservicio es
-    inner join EmpresaRecreativa er on es.IdEmpresaRecreativa = er.IdEmpresaRecreativa
-    inner join TipoServicio ts on es.IdServicio = ts.IdServicio
+        inner join EmpresaRecreativa er on es.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+        inner join TipoServicio ts on es.IdServicio = ts.IdServicio
     where es.IdServicio = @IdServicio
 end
 
@@ -2154,9 +2339,9 @@ begin
         select 1 as resultado 
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2172,9 +2357,9 @@ begin
         select 1 as resultado
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2192,21 +2377,24 @@ create procedure RegistrarEmpresaActividad
 as
 begin
     begin try
-        if not exists (select 1 from EmpresaActividad 
-                      where IdActividad = @IdActividad 
-                      and IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        if not exists (select 1
+    from EmpresaActividad
+    where IdActividad = @IdActividad
+        and IdEmpresaRecreativa = @IdEmpresaRecreativa)
         begin
-            insert into EmpresaActividad (
-                Precio,
-                MaximoParticipantes,
-                MinimoParticipantes,
-                Duracion,
-                descripcion,
-                Horarios,
-                IdActividad,
-                IdEmpresaRecreativa
+        insert into EmpresaActividad
+            (
+            Precio,
+            MaximoParticipantes,
+            MinimoParticipantes,
+            Duracion,
+            descripcion,
+            Horarios,
+            IdActividad,
+            IdEmpresaRecreativa
             )
-            values (
+        values
+            (
                 @Precio,
                 @MaximoParticipantes,
                 @MinimoParticipantes,
@@ -2216,18 +2404,18 @@ begin
                 @IdActividad,
                 @IdEmpresaRecreativa
             )
-            
-            select scope_identity() as IdEmpresaActividad
-        end
+
+        select scope_identity() as IdEmpresaActividad
+    end
         else
         begin
-            select -1 as IdEmpresaActividad 
-        end
+        select -1 as IdEmpresaActividad
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2235,7 +2423,7 @@ end
 create procedure ConsultarEmpresaActividades
 as
 begin
-    select 
+    select
         ea.IdEmpresaActividad,
         ea.Precio,
         ea.MaximoParticipantes,
@@ -2248,8 +2436,8 @@ begin
         ea.IdEmpresaRecreativa,
         er.NombreEmpresas
     from EmpresaActividad ea
-    inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
-    inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+        inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
+        inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
 end
 
 --consultar actividades por empresa
@@ -2257,7 +2445,7 @@ create procedure ConsultarActividadesPorEmpresa
     @IdEmpresaRecreativa int
 as
 begin
-    select 
+    select
         ea.IdEmpresaActividad,
         ea.Precio,
         ea.MaximoParticipantes,
@@ -2268,7 +2456,7 @@ begin
         ea.IdActividad,
         ta.NombreActividad
     from EmpresaActividad ea
-    inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
+        inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
     where ea.IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
@@ -2277,7 +2465,7 @@ create procedure ConsultarEmpresasPorActividad
     @IdActividad int
 as
 begin
-    select 
+    select
         ea.IdEmpresaActividad,
         ea.Precio,
         ea.MaximoParticipantes,
@@ -2287,7 +2475,7 @@ begin
         er.NombrePersonal,
         er.NumeroTelefono
     from EmpresaActividad ea
-    inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+        inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
     where ea.IdActividad = @IdActividad
 end
 
@@ -2296,7 +2484,7 @@ create procedure ConsultarEmpresaActividadPorId
     @IdEmpresaActividad int
 as
 begin
-    select 
+    select
         ea.IdEmpresaActividad,
         ea.Precio,
         ea.MaximoParticipantes,
@@ -2309,8 +2497,8 @@ begin
         ea.IdEmpresaRecreativa,
         er.NombreEmpresas
     from EmpresaActividad ea
-    inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
-    inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+        inner join TipoActividad ta on ea.IdActividad = ta.IdActividad
+        inner join EmpresaRecreativa er on ea.IdEmpresaRecreativa = er.IdEmpresaRecreativa
     where ea.IdEmpresaActividad = @IdEmpresaActividad
 end
 
@@ -2338,9 +2526,9 @@ begin
         select 1 as resultado
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2356,9 +2544,9 @@ begin
         select 1 as resultado 
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2372,34 +2560,38 @@ create procedure RegistrarDireccionEmpresa
 as
 begin
     begin try
-        if not exists (select 1 from DireccionEmpresa where IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        if not exists (select 1
+    from DireccionEmpresa
+    where IdEmpresaRecreativa = @IdEmpresaRecreativa)
         begin
-            insert into DireccionEmpresa (
-                IdEmpresaRecreativa,
-                SenasExactas,
-                Provincia,
-                Canton,
-                Distrito
+        insert into DireccionEmpresa
+            (
+            IdEmpresaRecreativa,
+            SenasExactas,
+            Provincia,
+            Canton,
+            Distrito
             )
-            values (
+        values
+            (
                 @IdEmpresaRecreativa,
                 @SenasExactas,
                 @Provincia,
                 @Canton,
                 @Distrito
             )
-            
-            select scope_identity() as IdDireccionEmpresa
-        end
+
+        select scope_identity() as IdDireccionEmpresa
+    end
         else
         begin
-            select -1 as IdDireccionEmpresa 
-        end
+        select -1 as IdDireccionEmpresa
+    end
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2407,7 +2599,7 @@ end
 create procedure ConsultarDireccionesEmpresas
 as
 begin
-    select 
+    select
         de.IdDireccionEmpresa,
         de.IdEmpresaRecreativa,
         er.NombreEmpresas,
@@ -2417,8 +2609,8 @@ begin
         de.Canton,
         de.Distrito
     from DireccionEmpresa de
-    inner join EmpresaRecreativa er on de.IdEmpresaRecreativa = er.IdEmpresaRecreativa
-    inner join Provincia p on de.Provincia = p.IdProvincia
+        inner join EmpresaRecreativa er on de.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+        inner join Provincia p on de.Provincia = p.IdProvincia
 end
 
 --consultar dirección por empresa
@@ -2426,7 +2618,7 @@ create procedure ConsultarDireccionPorEmpresa
     @IdEmpresaRecreativa int
 as
 begin
-    select 
+    select
         de.IdDireccionEmpresa,
         de.SenasExactas,
         de.Provincia,
@@ -2434,7 +2626,7 @@ begin
         de.Canton,
         de.Distrito
     from DireccionEmpresa de
-    inner join Provincia p on de.Provincia = p.IdProvincia
+        inner join Provincia p on de.Provincia = p.IdProvincia
     where de.IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
@@ -2443,7 +2635,7 @@ create procedure ConsultarEmpresasPorProvincia
     @IdProvincia int
 as
 begin
-    select 
+    select
         er.IdEmpresaRecreativa,
         er.NombreEmpresas,
         er.CorreoElectronico,
@@ -2452,7 +2644,7 @@ begin
         de.Canton,
         de.Distrito
     from DireccionEmpresa de
-    inner join EmpresaRecreativa er on de.IdEmpresaRecreativa = er.IdEmpresaRecreativa
+        inner join EmpresaRecreativa er on de.IdEmpresaRecreativa = er.IdEmpresaRecreativa
     where de.Provincia = @IdProvincia
 end
 
@@ -2476,9 +2668,9 @@ begin
         select 1 as resultado 
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -2494,8 +2686,8 @@ begin
         select 1 as resultado
     end try
     begin catch
-        select 
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        select
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
