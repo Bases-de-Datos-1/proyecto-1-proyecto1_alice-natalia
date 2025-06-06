@@ -173,15 +173,15 @@ begin
         
         if exists (
             select 1
-            from Reservacion r
-            inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-            where h.IdHospedaje = @IdHospedaje
-            and r.FechaSalida >= CAST(GETDATE() as date)  -- reservas de hoy o futuras
+    from Reservacion r
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+    where h.IdHospedaje = @IdHospedaje
+        and r.FechaSalida >= CAST(GETDATE() as date)  -- reservas de hoy o futuras
         )
         begin
-            raiserror('No se puede eliminar el hospedaje porque tiene reservas activas o futuras asociadas.', 16, 1);
-            return;
-        end
+        raiserror('No se puede eliminar el hospedaje porque tiene reservas activas o futuras asociadas.', 16, 1);
+        return;
+    end
         -- Borrar fotos relacionadas a tipos de habitación
         delete fh from FotoHabitacion fh
         inner join TipoHabitacion th on fh.IdTipoHabitacion = th.IdTipoHabitacion
@@ -1209,7 +1209,8 @@ create procedure ConsultarHabitacionPorId
     @IdHabitacion int
 as
 begin
-    select * from Vista_Habitaciones
+    select *
+    from Vista_Habitaciones
     where IdHabitacion = @IdHabitacion
 end
 
@@ -1222,7 +1223,8 @@ create procedure ConsultarHabitacionesPorHospedaje
     @IdHospedaje int
 as
 begin
-    select * from Vista_Habitaciones
+    select *
+    from Vista_Habitaciones
     where IdHospedaje = @IdHospedaje
     order by NumeroHabitacion
 end
@@ -1245,33 +1247,33 @@ begin
 
         -- Obtener el IdHospedaje de la habitación actual
         select @IdHospedaje = IdHospedaje
-        from Habitacion
-        where IdHabitacion = @IdHabitacion
+    from Habitacion
+    where IdHabitacion = @IdHabitacion
         
         if not exists ( select 1
-            from Habitacion
-            where NumeroHabitacion = @NumeroHabitacion
-                and IdHospedaje = @IdHospedaje
-                and IdHabitacion <> @IdHabitacion --que el IdHabitacion sea distinto del que estamos actualizando.
+    from Habitacion
+    where NumeroHabitacion = @NumeroHabitacion
+        and IdHospedaje = @IdHospedaje
+        and IdHabitacion <> @IdHabitacion --que el IdHabitacion sea distinto del que estamos actualizando.
         )
         begin
-            update Habitacion
+        update Habitacion
             set NumeroHabitacion = @NumeroHabitacion,
                 IdTipoHabitacion = @IdTipoHabitacion,
                 CantidadPersonas = @CantidadPersonas
             where IdHabitacion = @IdHabitacion
 
-            select 1 as resultado
-        end
+        select 1 as resultado
+    end
         else
         begin
-            select -1 as resultado 
-        end
+        select -1 as resultado
+    end
     end try
     begin catch
         select
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1289,13 +1291,13 @@ as
 begin
     begin try
         if exists ( select 1
-            from Reservacion
-            where IdHabitacion = @IdHabitacion
-            and FechaSalida >= cast(getdate() as date))
+    from Reservacion
+    where IdHabitacion = @IdHabitacion
+        and FechaSalida >= cast(getdate() as date))
         begin
-            raiserror('No se puede eliminar la habitación porque tiene reservas activas o futuras.', 16, 1);
-            return;
-        end
+        raiserror('No se puede eliminar la habitación porque tiene reservas activas o futuras.', 16, 1);
+        return;
+    end
         -- Si no tiene reservas, eliminar la habitación
         delete from Habitacion
         where IdHabitacion = @IdHabitacion;
@@ -1304,8 +1306,8 @@ begin
     end try
     begin catch
         select
-            error_number() as NumeroError,
-            error_message() as MensajeError;
+        error_number() as NumeroError,
+        error_message() as MensajeError;
     end catch
 end
 
@@ -1373,7 +1375,7 @@ begin
             insert into Cliente
                 (IdentificacionCliente,PrimerApellido,SegundoApellido, Nombre,CorreoElectronico, FechaNacimiento,TipoIdentidad,PaisResidencia)
             values
-                (@IdentificacionCliente,@PrimerApellido, @SegundoApellido, @Nombre, @CorreoElectronico, @FechaNacimiento,@TipoIdentidad, @PaisResidencia)
+                (@IdentificacionCliente, @PrimerApellido, @SegundoApellido, @Nombre, @CorreoElectronico, @FechaNacimiento, @TipoIdentidad, @PaisResidencia)
 
             select scope_identity() as IdCliente
         end
@@ -1402,7 +1404,8 @@ end
 create procedure ConsultarTodosClientes
 as
 begin
-    select * from Vista_Clientes
+    select *
+    from Vista_Clientes
 end
 
 -- ===========================================================================================
@@ -1414,7 +1417,8 @@ create procedure ConsultarClientePorId
     @IdCliente int
 as
 begin
-    select * from Vista_Clientes
+    select *
+    from Vista_Clientes
     where IdCliente = @IdCliente
 end
 
@@ -1512,24 +1516,27 @@ create procedure EliminarCliente
 as
 begin
     begin try
-        if exists (select 1 from Reserva where IdCliente = @IdCliente) 
-        or exists (select 1 from Factura where IdCliente = @IdCliente)
+        if exists (select 1
+        from Reserva
+        where IdCliente = @IdCliente)
+        or exists (select 1
+        from Factura
+        where IdCliente = @IdCliente)
         begin
-            select -1 as resultado  
-        end
-
+        select -1 as resultado
+    end
         else
         begin
-            delete from TelefonoCliente where IdCliente = @IdCliente
-            delete from Cliente where IdCliente = @IdCliente
+        delete from TelefonoCliente where IdCliente = @IdCliente
+        delete from Cliente where IdCliente = @IdCliente
 
-            select 1 as resultado 
-        end
+        select 1 as resultado
+    end
     end try
     begin catch
         select
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1537,7 +1544,26 @@ end
 --Tabla TelefonoCliente
 --------------------------
 
---registrar el telefono del cliente
+-- ===========================================================================================
+-- Nombre: Vista_TelefonoCliente
+-- Descripción: Vista que muestra todos los teléfonos registrados para cada cliente.
+-- Incluye Id del teléfono, Id del cliente, número de teléfono y tipo de teléfono.
+-- ===========================================================================================
+create view Vista_TelefonoCliente
+as
+select
+        IdTelefonoCliente,
+        IdCliente,
+        NumeroTelefono,
+        TipoTelefono
+    from TelefonoCliente
+
+-- ===========================================================================================
+-- Nombre: ResgistrarTelefonoCliente
+-- Descripción: Procedimiento para registrar un nuevo teléfono para un cliente.
+-- Valida que el número no exista ya para el cliente antes de insertarlo.
+-- Retorna el Id del teléfono insertado o -1 si el número ya está registrado.
+-- ===========================================================================================
 create procedure ResgistrarTelefonoCliente
     @IdCliente int,
     @NumeroTelefono varchar(20),
@@ -1549,19 +1575,12 @@ begin
     from TelefonoCliente
     where IdCliente = @IdCliente
         and NumeroTelefono = @NumeroTelefono)
+
         begin
         insert into TelefonoCliente
-            (
-            IdCliente,
-            NumeroTelefono,
-            TipoTelefono
-            )
+        (IdCliente,NumeroTelefono,TipoTelefono)
         values
-            (
-                @IdCliente,
-                @NumeroTelefono,
-                @TipoTelefono
-            )
+        ( @IdCliente,@NumeroTelefono,@TipoTelefono)
 
         select scope_identity() as IdTelefonoCliente
     end
@@ -1577,27 +1596,27 @@ begin
     end catch
 end
 
---consultar todos los telefonos de un cliente
+-- ===========================================================================================
+-- Nombre: ConsultarTelefonosCliente
+-- Descripción: Devuelve los teléfonos asociados a un cliente ordenados alfabéticamente por tipo.
+-- ===========================================================================================
 create procedure ConsultarTelefonosCliente
     @IdCliente int
 as
 begin
-    select
-        IdTelefonoCliente,
-        NumeroTelefono,
-        TipoTelefono
-    from TelefonoCliente
+    select * from Vista_TelefonoCliente
     where IdCliente = @IdCliente
-    order by 
-        case TipoTelefono
-            when 'Movil' then 1
-            when 'Casa' then 2
-            when 'Trabajo' then 3
-            else 4
-        end
+    order by TipoTelefono
 end
 
---actualizar el telefono del cliente
+
+-- ===========================================================================================
+-- Nombre: ActualizarTelefonoCliente
+-- Descripción: Actualiza el número y tipo de teléfono de un registro existente.
+-- Valida que el nuevo número no exista para el mismo cliente en otro registro.
+-- Retorna 1 si la actualización fue exitosa, -1 si el número ya existe para el cliente.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure ActualizarTelefonoCliente
     @IdTelefonoCliente int,
     @NumeroTelefono varchar(20),
@@ -1606,20 +1625,21 @@ as
 begin
     begin try
         declare @IdCliente int
-        select @IdCliente = IdCliente
-    from TelefonoCliente
-    where IdTelefonoCliente = @IdTelefonoCliente
+
+        select @IdCliente = IdCliente from TelefonoCliente
+        where IdTelefonoCliente = @IdTelefonoCliente
         
         if not exists (select 1
-    from TelefonoCliente
-    where IdCliente = @IdCliente
+        from TelefonoCliente
+        where IdCliente = @IdCliente
         and NumeroTelefono = @NumeroTelefono
         and IdTelefonoCliente <> @IdTelefonoCliente)
+
         begin
         update TelefonoCliente set
                 NumeroTelefono = @NumeroTelefono,
                 TipoTelefono = @TipoTelefono
-            where IdTelefonoCliente = @IdTelefonoCliente
+        where IdTelefonoCliente = @IdTelefonoCliente
 
         select 1 as resultado
     end
@@ -1635,7 +1655,12 @@ begin
     end catch
 end
 
---eliminar telefono de cliente
+-- ===========================================================================================
+-- Nombre: EliminarTelefonoCliente
+-- Descripción: Elimina un teléfono asociado a un cliente dado su Id.
+-- Retorna 1 si la eliminación fue exitosa.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure EliminarTelefonoCliente
     @IdTelefonoCliente int
 as
@@ -1653,7 +1678,9 @@ begin
     end catch
 end
 
+---------------------
 --Tabla Facturacion
+---------------------
 --registrar reservacion
 create procedure RegistrarReservacion
     @Numeroreserva varchar(12),
