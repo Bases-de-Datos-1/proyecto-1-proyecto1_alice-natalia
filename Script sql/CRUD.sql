@@ -1679,9 +1679,45 @@ begin
 end
 
 ---------------------
---Tabla Facturacion
+--Tabla Reservacion
 ---------------------
---registrar reservacion
+
+-- ===========================================================================================
+-- Nombre: Vista_Reservaciones
+-- Descripción: Vista que muestra información detallada de las reservaciones, incluyendo
+-- datos del cliente, habitación, tipo de habitación y hospedaje.
+-- Calcula el número de noches entre la fecha de ingreso y salida.
+-- ===========================================================================================
+create view Vista_Reservaciones
+as 
+    select
+        r.IdReserva,
+        r.Numeroreserva,
+        r.IdHabitacion,
+        h.NumeroHabitacion,
+        th.NombreTipoHabitacion,
+        hp.NombreHospedaje,
+        r.CantidadPersonas,
+        r.IdCliente,
+        c.Nombre + ' ' + c.PrimerApellido as NombreCliente,
+        r.FechaIngreso,
+        r.Fechasalida,
+        datediff(day, r.FechaIngreso, r.Fechasalida) as Noches,
+        r.HoraIngreso,
+        r.Horasalida,
+        r.PoseeVehiculo
+    from Reservacion r
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+        inner join Cliente c on r.IdCliente = c.IdCliente
+
+-- ===========================================================================================
+-- Nombre: RegistrarReservacion
+-- Descripción: Registra una nueva reservación si no hay traslape de fechas con la misma habitación.
+-- Retorna el ID de la reservación si se crea exitosamente, -1 si hay traslape de fechas.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure RegistrarReservacion
     @Numeroreserva varchar(12),
     @IdHabitacion int,
@@ -1695,41 +1731,18 @@ create procedure RegistrarReservacion
 as
 begin
     begin try
-        if not exists (
-            select 1
-    from Reservacion
-    where IdHabitacion = @IdHabitacion
-        and (
-                (@FechaIngreso between FechaIngreso and Fechasalida) or
-        (@Fechasalida between FechaIngreso and Fechasalida) or
-        (FechaIngreso between @FechaIngreso and @Fechasalida)
-            )
-        )
+        if not exists (select 1
+            from Reservacion
+            where IdHabitacion = @IdHabitacion
+        and ( (@FechaIngreso between FechaIngreso and Fechasalida) 
+        or (@Fechasalida between FechaIngreso and Fechasalida) 
+        or (FechaIngreso between @FechaIngreso and @Fechasalida) ) )
+        
         begin
         insert into Reservacion
-            (
-            Numeroreserva,
-            IdHabitacion,
-            CantidadPersonas,
-            IdCliente,
-            FechaIngreso,
-            Fechasalida,
-            HoraIngreso,
-            Horasalida,
-            PoseeVehiculo
-            )
+            (Numeroreserva,IdHabitacion,CantidadPersonas,IdCliente, FechaIngreso,Fechasalida,HoraIngreso,Horasalida,PoseeVehiculo)
         values
-            (
-                @Numeroreserva,
-                @IdHabitacion,
-                @CantidadPersonas,
-                @IdCliente,
-                @FechaIngreso,
-                @Fechasalida,
-                @HoraIngreso,
-                @Horasalida,
-                @PoseeVehiculo
-            )
+            (@Numeroreserva,@IdHabitacion,@CantidadPersonas,@IdCliente,@FechaIngreso,@Fechasalida,@HoraIngreso,@Horasalida,@PoseeVehiculo)
 
         select scope_identity() as IdReserva
     end
@@ -1745,115 +1758,67 @@ begin
     end catch
 end
 
---consultar todas las reservaciones
+-- ===========================================================================================
+-- Nombre: ConsultarTodasReservaciones
+-- Descripción: Retorna todas las reservaciones registradas usando la vista Vista_Reservaciones.
+-- ===========================================================================================
 create procedure ConsultarTodasReservaciones
 as
 begin
-    select
-        r.IdReserva,
-        r.Numeroreserva,
-        r.IdHabitacion,
-        h.NumeroHabitacion,
-        th.NombreTipoHabitacion,
-        hp.NombreHospedaje,
-        r.CantidadPersonas,
-        r.IdCliente,
-        c.Nombre + ' ' + c.PrimerApellido as NombreCliente,
-        r.FechaIngreso,
-        r.Fechasalida,
-        datediff(day, r.FechaIngreso, r.Fechasalida) as Noches,
-        r.HoraIngreso,
-        r.Horasalida,
-        r.PoseeVehiculo
-    from Reservacion r
-        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
-        inner join Cliente c on r.IdCliente = c.IdCliente
+    select * from Vista_Reservaciones
 end
 
---consultar reservación por ID
+-- ===========================================================================================
+-- Nombre: ConsultarReservacionPorId
+-- Descripción: Retorna los datos completos de una reservación dado su Id.
+-- Utiliza la vista Vista_Reservaciones.
+-- ===========================================================================================
 create procedure ConsultarReservacionPorId
     @IdReserva int
 as
 begin
-    select
-        r.IdReserva,
-        r.Numeroreserva,
-        r.IdHabitacion,
-        h.NumeroHabitacion,
-        th.NombreTipoHabitacion,
-        hp.NombreHospedaje,
-        r.CantidadPersonas,
-        r.IdCliente,
-        c.Nombre + ' ' + c.PrimerApellido as NombreCliente,
-        r.FechaIngreso,
-        r.Fechasalida,
-        datediff(day, r.FechaIngreso, r.Fechasalida) as Noches,
-        r.HoraIngreso,
-        r.Horasalida,
-        r.PoseeVehiculo
-    from Reservacion r
-        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
-        inner join Cliente c on r.IdCliente = c.IdCliente
-    where r.IdReserva = @IdReserva
+    select * from Vista_Reservaciones
+    where IdReserva = @IdReserva
 end
 
---consultar reservaciones por cliente
+-- ===========================================================================================
+-- Nombre: ConsultarReservacionesPorCliente
+-- Descripción: Retorna todas las reservaciones asociadas a un cliente específico.
+-- Ordena los resultados por la fecha de ingreso en orden descendente.
+-- ===========================================================================================
 create procedure ConsultarReservacionesPorCliente
     @IdCliente int
 as
 begin
-    select
-        r.IdReserva,
-        r.Numeroreserva,
-        r.IdHabitacion,
-        h.NumeroHabitacion,
-        th.NombreTipoHabitacion,
-        r.FechaIngreso,
-        r.Fechasalida,
-        datediff(day, r.FechaIngreso, r.Fechasalida) as Noches,
-        r.PoseeVehiculo,
-        case 
-            when r.FechaIngreso > getdate() then 'Pendiente'
-            when getdate() between r.FechaIngreso and r.Fechasalida then 'Activa'
-            else 'Finalizada'
-        end as Estado
-    from Reservacion r
-        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-    where r.IdCliente = @IdCliente
-    order by r.FechaIngreso desc
+    select * from Vista_Reservaciones
+    where IdCliente = @IdCliente
+    order by FechaIngreso desc
 end
 
---consultar reservaciones por rango de fechas
+-- ===========================================================================================
+-- Nombre: ConsultarReservacionesPorFecha
+-- Descripción: Retorna todas las reservaciones cuyo rango de fechas de ingreso o salida
+-- se encuentra entre las fechas proporcionadas.
+-- Ordena por fecha de ingreso.
+-- ===========================================================================================
 create procedure ConsultarReservacionesPorFecha
     @FechaInicio date,
     @FechaFin date
 as
 begin
-    select
-        r.IdReserva,
-        r.Numeroreserva,
-        r.IdHabitacion,
-        h.NumeroHabitacion,
-        r.IdCliente,
-        c.Nombre + ' ' + c.PrimerApellido as NombreCliente,
-        r.FechaIngreso,
-        r.Fechasalida,
-        datediff(day, r.FechaIngreso, r.Fechasalida) as Noches,
-        r.PoseeVehiculo
-    from Reservacion r
-        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-        inner join Cliente c on r.IdCliente = c.IdCliente
-    where r.FechaIngreso between @FechaInicio and @FechaFin
-        or r.Fechasalida between @FechaInicio and @FechaFin
-    order by r.FechaIngreso
+    select * from Vista_Reservaciones
+    where FechaIngreso between @FechaInicio and @FechaFin
+        or Fechasalida between @FechaInicio and @FechaFin
+    order by FechaIngreso
 end
 
---actualizar la reservacion
+-- ===========================================================================================
+-- Nombre: ActualizarReservacion
+-- Descripción: Actualiza los datos de una reservación si no hay traslape con otra reservación
+-- en la misma habitación y fechas.
+-- Retorna 1 si la actualización fue exitosa, -1 si hay traslape.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure ActualizarReservacion
     @IdReserva int,
     @IdHabitacion int,
@@ -1866,17 +1831,11 @@ create procedure ActualizarReservacion
 as
 begin
     begin try
-        if not exists (
-            select 1
-    from Reservacion
-    where IdHabitacion = @IdHabitacion
+        if not exists ( select 1 from Reservacion
+        where IdHabitacion = @IdHabitacion
         and IdReserva <> @IdReserva
-        and (
-                (@FechaIngreso between FechaIngreso and Fechasalida) or
-        (@Fechasalida between FechaIngreso and Fechasalida) or
-        (FechaIngreso between @FechaIngreso and @Fechasalida)
-            )
-        )
+        and ((@FechaIngreso between FechaIngreso and Fechasalida) or(@Fechasalida between FechaIngreso and Fechasalida) or (FechaIngreso between @FechaIngreso and @Fechasalida)))
+        
         begin
         update Reservacion set
                 IdHabitacion = @IdHabitacion,
@@ -1902,15 +1861,20 @@ begin
     end catch
 end
 
---eliminar reservacion
+-- ===========================================================================================
+-- Nombre: EliminarReservacion
+-- Descripción: Elimina una reservación si no tiene ninguna factura asociada.
+-- Retorna 1 si la eliminación fue exitosa, -1 si ya está facturada.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure EliminarReservacion
     @IdReserva int
 as
 begin
     begin try
-        if not exists (select 1
-    from Facturacion
-    where IdReserva = @IdReserva)
+        if not exists (select 1 from Facturacion 
+        where IdReserva = @IdReserva)
+        
         begin
         delete from Reservacion
             where IdReserva = @IdReserva
@@ -1929,8 +1893,47 @@ begin
     end catch
 end
 
+---------------------
 --Tabla Facturacion
---registrar factura
+---------------------
+
+-- ===========================================================================================
+-- Nombre: Vista_Facturacion
+-- Descripción: Vista que muestra información consolidada de las facturas, incluyendo detalles 
+-- del cliente, la habitación, el tipo de pago, la reservación y el hospedaje.
+-- Utilizada para consultas generales y específicas sobre facturación.
+-- ===========================================================================================
+create view Vista_Facturacion
+as
+    select
+        f.IdFactura,
+        f.NumeroFacturacion,
+        f.IdReserva,
+        r.Numeroreserva,
+        f.FechaEmision,
+        f.CantidadNoches,
+        f.ImporteTotal,
+        f.IdTipoPago,
+        tp.NombreTipoPago,
+        c.IdCliente,
+        c.Nombre + ' ' + c.PrimerApellido as NombreCliente,
+        h.NumeroHabitacion,
+        hp.NombreHospedaje
+    from Facturacion f
+        inner join Reservacion r on f.IdReserva = r.IdReserva
+        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
+        inner join Cliente c on r.IdCliente = c.IdCliente
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+
+-- ===========================================================================================
+-- Nombre: RegistrarFacturacion
+-- Descripción: Registra una factura asociada a una reservación, siempre que aún no haya sido facturada.
+-- Si no se proporcionan la cantidad de noches o el importe total, estos se calculan automáticamente
+-- con base en las fechas de ingreso y salida, y el precio por noche del tipo de habitación.
+-- Retorna el ID de la factura generada si el registro fue exitoso, o -1 si ya existía una factura.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure RegistrarFacturacion
     @NumeroFacturacion varchar(12),
     @IdReserva int,
@@ -1940,12 +1943,13 @@ create procedure RegistrarFacturacion
 as
 begin
     begin try
-        if not exists (select 1
-    from Facturacion
-    where IdReserva = @IdReserva)
+        --Debe existir una reservacion para hacer la factura
+        if not exists (select 1 from Facturacion where IdReserva = @IdReserva)
         begin
+        --Si no se proporcionan cantidad de noches o importe total, se calculan
         if @CantidadNoches is null or @ImporteTotal is null
-            begin
+        begin
+            --Obtener las fechas de ingreso y salida, y el precio por noche del tipo de habitación
             declare @FechaIngreso date, @Fechasalida date, @Precionoche decimal(10,2)
 
             select
@@ -1957,31 +1961,19 @@ begin
                 inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
             where r.IdReserva = @IdReserva
 
+            --Calcular cantidad de noches y importe total
             set @CantidadNoches = datediff(day, @FechaIngreso, @Fechasalida)
             set @ImporteTotal = @CantidadNoches * @Precionoche
         end
-
+        
         insert into Facturacion
-            (
-            NumeroFacturacion,
-            IdReserva,
-            FechaEmision,
-            CantidadNoches,
-            ImporteTotal,
-            IdTipoPago
-            )
+            ( NumeroFacturacion,IdReserva, FechaEmision, CantidadNoches,ImporteTotal,IdTipoPago )
         values
-            (
-                @NumeroFacturacion,
-                @IdReserva,
-                getdate(),
-                @CantidadNoches,
-                @ImporteTotal,
-                @IdTipoPago
-            )
+            (@NumeroFacturacion, @IdReserva, getdate(), @CantidadNoches,@ImporteTotal, @IdTipoPago)
 
         select scope_identity() as IdFactura
     end
+        --Si ya existe una factura para la reservación, retornar -1
         else
         begin
         select -1 as IdFactura
@@ -1994,115 +1986,64 @@ begin
     end catch
 end
 
---consultar todas las facturas
+-- ===========================================================================================
+-- Nombre: ConsultarTodasFacturas
+-- Descripción: Devuelve todas las facturas registradas en el sistema usando la vista 
+-- Vista_Facturacion.
+-- ===========================================================================================
 create procedure ConsultarTodasFacturas
 as
 begin
-    select
-        f.IdFactura,
-        f.NumeroFacturacion,
-        f.IdReserva,
-        r.Numeroreserva,
-        f.FechaEmision,
-        f.CantidadNoches,
-        f.ImporteTotal,
-        f.IdTipoPago,
-        tp.NombreTipoPago,
-        c.Nombre + ' ' + c.PrimerApellido as NombreCliente,
-        h.NumeroHabitacion,
-        hp.NombreHospedaje
-    from Facturacion f
-        inner join Reservacion r on f.IdReserva = r.IdReserva
-        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
-        inner join Cliente c on r.IdCliente = c.IdCliente
-        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+    select * from Vista_Facturacion
 end
 
---cosultar factura por ID
+-- ===========================================================================================
+-- Nombre: ConsultarFacturaPorId
+-- Descripción: Devuelve los detalles de una factura específica, identificada por su ID.
+-- ===========================================================================================
 create procedure ConsultarFacturaPorId
     @IdFactura int
 as
 begin
-    select
-        f.IdFactura,
-        f.NumeroFacturacion,
-        f.IdReserva,
-        r.Numeroreserva,
-        f.FechaEmision,
-        f.CantidadNoches,
-        f.ImporteTotal,
-        f.IdTipoPago,
-        tp.NombreTipoPago,
-        c.Nombre + ' ' + c.PrimerApellido as NombreCliente,
-        c.IdentificacionCliente,
-        h.NumeroHabitacion,
-        th.NombreTipoHabitacion,
-        hp.NombreHospedaje,
-        r.FechaIngreso,
-        r.Fechasalida,
-        r.PoseeVehiculo
-    from Facturacion f
-        inner join Reservacion r on f.IdReserva = r.IdReserva
-        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
-        inner join Cliente c on r.IdCliente = c.IdCliente
-        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
-    where f.IdFactura = @IdFactura
+    select * from Vista_Facturacion
+    where IdFactura = @IdFactura
 end
 
---consultar facturas por cliente
+-- ===========================================================================================
+-- Nombre: ConsultarFacturasPorCliente
+-- Descripción: Devuelve las facturas asociadas a un cliente específico, ordenadas por fecha 
+-- de emisión en orden descendente.
+-- ===========================================================================================
 create procedure ConsultarFacturasPorCliente
     @IdCliente int
 as
 begin
-    select
-        f.IdFactura,
-        f.NumeroFacturacion,
-        f.FechaEmision,
-        f.ImporteTotal,
-        tp.NombreTipoPago,
-        r.Numeroreserva,
-        h.NumeroHabitacion,
-        th.NombreTipoHabitacion,
-        r.FechaIngreso,
-        r.Fechasalida
-    from Facturacion f
-        inner join Reservacion r on f.IdReserva = r.IdReserva
-        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
-        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-    where r.IdCliente = @IdCliente
-    order by f.FechaEmision desc
+    select * from Vista_Facturacion
+    where IdCliente = @IdCliente
+    order by FechaEmision desc
 end
 
---consultar facturas por rango de fechas
+-- ===========================================================================================
+-- Nombre: ConsultarFacturasPorFecha
+-- Descripción: Devuelve todas las facturas emitidas en un rango específico de fechas.
+-- Ordena los resultados por la fecha de emisión de forma ascendente.
+-- ===========================================================================================
 create procedure ConsultarFacturasPorFecha
     @FechaInicio date,
     @FechaFin date
 as
 begin
-    select
-        f.IdFactura,
-        f.NumeroFacturacion,
-        f.FechaEmision,
-        f.ImporteTotal,
-        tp.NombreTipoPago,
-        c.Nombre + ' ' + c.PrimerApellido as NombreCliente,
-        h.NumeroHabitacion,
-        hp.NombreHospedaje
-    from Facturacion f
-        inner join Reservacion r on f.IdReserva = r.IdReserva
-        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
-        inner join Cliente c on r.IdCliente = c.IdCliente
-        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
-    where f.FechaEmision between @FechaInicio and @FechaFin
-    order by f.FechaEmision
+    select * from Vista_Facturacion
+    where FechaEmision between @FechaInicio and @FechaFin
+    order by FechaEmision
 end
 
-
+-- ===========================================================================================
+-- Nombre: ActualizarFacturacion
+-- Descripción: Actualiza los datos de facturación (tipo de pago, cantidad de noches, 
+-- importe total). Si no se proporcionan los valores, se calculan automáticamente según la 
+-- reservación. Retorna 1 si es exitoso, o muestra el número y mensaje del error.
+-- ===========================================================================================
 create procedure ActualizarFacturacion
     @IdFactura int,
     @IdTipoPago int,
@@ -2112,6 +2053,7 @@ as
 begin
     begin try
         if @CantidadNoches is null or @ImporteTotal is null
+
         begin
         declare @FechaIngreso date, @Fechasalida date, @Precionoche decimal(10,2)
 
@@ -2129,7 +2071,7 @@ begin
         set @ImporteTotal = @CantidadNoches * @Precionoche
     end
         
-       update Facturacion set
+        update Facturacion set
             IdTipoPago = @IdTipoPago,
             CantidadNoches = @CantidadNoches,
             ImporteTotal = @ImporteTotal
@@ -2144,7 +2086,11 @@ begin
     end catch
 end
 
---eliminar facturacion 
+-- ===========================================================================================
+-- Nombre: EliminarFacturacion
+-- Descripción: Elimina una factura específica identificada por su ID.
+-- Retorna 1 si la eliminación fue exitosa. En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure EliminarFacturacion
     @IdFactura int
 as
@@ -2162,9 +2108,36 @@ begin
     end catch
 end
 
-
+----------------------------
 --Tabla EmpresaRecreativa
---registrar empresa recreativa
+----------------------------
+
+-- ===========================================================================================
+-- Nombre: Vista_EmpresaRecreativa
+-- Descripción: Vista que muestra los datos principales de todas las empresas recreativas
+-- registradas en el sistema, incluyendo nombre, cédula jurídica, contacto, encargado y teléfono.
+-- Facilita la consulta directa sin exponer la estructura completa de la tabla base.
+-- ===========================================================================================
+create view Vista_EmpresaRecreativa
+as
+    select
+        IdEmpresaRecreativa,
+        CedulaJuridicaEmpresa,
+        NombreEmpresas,
+        CorreoElectronico,
+        NombrePersonal,
+        NumeroTelefono
+    from EmpresaRecreativa
+
+
+-- ===========================================================================================
+-- Nombre: RegistrarEmpresaRecreativa
+-- Descripción: Registra una nueva empresa recreativa, siempre y cuando su cédula jurídica
+-- y correo electrónico no estén ya registrados en el sistema.
+-- Retorna el ID generado si se registra con éxito, -1 si ya existe la cédula jurídica
+-- y -2 si el correo electrónico ya está registrado.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure RegistrarEmpresaRecreativa
     @CedulaJuridicaEmpresa varchar(20),
     @NombreEmpresas varchar(50),
@@ -2174,30 +2147,18 @@ create procedure RegistrarEmpresaRecreativa
 as
 begin
     begin try
-        if not exists (select 1
-    from EmpresaRecreativa
-    where CedulaJuridicaEmpresa = @CedulaJuridicaEmpresa)
+        if not exists (select 1 from EmpresaRecreativa
+        where CedulaJuridicaEmpresa = @CedulaJuridicaEmpresa)
+
         begin
-        if not exists (select 1
-        from EmpresaRecreativa
+        if not exists (select 1 from EmpresaRecreativa
         where CorreoElectronico = @CorreoElectronico)
+
             begin
             insert into EmpresaRecreativa
-                (
-                CedulaJuridicaEmpresa,
-                NombreEmpresas,
-                CorreoElectronico,
-                NombrePersonal,
-                NumeroTelefono
-                )
+                (CedulaJuridicaEmpresa, NombreEmpresas, CorreoElectronico, NombrePersonal,NumeroTelefono )
             values
-                (
-                    @CedulaJuridicaEmpresa,
-                    @NombreEmpresas,
-                    @CorreoElectronico,
-                    @NombrePersonal,
-                    @NumeroTelefono
-                )
+                (@CedulaJuridicaEmpresa,@NombreEmpresas,@CorreoElectronico,@NombrePersonal, @NumeroTelefono)
 
             select scope_identity() as IdEmpresaRecreativa
         end
@@ -2218,55 +2179,51 @@ begin
     end catch
 end
 
---consultar todas las empresas recreativas
+-- ===========================================================================================
+-- Nombre: ConsultarEmpresasRecreativas
+-- Descripción: Devuelve una lista de todas las empresas recreativas registradas,
+-- ordenadas alfabéticamente por nombre.
+-- ===========================================================================================
 create procedure ConsultarEmpresasRecreativas
 as
 begin
-    select
-        IdEmpresaRecreativa,
-        CedulaJuridicaEmpresa,
-        NombreEmpresas,
-        CorreoElectronico,
-        NombrePersonal,
-        NumeroTelefono
-    from EmpresaRecreativa
+    select *  from Vista_EmpresaRecreativa
     order by NombreEmpresas
 end
 
---consultar empresa por ID
+-- ===========================================================================================
+-- Nombre: ConsultarEmpresaRecreativaPorId
+-- Descripción: Consulta los datos de una empresa recreativa específica por su ID.
+-- ===========================================================================================
 create procedure ConsultarEmpresaRecreativaPorId
     @IdEmpresaRecreativa int
 as
 begin
-    select
-        IdEmpresaRecreativa,
-        CedulaJuridicaEmpresa,
-        NombreEmpresas,
-        CorreoElectronico,
-        NombrePersonal,
-        NumeroTelefono
-    from EmpresaRecreativa
+    select * from Vista_EmpresaRecreativa
     where IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
---consultar empresas por nombre
-create procedure ConsultarEmpresasRecreativas
+-- ===========================================================================================
+-- Nombre: ConsultarEmpresasRecreativasPorNombre
+-- Descripción: Busca empresas recreativas cuyo nombre contenga el texto proporcionado,
+-- utilizando una búsqueda parcial (`LIKE`). Ordena los resultados alfabéticamente.
+-- ===========================================================================================
+create procedure ConsultarEmpresasRecreativasPorNombre
     @Nombre varchar(50)
 as
 begin
-    select
-        IdEmpresaRecreativa,
-        CedulaJuridicaEmpresa,
-        NombreEmpresas,
-        CorreoElectronico,
-        NombrePersonal,
-        NumeroTelefono
-    from EmpresaRecreativa
+    select * from Vista_EmpresaRecreativa
     where NombreEmpresas like '%' + @Nombre + '%'
     order by NombreEmpresas
 end
 
---actualizar empresa recreativa
+-- ===========================================================================================
+-- Nombre: ActualizarEmpresaRecreativa
+-- Descripción: Actualiza los datos de una empresa recreativa si no existe otra empresa con
+-- el mismo correo electrónico. 
+-- Retorna 1 si la actualización fue exitosa, -1 si el correo ya está registrado en otra empresa.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure ActualizarEmpresaRecreativa
     @IdEmpresaRecreativa int,
     @NombreEmpresas varchar(50),
@@ -2276,10 +2233,10 @@ create procedure ActualizarEmpresaRecreativa
 as
 begin
     begin try
-        if not exists (select 1
-    from EmpresaRecreativa
-    where CorreoElectronico = @CorreoElectronico
+        --Verificar que no exista otra empresa con la misma cedula juridica
+        if not exists (select 1 from EmpresaRecreativa where CorreoElectronico = @CorreoElectronico
         and IdEmpresaRecreativa <> @IdEmpresaRecreativa)
+
         begin
         update EmpresaRecreativa set
                 NombreEmpresas = @NombreEmpresas,
@@ -2302,16 +2259,22 @@ begin
     end catch
 end
 
---eliminar empresa recreativo
+-- ===========================================================================================
+-- Nombre: EliminarEmpresaRecreativa
+-- Descripción: Elimina una empresa recreativa si no tiene servicios asociados en la tabla 
+-- `Empresaservicio`. 
+-- Retorna 1 si la eliminación fue exitosa, -1 si hay dependencias que lo impiden.
+-- En caso de error, devuelve el número y mensaje del error.
+-- ===========================================================================================
 create procedure EliminarEmpresaRecreativa
     @IdEmpresaRecreativa int
 as
 begin
     begin try
-        if not exists (select 1
-    from Empresaservicio
-    where IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        --Verificar que no existan servicios asociados a la empresa
+        if not exists (select 1 from Empresaservicio where IdEmpresaRecreativa = @IdEmpresaRecreativa)
         begin
+
         delete from EmpresaRecreativa
             where IdEmpresaRecreativa = @IdEmpresaRecreativa
 
@@ -2328,6 +2291,8 @@ begin
         error_message() as MensajeError
     end catch
 end
+
+
 
 --Tabla Empresaservicio
 --registrar empresa servicio
