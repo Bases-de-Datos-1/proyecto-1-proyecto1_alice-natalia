@@ -154,31 +154,34 @@ begin
     end catch
 end
 
--- ============================================= ============================================= =============================================
+-- ===========================================================================================
 -- Nombre: EliminarHospedaje
--- Descripción: Este procedimiento elimina un hospedaje solo si no tiene reservas activas en sus habitaciones.
--- Una reserva activa es cuando la fecha actual está entre la fecha de ingreso y la fecha de salida.
--- Recibe como parámetro el IdHospedaje para identificar qué hospedaje eliminar.
--- Si hay reservas activas, no elimina y devuelve un error.
--- Si elimina correctamente, retorna resultado = 1.
--- Si hay un error, captura y devuelve el número y mensaje de error.
--- ============================================= ============================================= =============================================
-
+-- Descripción: Este procedimiento elimina un hospedaje solo si no tiene reservas activas asociadas
+-- a sus habitaciones. Una reserva se considera activa si la fecha actual está entre la
+-- fecha de ingreso (FechaInicio) y la fecha de salida (FechaFin), inclusive.
+--
+-- Si existen reservas activas en alguna de sus habitaciones, no se elimina y lanza error.
+-- Si no hay reservas activas, elimina en cascada todos los datos relacionados.
+-- Si la operación es exitosa, retorna resultado = 1.
+-- En caso de error, se captura y devuelve el número y el mensaje del error.
+-- ===========================================================================================
 create procedure EliminarHospedaje
     @IdHospedaje int
 as
 begin
     begin try
-        -- Verificar si existen reservas para alguna habitación del hospedaje
-        If exists  ( select 1
-    from Reservacion r
-        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
-    where h.IdHospedaje = @IdHospedaje
+        
+        if exists (
+            select 1
+            from Reservacion r
+            inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+            where h.IdHospedaje = @IdHospedaje
+            and r.FechaSalida >= CAST(GETDATE() as date)  -- reservas de hoy o futuras
         )
         begin
-        raiserror('No se puede eliminar el hospedaje porque tiene reservas asociadas.', 16, 1);
-        return;
-    end
+            raiserror('No se puede eliminar el hospedaje porque tiene reservas activas o futuras asociadas.', 16, 1);
+            return;
+        end
         -- Borrar fotos relacionadas a tipos de habitación
         delete fh from FotoHabitacion fh
         inner join TipoHabitacion th on fh.IdTipoHabitacion = th.IdTipoHabitacion
@@ -890,11 +893,11 @@ end
 -- ===============================================================================================
 create view Vista_ComodidadHabitacion
 as
-select
+    select
         ch.IdComodidadHabitacion,
         ch.IdComodidad,
         c.NombreComodidad,
-        th.Descripcion, 
+        th.Descripcion,
         ch.IdTipoHabitacion,
         th.NombreTipoHabitacion
     from ComodidadHabitacion ch
@@ -917,8 +920,10 @@ begin
     from ComodidadHabitacion
     where IdComodidad = @IdComodidad and IdTipoHabitacion = @IdTipoHabitacion)
 		begin
-        insert to ComodidadHabitacion
-        (IdComodidad,IdTipoHabitacion)
+        insert to
+        ComodidadHabitacion
+        (IdComodidad,IdTipoHabitacion
+        )
         values
         (@IdComodidad,@IdTipoHabitacion)
 
@@ -944,7 +949,8 @@ end
 create procedure ConsultarComodidadesHabitaciones
 as
 begin
-    select *from Vista_ComodidadHabitacion
+    select *
+    from Vista_ComodidadHabitacion
 end
 
 -- ===============================================================================================
@@ -955,7 +961,8 @@ create procedure ConsultarComodidadesPorTipoHabitacion
     @IdTipoHabitacion int
 as
 begin
-    select * from Vista_ComodidadHabitacion
+    select *
+    from Vista_ComodidadHabitacion
     where IdTipoHabitacion = @IdTipoHabitacion
 end
 
@@ -981,8 +988,8 @@ begin
     end try
     begin catch
         select
-            error_number() as NumeroError,
-            error_message() as MensajeError
+        error_number() as NumeroError,
+        error_message() as MensajeError
     end catch
 end
 
@@ -1007,10 +1014,28 @@ begin
 	end catch
 end
 
-
-
+--------------------------
 --Tabla FotoHabitacion
---agregar foto de la habitacion
+--------------------------
+
+-- ===============================================================================================
+-- Nombre: Vista_FotoHabitacion
+-- Descripción: Vista que muestra las fotos asociadas a cada tipo de habitación. Se extrae
+-- directamente desde la tabla FotoHabitacion.
+-- ===============================================================================================
+create view Vista_FotoHabitacion
+as
+    select
+        IdFotoHabitacion,
+        IdTipoHabitacion,
+        Foto
+    from FotoHabitacion
+
+-- ===============================================================================================
+-- Nombre: AgregarFotoHabitacion
+-- Descripción: Inserta una nueva foto asociada a un tipo de habitación específico.
+-- Retorna el ID de la nueva foto insertada o el número y mensaje de error si falla.
+-- ===============================================================================================
 create procedure AgregarFotoHabitacion
     @IdTipoHabitacion int,
     @Foto image
@@ -1019,8 +1044,7 @@ begin
     begin try
 		insert into FotoHabitacion
         (IdTipoHabitacion, Foto)
-    values
-        (@IdTipoHabitacion, @Foto)
+    values(@IdTipoHabitacion, @Foto)
 
 		select scope_identity() as IdFotoHabitacion
 	end try
@@ -1031,30 +1055,37 @@ begin
 	end catch
 end
 
---consultar todas las fotos
+-- ===============================================================================================
+-- Nombre: ConsultarTodasFotosHabitacion
+-- Descripción: Devuelve todas las fotos de habitaciones registradas, utilizando la vista
+-- Vista_FotoHabitacion.
+-- ===============================================================================================
 create procedure ConsultarTodasFotosHabitacion
 as
 begin
-    select
-        IdFotoHabitacion,
-        IdTipoHabitacion,
-        Foto
-    from FotoHabitacion
+    select *
+    from Vista_FotoHabitacion
 end
 
---consultar fotos por tipo de habitaci�n
+-- ===============================================================================================
+-- Nombre: ConsultarFotosPorTipoHabitacion
+-- Descripción: Devuelve todas las fotos asociadas a un tipo de habitación específico,
+-- filtrando por el parámetro @IdTipoHabitacion.
+-- ===============================================================================================
 create procedure ConsultarFotosPorTipoHabitacion
     @IdTipoHabitacion int
 as
 begin
-    select
-        IdFotoHabitacion,
-        Foto
-    from FotoHabitacion
+    select *
+    from Vista_FotoHabitacion
     where IdTipoHabitacion = @IdTipoHabitacion
 end
 
---actualizar la foto habitacion
+-- ===============================================================================================
+-- Nombre: ActualizarFotoHabitacion
+-- Descripción: Actualiza una foto de habitación específica en la tabla FotoHabitacion,
+-- identificada por el parámetro @IdFotoHabitacion. Retorna 1 si tuvo éxito o muestra el error.
+-- ===============================================================================================
 create procedure ActualizarFotoHabitacion
     @IdFotoHabitacion int,
     @Foto image
@@ -1074,7 +1105,11 @@ begin
 	end catch
 end
 
---eliminar foto de habitacion
+-- ===============================================================================================
+-- Nombre: EliminarFotoHabitacion
+-- Descripción: Elimina una foto de habitación específica de la tabla FotoHabitacion,
+-- identificada por el parámetro @IdFotoHabitacion. Retorna 1 si tuvo éxito o el error.
+-- ===============================================================================================
 create procedure EliminarFotoHabitacion
     @IdFotoHabitacion int
 as
@@ -1092,8 +1127,35 @@ begin
 	end catch
 end
 
+-------------------
 --Tabla Habitacion
---registrar la habitacion
+-------------------
+
+-- ================================================================================================
+-- Nombre: Vista_Habitaciones
+-- Descripción: Vista que muestra información detallada de las habitaciones
+-- ================================================================================================
+create view Vista_Habitaciones
+as
+    select
+        h.IdHabitacion,
+        h.NumeroHabitacion,
+        h.IdTipoHabitacion,
+        th.NombreTipoHabitacion,
+        h.IdHospedaje,
+        hp.NombreHospedaje,
+        h.CantidadPersonas
+    from Habitacion h
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+
+
+-- ================================================================================================
+-- Nombre: RegistrarHabitacion
+-- Descripción: Registra una nueva habitación siempre y cuando no exista otra habitación con el 
+-- mismo número en el mismo hospedaje. Si se inserta exitosamente, retorna el ID de la habitación 
+-- registrada. Si ya existe, retorna -1. En caso de error, se captura el mensaje.
+-- ================================================================================================
 create procedure RegistrarHabitacion
     @NumeroHabitacion int,
     @IdTipoHabitacion int,
@@ -1108,19 +1170,9 @@ begin
         and IdHospedaje = @IdHospedaje)
         begin
         insert into Habitacion
-            (
-            NumeroHabitacion,
-            IdTipoHabitacion,
-            IdHospedaje,
-            CantidadPersonas
-            )
+            (NumeroHabitacion,IdTipoHabitacion,IdHospedaje,CantidadPersonas)
         values
-            (
-                @NumeroHabitacion,
-                @IdTipoHabitacion,
-                @IdHospedaje,
-                @CantidadPersonas
-            )
+            (@NumeroHabitacion, @IdTipoHabitacion, @IdHospedaje, @CantidadPersonas)
 
         select scope_identity() as IdHabitacion
     end 
@@ -1136,61 +1188,51 @@ begin
 	end catch
 end
 
---consultar todas las habitaciones
+-- ================================================================================================
+-- Nombre: ConsultarTodasHabitaciones
+-- Descripción: Devuelve todas las habitaciones registradas en el sistema, utilizando la vista 
+-- Vista_Habitaciones para presentar la información completa.
+-- ================================================================================================
 create procedure ConsultarTodasHabitaciones
 as
 begin
-    select
-        h.IdHabitacion,
-        h.NumeroHabitacion,
-        h.IdTipoHabitacion,
-        th.NombreTipoHabitacion,
-        h.IdHospedaje,
-        hp.NombreHospedaje,
-        h.CantidadPersonas
-    from Habitacion h
-        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-        inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
+    select *
+    from Vista_Habitaciones
 end
 
---consultar habitaci�n por ID
+-- ================================================================================================
+-- Nombre: ConsultarHabitacionPorId
+-- Descripción: Consulta los detalles de una habitación específica según su ID, mostrando información
+-- completa gracias a la vista Vista_Habitaciones.
+-- ================================================================================================
 create procedure ConsultarHabitacionPorId
     @IdHabitacion int
 as
 begin
-    select
-        h.IdHabitacion,
-        h.NumeroHabitacion,
-        h.IdTipoHabitacion,
-        th.NombreTipoHabitacion,
-        h.IdHospedaje,
-        hp.NombreHospedaje,
-        h.CantidadPersonas
-    from Habitacion h
-        inner join TipoHabitacion th 
-    in h.IdTipoHabitacion = th.IdTipoHabitacion
-    inner join Hospedaje hp on h.IdHospedaje = hp.IdHospedaje
-    where h.IdHabitacion = @IdHabitacion
+    select * from Vista_Habitaciones
+    where IdHabitacion = @IdHabitacion
 end
 
---consultar habitaciones por hospedaje
+-- ================================================================================================
+-- Nombre: ConsultarHabitacionesPorHospedaje
+-- Descripción: Devuelve la lista de habitaciones que pertenecen a un hospedaje específico, 
+-- ordenadas por número de habitación.
+-- ================================================================================================
 create procedure ConsultarHabitacionesPorHospedaje
     @IdHospedaje int
 as
 begin
-    select
-        h.IdHabitacion,
-        h.NumeroHabitacion,
-        h.IdTipoHabitacion,
-        th.NombreTipoHabitacion,
-        h.CantidadPersonas
-    from Habitacion h
-        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
-    where h.IdHospedaje = @IdHospedaje
-    order by h.NumeroHabitacion
+    select * from Vista_Habitaciones
+    where IdHospedaje = @IdHospedaje
+    order by NumeroHabitacion
 end
 
---actualizar la habitacion
+-- ===============================================================================================
+-- Nombre: ActualizarHabitacion
+-- Descripción: Actualiza la información de una habitación si no existe otra habitación con el 
+-- mismo número en el mismo hospedaje. Retorna 1 si se actualizó, -1 si el número ya existe o 
+-- muestra el error.
+-- ===============================================================================================
 create procedure ActualizarHabitacion
     @IdHabitacion int,
     @NumeroHabitacion int,
@@ -1199,55 +1241,74 @@ create procedure ActualizarHabitacion
 as
 begin
     begin try
-		declare @IdHospedaje int
-		select @IdHospedaje = @IdHospedaje
-    from Habitacion
-    where @IdHabitacion = @IdHabitacion
-		
-		if not exists (select 1
-    from Habitacion
-    where NumeroHabitacion = @NumeroHabitacion
-        and IdHospedaje = @IdHospedaje
-        and IdHabitacion <> @IdHabitacion)
+        declare @IdHospedaje int --Se utiliza para guardar temporalmente el IdHospedaje 
 
+        -- Obtener el IdHospedaje de la habitación actual
+        select @IdHospedaje = IdHospedaje
+        from Habitacion
+        where IdHabitacion = @IdHabitacion
+        
+        if not exists ( select 1
+            from Habitacion
+            where NumeroHabitacion = @NumeroHabitacion
+                and IdHospedaje = @IdHospedaje
+                and IdHabitacion <> @IdHabitacion --que el IdHabitacion sea distinto del que estamos actualizando.
+        )
         begin
-        update Habitacion set
-                NumeroHabitacion = @NumeroHabitacion,
+            update Habitacion
+            set NumeroHabitacion = @NumeroHabitacion,
                 IdTipoHabitacion = @IdTipoHabitacion,
                 CantidadPersonas = @CantidadPersonas
             where IdHabitacion = @IdHabitacion
 
-        select 1 as resultado
-    end 
-		else
-		begin
-        select -1 as resultado
-    end
+            select 1 as resultado
+        end
+        else
+        begin
+            select -1 as resultado 
+        end
     end try
-	begin catch
-		select
-        error_number() as NumeroError,
-        error_message() as MensajeError
-	end catch
+    begin catch
+        select
+            error_number() as NumeroError,
+            error_message() as MensajeError
+    end catch
 end
 
---eliminar habitacion
+-- ===========================================================================================
+-- Nombre: EliminarHabitacion
+-- Descripción:Este procedimiento elimina una habitación solo si no tiene reservas activas o futuras.
+-- Una reserva activa o futura es aquella cuya FechaFin es igual o posterior a la fecha actual.
+-- Si existen reservas activas o futuras, no elimina y lanza un error.
+-- Si no existen, elimina la habitación.
+-- Si la operación es exitosa, retorna resultado = 1.
+-- ===========================================================================================
 create procedure EliminarHabitacion
     @IdHabitacion int
 as
 begin
     begin try
-		delete from Habitacion
-		where @IdHabitacion = @IdHabitacion
+        if exists ( select 1
+            from Reservacion
+            where IdHabitacion = @IdHabitacion
+            and FechaSalida >= cast(getdate() as date))
+        begin
+            raiserror('No se puede eliminar la habitación porque tiene reservas activas o futuras.', 16, 1);
+            return;
+        end
+        -- Si no tiene reservas, eliminar la habitación
+        delete from Habitacion
+        where IdHabitacion = @IdHabitacion;
 
-		select 1 as resultado
-	end try
-	begin catch
-		select
-        error_number() as NumeroError,
-        error_message() as MensajeError
-	end catch
+        select 1 as resultado;
+    end try
+    begin catch
+        select
+            error_number() as NumeroError,
+            error_message() as MensajeError;
+    end catch
 end
+
 
 --Tabla Cliente
 --registrar cliente
