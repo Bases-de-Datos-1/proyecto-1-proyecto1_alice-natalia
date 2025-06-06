@@ -1309,9 +1309,45 @@ begin
     end catch
 end
 
-
+----------------
 --Tabla Cliente
---registrar cliente
+----------------
+
+-- ===========================================================================================
+-- Nombre: Vista_Clientes
+-- Descripción: Vista que muestra la información completa de los clientes,
+-- incluyendo nombre completo, edad calculada, tipo de identidad y país de residencia.
+-- Combina datos de las tablas Cliente, TipoIdentidad y Pais para ofrecer
+-- una vista consolidada con datos legibles y completos.
+-- ===========================================================================================
+create view Vista_Clientes
+as
+    select
+        c.IdCliente,
+        c.IdentificacionCliente,
+        c.PrimerApellido,
+        c.SegundoApellido,
+        c.Nombre,
+        concat(c.Nombre, ' ', c.PrimerApellido, ' ', c.SegundoApellido) as NombreCompleto,
+        c.CorreoElectronico,
+        c.FechaNacimiento,
+        datediff(year, c.FechaNacimiento, getdate()) as Edad,
+        c.TipoIdentidad,
+        ti.NombreTipoIdentidad,
+        c.PaisResidencia,
+        p.NombrePais
+    from Cliente c
+        inner join TipoIdentidad ti on c.TipoIdentidad = ti.IdTipoIdentidad
+        inner join Pais p on c.PaisResidencia = p.IdPais
+
+-- ===========================================================================================
+-- Nombre: RegistrarCliente
+-- Descripción: Registra un nuevo cliente si no existe previamente en la base de datos.
+-- Valida que no exista otro cliente con la misma identificación o correo electrónico.
+-- Si se registra exitosamente, retorna el Id del nuevo cliente.
+-- Si ya existe la identificación o el correo, retorna -1.
+-- En caso de error, retorna información del error capturado.
+-- ===========================================================================================
 create procedure ConsultarCliente
     @IdentificacionCliente varchar(20),
     @PrimerApellido varchar(50),
@@ -1327,34 +1363,17 @@ begin
 		if not exists (select 1
     from Cliente
     where IdentificacionCliente = @IdentificacionCliente)
+
 		begin
         if not exists (select 1
         from Cliente
         where CorreoElectronico = @CorreoElectronico)
+
             begin
             insert into Cliente
-                (
-                IdentificacionCliente,
-                PrimerApellido,
-                SegundoApellido,
-                Nombre,
-                CorreoElectronico,
-                FechaNacimiento,
-                TipoIdentidad,
-                PaisResidencia
-                )
+                (IdentificacionCliente,PrimerApellido,SegundoApellido, Nombre,CorreoElectronico, FechaNacimiento,TipoIdentidad,PaisResidencia)
             values
-                (
-                    @IdentificacionCliente,
-                    @PrimerApellido,
-                    @SegundoApellido,
-                    @Nombre,
-                    @CorreoElectronico,
-                    @FechaNacimiento,
-                    @TipoIdentidad,
-                    @PaisResidencia
-                )
-
+                (@IdentificacionCliente,@PrimerApellido, @SegundoApellido, @Nombre, @CorreoElectronico, @FechaNacimiento,@TipoIdentidad, @PaisResidencia)
 
             select scope_identity() as IdCliente
         end
@@ -1375,74 +1394,55 @@ begin
 	end catch
 end
 
---consultar todos los clientes
+-- ===========================================================================================
+-- Nombre: ConsultarTodosClientes
+-- Descripción: Consulta y devuelve todos los clientes registrados en el sistema,
+-- utilizando la vista Vista_Clientes para mostrar la información completa y legible.
+-- ===========================================================================================
 create procedure ConsultarTodosClientes
 as
 begin
-    select
-        c.IdCliente,
-        c.IdentificacionCliente,
-        c.PrimerApellido,
-        c.SegundoApellido,
-        c.Nombre,
-        concat(c.Nombre, ' ', c.PrimerApellido, ' ', c.SegundoApellido) as NombreCompleto,
-        c.CorreoElectronico,
-        c.FechaNacimiento,
-        datediff(year, c.FechaNacimiento, getdate()) as Edad,
-        c.TipoIdentidad,
-        ti.NombreTipoIdentidad,
-        c.PaisResidencia,
-        p.NombrePais
-    from Cliente c
-        inner join TipoIdentidad ti on c.TipoIdentidad = ti.IdTipoIdentidad
-        inner join Pais p on c.PaisResidencia = p.IdPais
+    select * from Vista_Clientes
 end
 
---consultar cliente por ID
+-- ===========================================================================================
+-- Nombre: ConsultarClientePorId
+-- Descripción: Consulta un cliente específico por su IdCliente, utilizando la vista Vista_Clientes.
+-- Retorna los datos completos del cliente si existe.
+-- ===========================================================================================
 create procedure ConsultarClientePorId
     @IdCliente int
 as
 begin
-    select
-        c.IdCliente,
-        c.IdentificacionCliente,
-        c.PrimerApellido,
-        c.SegundoApellido,
-        c.Nombre,
-        concat(c.Nombre, ' ', c.PrimerApellido, ' ', c.SegundoApellido) as NombreCompleto,
-        c.CorreoElectronico,
-        c.FechaNacimiento,
-        datediff(year, c.FechaNacimiento, getdate()) as Edad,
-        c.TipoIdentidad,
-        ti.NombreTipoIdentidad,
-        c.PaisResidencia,
-        p.NombrePais
-    from Cliente c
-        inner join TipoIdentidad ti on c.TipoIdentidad = ti.IdTipoIdentidad
-        inner join Pais p on c.PaisResidencia = p.IdPais
-    where c.IdCliente = @IdCliente
+    select * from Vista_Clientes
+    where IdCliente = @IdCliente
 end
 
---consultarclientes por nombre o apellido
+-- ===========================================================================================
+-- Nombre: ConsultarClientesPorNombre
+-- Descripción: Consulta clientes cuyo nombre o apellidos coincidan parcialmente
+-- con el valor enviado en el parámetro @Busqueda.
+-- Utiliza LIKE para realizar coincidencias parciales en Vista_Clientes.
+-- ===========================================================================================
 create procedure ConsultarClientesPorNombre
     @Busqueda varchar(100)
 as
 begin
-    select
-        c.IdCliente,
-        c.IdentificacionCliente,
-        c.PrimerApellido,
-        c.SegundoApellido,
-        c.Nombre,
-        concat(c.Nombre, ' ', c.PrimerApellido, ' ', c.SegundoApellido) as NombreCompleto,
-        c.CorreoElectronico,
-        c.FechaNacimiento
-    from Cliente c
+    select *
+    from Vista_Clientes
     where c.Nombre like '%' + @Busqueda + '%'
         or c.PrimerApellido like '%' + @Busqueda + '%'
         or c.SegundoApellido like '%' + @Busqueda + '%'
 end
 
+-- ===========================================================================================
+-- Nombre: ActualizarCliente
+-- Descripción: Actualiza los datos de un cliente existente.
+-- Valida que la nueva identificación y correo electrónico no estén repetidos en otro cliente.
+-- Si la operación es exitosa, retorna resultado = 1.
+-- Si hay conflicto con identificación, retorna -1.
+-- Si hay conflicto con correo electrónico, retorna -2.
+-- ===========================================================================================
 create procedure ActualizarCliente
     @IdCliente int,
     @IdentificacionCliente varchar(20),
@@ -1460,11 +1460,13 @@ begin
     from Cliente
     where IdentificacionCliente = @IdentificacionCliente
         and IdCliente <> @IdCliente)
+
         begin
         if not exists(select 1
         from Cliente
         where CorreoElectronico = @CorreoElectronico
             and IdCliente <> @IdCliente)
+
             begin
             update Cliente set
                     IdentificacionCliente = @IdentificacionCliente,
@@ -1496,25 +1498,45 @@ begin
     end catch
 end
 
+-- ===========================================================================================
+-- Nombre: EliminarCliente
+-- Descripción: Este procedimiento elimina un cliente solo si no tiene reservas ni facturas asociadas.
+-- Primero verifica que no existan registros en las tablas Reserva o Factura relacionados al cliente.
+-- Si existen reservas o facturas, no elimina al cliente y retorna resultado = -1.
+-- Si no existen, elimina primero los teléfonos asociados y luego el cliente.
+-- Si la operación es exitosa, retorna resultado = 1.
+-- En caso de error, retorna el número y mensaje del error capturado.
+-- ===========================================================================================
 create procedure EliminarCliente
     @IdCliente int
 as
 begin
     begin try
-        delete from TelefonoCliente where IdCliente = @IdCliente
-        
-        delete from Cliente where IdCliente = @IdCliente
-        
-        select 1 as resultado 
+        if exists (select 1 from Reserva where IdCliente = @IdCliente) 
+        or exists (select 1 from Factura where IdCliente = @IdCliente)
+        begin
+            select -1 as resultado  
+        end
+
+        else
+        begin
+            delete from TelefonoCliente where IdCliente = @IdCliente
+            delete from Cliente where IdCliente = @IdCliente
+
+            select 1 as resultado 
+        end
     end try
     begin catch
         select
-        error_number() as NumeroError,
-        error_message() as MensajeError
+            error_number() as NumeroError,
+            error_message() as MensajeError
     end catch
 end
 
+--------------------------
 --Tabla TelefonoCliente
+--------------------------
+
 --registrar el telefono del cliente
 create procedure ResgistrarTelefonoCliente
     @IdCliente int,
