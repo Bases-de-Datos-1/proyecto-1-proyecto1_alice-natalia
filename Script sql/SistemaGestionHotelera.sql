@@ -428,6 +428,47 @@ values
 
 ---------------------------------------------------------------------------------
 
+--Tabla de PersonalDelHospedaje 
+
+create table PersonalDelHospedaje (
+	IdPersonal int identity(1,1) primary key,
+	IdHospedaje int not null,
+	NombrePersonalCompleto varchar(150) not null,
+	Cargo varchar(50) not null,
+	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
+	Contrasena varchar(255),
+	constraint FK_PersonalHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
+)
+
+insert into PersonalDelHospedaje (IdHospedaje, NombrePersonalCompleto, Cargo, CorreoElectronico, Contrasena)
+values
+(1, 'Juan Perez', 'Gerente General', 'juan.perez@hotel.com', 'Contrasena1'),
+(1, 'Maria Lopez', 'Recepcionista', 'maria.lopez@hotel.com', 'Contrasena2'),
+(1, 'Carlos Gomez', 'Jefe de Limpieza', 'carlos.gomez@hotel.com', 'Contrasena3'),
+(1, 'Ana Martinez', 'Administrativa', 'ana.martinez@hotel.com', 'Contrasena4'),
+(1, 'Luis Fernandez', 'Conserje', 'luis.fernandez@hotel.com', 'Contrasena5'),
+
+(2, 'Sofia Ramirez', 'Recepcionista', 'sofia.ramirez@hotel.com', 'Contrasena6'),
+(2, 'Miguel Torres', 'Jefe de Cocina', 'miguel.torres@hotel.com', 'Contrasena7'),
+(2, 'Paula Castillo', 'Coordinadora de Eventos', 'paula.castillo@hotel.com', 'Contrasena8'),
+(2, 'Ricardo Diaz', 'Seguridad', 'ricardo.diaz@hotel.com', 'Contrasena9'),
+(2, 'Laura Herrera', 'Contadora', 'laura.herrera@hotel.com', 'Contrasena10'),
+
+(3, 'Jorge Morales', 'Mantenimiento', 'jorge.morales@hotel.com', 'Contrasena11'),
+(3, 'Claudia Vargas', 'Recepcionista', 'claudia.vargas@hotel.com', 'Contrasena12'),
+(3, 'Pedro Alvarez', 'Gerente de Ventas', 'pedro.alvarez@hotel.com', 'Contrasena13'),
+(4, 'Elena Soto', 'Limpieza', 'elena.soto@hotel.com', 'Contrasena14'),
+(4, 'Andres Rubio', 'Camarero', 'andres.rubio@hotel.com', 'Contrasena15'),
+
+(4, 'Isabel Cruz', 'Jefa de Recepción', 'isabel.cruz@hotel.com', 'Contrasena16'),
+(6, 'Daniel Morales', 'Auxiliar Administrativo', 'daniel.morales@hotel.com', 'Contrasena17'),
+(6, 'Natalia Vargas', 'Recepcionista', 'natalia.vargas@hotel.com', 'Contrasena18'),
+(6, 'Felipe Castillo', 'Conserje', 'felipe.castillo@hotel.com', 'Contrasena19'),
+(6, 'Gabriela Mendez', 'Administrativa', 'gabriela.mendez@hotel.com', 'Contrasena20');
+
+--select * from PersonalDelHospedaje
+---------------------------------------------------------------------------------
+
 --Tabla de TipoHabitacion
 create table TipoHabitacion(
 	IdTipoHabitacion int identity(1,1) primary key,
@@ -710,6 +751,47 @@ values
 --select * from  EmpresaRecreativa 
 
 ---------------------------------------------------------------------------------
+--Tabla de PersonalDeEmpresaRecreativa 
+
+create table PersonalDeEmpresaRecreativa  (
+	IdPersonal int identity(1,1) primary key,
+	IdEmpresaRecreativa int not null,
+	NombrePersonalCompleto varchar(150) not null,
+	Cargo varchar(50) not null,
+	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
+	Contrasena varchar(255),
+	constraint FK_PersonalIdEmpresaRecreativa foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa)
+)
+
+insert into PersonalDeEmpresaRecreativa  (IdEmpresaRecreativa, NombrePersonalCompleto, Cargo, CorreoElectronico, Contrasena)
+values
+(1, 'Juan Perez', 'Gerente General', 'juan.perez@hotel.com', 'Contrasena1'),
+(1, 'Maria Lopez', 'Recepcionista', 'maria.lopez@hotel.com', 'Contrasena2'),
+(1, 'Carlos Gomez', 'Jefe de Limpieza', 'carlos.gomez@hotel.com', 'Contrasena3'),
+(1, 'Ana Martinez', 'Administrativa', 'ana.martinez@hotel.com', 'Contrasena4'),
+(1, 'Luis Fernandez', 'Conserje', 'luis.fernandez@hotel.com', 'Contrasena5'),
+
+(2, 'Sofia Ramirez', 'Recepcionista', 'sofia.ramirez@hotel.com', 'Contrasena6'),
+(2, 'Miguel Torres', 'Jefe de Cocina', 'miguel.torres@hotel.com', 'Contrasena7'),
+(2, 'Paula Castillo', 'Coordinadora de Eventos', 'paula.castillo@hotel.com', 'Contrasena8'),
+(2, 'Ricardo Diaz', 'Seguridad', 'ricardo.diaz@hotel.com', 'Contrasena9'),
+(2, 'Laura Herrera', 'Contadora', 'laura.herrera@hotel.com', 'Contrasena10'),
+
+(3, 'Jorge Morales', 'Mantenimiento', 'jorge.morales@hotel.com', 'Contrasena11'),
+(3, 'Claudia Vargas', 'Recepcionista', 'claudia.vargas@hotel.com', 'Contrasena12'),
+(3, 'Pedro Alvarez', 'Gerente de Ventas', 'pedro.alvarez@hotel.com', 'Contrasena13'),
+(3, 'Elena Soto', 'Limpieza', 'elena.soto@hotel.com', 'Contrasena14'),
+(3, 'Andres Rubio', 'Camarero', 'andres.rubio@hotel.com', 'Contrasena15'),
+
+(4, 'Isabel Cruz', 'Jefa de Recepción', 'isabel.cruz@hotel.com', 'Contrasena16'),
+(4, 'Daniel Morales', 'Auxiliar Administrativo', 'daniel.morales@hotel.com', 'Contrasena17'),
+(4, 'Natalia Vargas', 'Recepcionista', 'natalia.vargas@hotel.com', 'Contrasena18'),
+(4, 'Felipe Castillo', 'Conserje', 'felipe.castillo@hotel.com', 'Contrasena19'),
+(4, 'Gabriela Mendez', 'Administrativa', 'gabriela.mendez@hotel.com', 'Contrasena20');
+
+--select * from PersonalDeEmpresaRecreativa 
+
+---------------------------------------------------------------------------------
 
 --Tabla de EmpresaServicio
 create table EmpresaServicio(
@@ -792,3 +874,5 @@ values
 --select * from  DireccionEmpresa
 
 ---------------------------------------------------------------------------------
+
+
