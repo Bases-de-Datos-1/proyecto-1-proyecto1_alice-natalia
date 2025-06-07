@@ -1551,7 +1551,7 @@ end
 -- ===========================================================================================
 create view Vista_TelefonoCliente
 as
-select
+    select
         IdTelefonoCliente,
         IdCliente,
         NumeroTelefono,
@@ -1578,9 +1578,9 @@ begin
 
         begin
         insert into TelefonoCliente
-        (IdCliente,NumeroTelefono,TipoTelefono)
+            (IdCliente,NumeroTelefono,TipoTelefono)
         values
-        ( @IdCliente,@NumeroTelefono,@TipoTelefono)
+            ( @IdCliente, @NumeroTelefono, @TipoTelefono)
 
         select scope_identity() as IdTelefonoCliente
     end
@@ -1604,7 +1604,8 @@ create procedure ConsultarTelefonosCliente
     @IdCliente int
 as
 begin
-    select * from Vista_TelefonoCliente
+    select *
+    from Vista_TelefonoCliente
     where IdCliente = @IdCliente
     order by TipoTelefono
 end
@@ -1626,12 +1627,13 @@ begin
     begin try
         declare @IdCliente int
 
-        select @IdCliente = IdCliente from TelefonoCliente
-        where IdTelefonoCliente = @IdTelefonoCliente
+        select @IdCliente = IdCliente
+    from TelefonoCliente
+    where IdTelefonoCliente = @IdTelefonoCliente
         
         if not exists (select 1
-        from TelefonoCliente
-        where IdCliente = @IdCliente
+    from TelefonoCliente
+    where IdCliente = @IdCliente
         and NumeroTelefono = @NumeroTelefono
         and IdTelefonoCliente <> @IdTelefonoCliente)
 
@@ -1689,7 +1691,7 @@ end
 -- Calcula el número de noches entre la fecha de ingreso y salida.
 -- ===========================================================================================
 create view Vista_Reservaciones
-as 
+as
     select
         r.IdReserva,
         r.Numeroreserva,
@@ -1732,17 +1734,17 @@ as
 begin
     begin try
         if not exists (select 1
-            from Reservacion
-            where IdHabitacion = @IdHabitacion
-        and ( (@FechaIngreso between FechaIngreso and Fechasalida) 
-        or (@Fechasalida between FechaIngreso and Fechasalida) 
+    from Reservacion
+    where IdHabitacion = @IdHabitacion
+        and ( (@FechaIngreso between FechaIngreso and Fechasalida)
+        or (@Fechasalida between FechaIngreso and Fechasalida)
         or (FechaIngreso between @FechaIngreso and @Fechasalida) ) )
         
         begin
         insert into Reservacion
             (Numeroreserva,IdHabitacion,CantidadPersonas,IdCliente, FechaIngreso,Fechasalida,HoraIngreso,Horasalida,PoseeVehiculo)
         values
-            (@Numeroreserva,@IdHabitacion,@CantidadPersonas,@IdCliente,@FechaIngreso,@Fechasalida,@HoraIngreso,@Horasalida,@PoseeVehiculo)
+            (@Numeroreserva, @IdHabitacion, @CantidadPersonas, @IdCliente, @FechaIngreso, @Fechasalida, @HoraIngreso, @Horasalida, @PoseeVehiculo)
 
         select scope_identity() as IdReserva
     end
@@ -1765,7 +1767,8 @@ end
 create procedure ConsultarTodasReservaciones
 as
 begin
-    select * from Vista_Reservaciones
+    select *
+    from Vista_Reservaciones
 end
 
 -- ===========================================================================================
@@ -1777,7 +1780,8 @@ create procedure ConsultarReservacionPorId
     @IdReserva int
 as
 begin
-    select * from Vista_Reservaciones
+    select *
+    from Vista_Reservaciones
     where IdReserva = @IdReserva
 end
 
@@ -1790,7 +1794,8 @@ create procedure ConsultarReservacionesPorCliente
     @IdCliente int
 as
 begin
-    select * from Vista_Reservaciones
+    select *
+    from Vista_Reservaciones
     where IdCliente = @IdCliente
     order by FechaIngreso desc
 end
@@ -1806,7 +1811,8 @@ create procedure ConsultarReservacionesPorFecha
     @FechaFin date
 as
 begin
-    select * from Vista_Reservaciones
+    select *
+    from Vista_Reservaciones
     where FechaIngreso between @FechaInicio and @FechaFin
         or Fechasalida between @FechaInicio and @FechaFin
     order by FechaIngreso
@@ -1831,8 +1837,9 @@ create procedure ActualizarReservacion
 as
 begin
     begin try
-        if not exists ( select 1 from Reservacion
-        where IdHabitacion = @IdHabitacion
+        if not exists ( select 1
+    from Reservacion
+    where IdHabitacion = @IdHabitacion
         and IdReserva <> @IdReserva
         and ((@FechaIngreso between FechaIngreso and Fechasalida) or(@Fechasalida between FechaIngreso and Fechasalida) or (FechaIngreso between @FechaIngreso and @Fechasalida)))
         
@@ -1872,8 +1879,9 @@ create procedure EliminarReservacion
 as
 begin
     begin try
-        if not exists (select 1 from Facturacion 
-        where IdReserva = @IdReserva)
+        if not exists (select 1
+    from Facturacion
+    where IdReserva = @IdReserva)
         
         begin
         delete from Reservacion
@@ -1944,7 +1952,9 @@ as
 begin
     begin try
         --Debe existir una reservacion para hacer la factura
-        if not exists (select 1 from Facturacion where IdReserva = @IdReserva)
+        if not exists (select 1
+    from Facturacion
+    where IdReserva = @IdReserva)
         begin
         --Si no se proporcionan cantidad de noches o importe total, se calculan
         if @CantidadNoches is null or @ImporteTotal is null
@@ -1965,11 +1975,11 @@ begin
             set @CantidadNoches = datediff(day, @FechaIngreso, @Fechasalida)
             set @ImporteTotal = @CantidadNoches * @Precionoche
         end
-        
+
         insert into Facturacion
             ( NumeroFacturacion,IdReserva, FechaEmision, CantidadNoches,ImporteTotal,IdTipoPago )
         values
-            (@NumeroFacturacion, @IdReserva, getdate(), @CantidadNoches,@ImporteTotal, @IdTipoPago)
+            (@NumeroFacturacion, @IdReserva, getdate(), @CantidadNoches, @ImporteTotal, @IdTipoPago)
 
         select scope_identity() as IdFactura
     end
@@ -1994,7 +2004,8 @@ end
 create procedure ConsultarTodasFacturas
 as
 begin
-    select * from Vista_Facturacion
+    select *
+    from Vista_Facturacion
 end
 
 -- ===========================================================================================
@@ -2005,7 +2016,8 @@ create procedure ConsultarFacturaPorId
     @IdFactura int
 as
 begin
-    select * from Vista_Facturacion
+    select *
+    from Vista_Facturacion
     where IdFactura = @IdFactura
 end
 
@@ -2018,7 +2030,8 @@ create procedure ConsultarFacturasPorCliente
     @IdCliente int
 as
 begin
-    select * from Vista_Facturacion
+    select *
+    from Vista_Facturacion
     where IdCliente = @IdCliente
     order by FechaEmision desc
 end
@@ -2033,7 +2046,8 @@ create procedure ConsultarFacturasPorFecha
     @FechaFin date
 as
 begin
-    select * from Vista_Facturacion
+    select *
+    from Vista_Facturacion
     where FechaEmision between @FechaInicio and @FechaFin
     order by FechaEmision
 end
@@ -2147,18 +2161,20 @@ create procedure RegistrarEmpresaRecreativa
 as
 begin
     begin try
-        if not exists (select 1 from EmpresaRecreativa
-        where CedulaJuridicaEmpresa = @CedulaJuridicaEmpresa)
+        if not exists (select 1
+    from EmpresaRecreativa
+    where CedulaJuridicaEmpresa = @CedulaJuridicaEmpresa)
 
         begin
-        if not exists (select 1 from EmpresaRecreativa
+        if not exists (select 1
+        from EmpresaRecreativa
         where CorreoElectronico = @CorreoElectronico)
 
             begin
             insert into EmpresaRecreativa
                 (CedulaJuridicaEmpresa, NombreEmpresas, CorreoElectronico, NombrePersonal,NumeroTelefono )
             values
-                (@CedulaJuridicaEmpresa,@NombreEmpresas,@CorreoElectronico,@NombrePersonal, @NumeroTelefono)
+                (@CedulaJuridicaEmpresa, @NombreEmpresas, @CorreoElectronico, @NombrePersonal, @NumeroTelefono)
 
             select scope_identity() as IdEmpresaRecreativa
         end
@@ -2187,7 +2203,8 @@ end
 create procedure ConsultarEmpresasRecreativas
 as
 begin
-    select *  from Vista_EmpresaRecreativa
+    select *
+    from Vista_EmpresaRecreativa
     order by NombreEmpresas
 end
 
@@ -2199,7 +2216,8 @@ create procedure ConsultarEmpresaRecreativaPorId
     @IdEmpresaRecreativa int
 as
 begin
-    select * from Vista_EmpresaRecreativa
+    select *
+    from Vista_EmpresaRecreativa
     where IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
@@ -2212,7 +2230,8 @@ create procedure ConsultarEmpresasRecreativasPorNombre
     @Nombre varchar(50)
 as
 begin
-    select * from Vista_EmpresaRecreativa
+    select *
+    from Vista_EmpresaRecreativa
     where NombreEmpresas like '%' + @Nombre + '%'
     order by NombreEmpresas
 end
@@ -2234,7 +2253,9 @@ as
 begin
     begin try
         --Verificar que no exista otra empresa con la misma cedula juridica
-        if not exists (select 1 from EmpresaRecreativa where CorreoElectronico = @CorreoElectronico
+        if not exists (select 1
+    from EmpresaRecreativa
+    where CorreoElectronico = @CorreoElectronico
         and IdEmpresaRecreativa <> @IdEmpresaRecreativa)
 
         begin
@@ -2272,7 +2293,9 @@ as
 begin
     begin try
         --Verificar que no existan servicios asociados a la empresa
-        if not exists (select 1 from Empresaservicio where IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        if not exists (select 1
+    from Empresaservicio
+    where IdEmpresaRecreativa = @IdEmpresaRecreativa)
         begin
 
         delete from EmpresaRecreativa
@@ -2333,14 +2356,16 @@ create procedure RegistrarEmpresaservicio
 as
 begin
     begin try
-        if not exists (select 1 from Empresaservicio where IdServicio = @IdServicio
+        if not exists (select 1
+    from Empresaservicio
+    where IdServicio = @IdServicio
         and IdEmpresaRecreativa = @IdEmpresaRecreativa)
 
         begin
         insert into Empresaservicio
             (CostoAdicional,descripcion,IdServicio,IdEmpresaRecreativa)
         values
-            ( @CostoAdicional,@descripcion,@IdServicio,@IdEmpresaRecreativa )
+            ( @CostoAdicional, @descripcion, @IdServicio, @IdEmpresaRecreativa )
 
         select scope_identity() as IdEmpresaservicio
     end
@@ -2364,7 +2389,8 @@ end
 create procedure ConsultarEmpresaservicios
 as
 begin
-    select * from Vista_EmpresaServicio
+    select *
+    from Vista_EmpresaServicio
 end
 
 -- ===========================================================================================
@@ -2376,7 +2402,8 @@ create procedure ConsultarServiciosPorEmpresa
     @IdEmpresaRecreativa int
 as
 begin
-    select * from Vista_EmpresaServicio
+    select *
+    from Vista_EmpresaServicio
     where IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
@@ -2389,7 +2416,8 @@ create procedure ConsultarEmpresasPorServicio
     @IdServicio int
 as
 begin
-    select * from Vista_EmpresaServicio
+    select *
+    from Vista_EmpresaServicio
     where IdServicio = @IdServicio
 end
 
@@ -2452,7 +2480,7 @@ end
 --              incluyendo nombre de la actividad y nombre de la empresa.
 -- ===========================================================================================
 create view Vista_EmpresaActividad
-as 
+as
     select
         ea.IdEmpresaActividad,
         ea.Precio,
@@ -2486,13 +2514,15 @@ create procedure RegistrarEmpresaActividad
 as
 begin
     begin try
-        if not exists (select 1 from EmpresaActividad where IdActividad = @IdActividad and IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        if not exists (select 1
+    from EmpresaActividad
+    where IdActividad = @IdActividad and IdEmpresaRecreativa = @IdEmpresaRecreativa)
 
         begin
         insert into EmpresaActividad
             (Precio,MaximoParticipantes,MinimoParticipantes,Duracion,descripcion,Horarios,IdActividad,IdEmpresaRecreativa)
         values
-            (@Precio,@MaximoParticipantes,@MinimoParticipantes,@Duracion,@descripcion,@Horarios,@IdActividad,@IdEmpresaRecreativa)
+            (@Precio, @MaximoParticipantes, @MinimoParticipantes, @Duracion, @descripcion, @Horarios, @IdActividad, @IdEmpresaRecreativa)
 
         select scope_identity() as IdEmpresaActividad
     end
@@ -2515,7 +2545,8 @@ end
 create procedure ConsultarEmpresaActividades
 as
 begin
-    select * from Vista_EmpresaActividad
+    select *
+    from Vista_EmpresaActividad
 end
 
 -- ===========================================================================================
@@ -2526,7 +2557,8 @@ create procedure ConsultarActividadesPorEmpresa
     @IdEmpresaRecreativa int
 as
 begin
-    select * from Vista_EmpresaActividad
+    select *
+    from Vista_EmpresaActividad
     where IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
@@ -2538,7 +2570,8 @@ create procedure ConsultarEmpresasPorActividad
     @IdActividad int
 as
 begin
-    select * from Vista_EmpresaActividad
+    select *
+    from Vista_EmpresaActividad
     where IdActividad = @IdActividad
 end
 
@@ -2551,7 +2584,8 @@ create procedure ConsultarEmpresaActividadPorId
     @IdEmpresaActividad int
 as
 begin
-    select * from Vista_EmpresaActividad
+    select *
+    from Vista_EmpresaActividad
     where IdEmpresaActividad = @IdEmpresaActividad
 end
 
@@ -2630,13 +2664,15 @@ create procedure RegistrarDireccionEmpresa
 as
 begin
     begin try
-        if not exists (select 1 from DireccionEmpresa where IdEmpresaRecreativa = @IdEmpresaRecreativa)
+        if not exists (select 1
+    from DireccionEmpresa
+    where IdEmpresaRecreativa = @IdEmpresaRecreativa)
 
         begin
         insert into DireccionEmpresa
             ( IdEmpresaRecreativa, SenasExactas, Provincia, Canton, Distrito )
         values
-            (@IdEmpresaRecreativa, @SenasExactas, @Provincia, @Canton,@Distrito)
+            (@IdEmpresaRecreativa, @SenasExactas, @Provincia, @Canton, @Distrito)
 
         select scope_identity() as IdDireccionEmpresa
     end
@@ -2679,7 +2715,8 @@ as
 create procedure ConsultarDireccionesEmpresas
 as
 begin
-    select * from Vista_DireccionesEmpresas
+    select *
+    from Vista_DireccionesEmpresas
 end
 
 -- ===========================================================================================
@@ -2690,7 +2727,8 @@ create procedure ConsultarDireccionPorEmpresa
     @IdEmpresaRecreativa int
 as
 begin
-    select * from Vista_DireccionesEmpresas
+    select *
+    from Vista_DireccionesEmpresas
     where de.IdEmpresaRecreativa = @IdEmpresaRecreativa
 end
 
@@ -2772,20 +2810,21 @@ as
         F.FechaEmision,
         F.CantidadNoches,
         F.ImporteTotal,
-        DATEDIFF(YEAR, C.FechaNacimiento, GETDATE()) AS EdadCliente,
+        datediff(year, C.FechaNacimiento, getdate()) AS EdadCliente,
         C.Nombre + ' ' + C.PrimerApellido + ' ' + C.SegundoApellido AS NombreCompletoCliente,
         C.IdentificacionCliente,
         tc.NumeroTelefono as TelefonoCliente,
         C.CorreoElectronico as CorreoCliente,
+        ho.IdHospedaje,
         ho.NombreHospedaje,
-        CONCAT(DH.Barrio, ', ', DH.Distrito, ', ', DH.Canton,', ',p.NombreProvincia) AS UbicacionCompletaHospedaje,
+        concat(DH.Barrio, ', ', DH.Distrito, ', ', DH.Canton,', ',p.NombreProvincia) AS UbicacionCompletaHospedaje,
         H.NumeroHabitacion,
         TH.NombreTipoHabitacion,
         TP.NombreTipoPago,
         case --CASE es una estructura condicional que permite evaluar una o varias condiciones y devolver un valor diferente según cuál condición se cumpla
-            when r.FechaIngreso <= GETDATE() and r.Fechasalida >= GETDATE() then 'En curso'
-            when r.FechaIngreso > GETDATE() THEN 'Futura'
-            when r.FechaSalida < GETDATE() THEN 'Pasada'
+            when r.FechaIngreso <= getdate() and r.Fechasalida >= getdate() then 'En curso'
+            when r.FechaIngreso > getdate() THEN 'Futura'
+            when r.FechaSalida < getdate() THEN 'Pasada'
             else 'Actual'
         end as EstadoReserva
 
@@ -2801,9 +2840,172 @@ as
         inner join Provincia p on p.IdProvincia = DH.Provincia
     where f.ImporteTotal > 0
 
+create procedure ReportePorDia
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
+    @DiaReporte int
+as
+begin
+    declare @IdHospedaje int;
+
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+
+    if @IdHospedaje is not null
+    begin
+        select *
+        from Vista_ReporteFacturacion
+        where day(FechaEmision) = @DiaReporte and IdHospedaje = @IdHospedaje
+
+        select
+            sum(ImporteTotal) as TotalImporte,
+            @DiaReporte as Dia,
+            count(*) as CantidadFacturas
+        from Vista_ReporteFacturacion
+        where day(FechaEmision) = @DiaReporte and IdHospedaje = @IdHospedaje;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
+end
 
 
 
-drop view Vista_ReporteFacturacion
+create procedure ReportePorMes
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
+    @MesReporte int
+as
+begin
+    declare @IdHospedaje int;
 
-select * from Vista_ReporteFacturacion
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+
+    if @IdHospedaje is not null
+    begin
+        select *
+        from Vista_ReporteFacturacion
+        where Month(FechaEmision) = @MesReporte and IdHospedaje = @IdHospedaje
+
+        select
+            sum(ImporteTotal) as TotalImporte,
+            @MesReporte as Mes,
+            count(*) as CantidadFacturas
+        from Vista_ReporteFacturacion
+        where month(FechaEmision) = @MesReporte and IdHospedaje = @IdHospedaje;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
+end
+
+
+create procedure ReportePorYear
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
+    @YearReporte int
+as
+begin
+    declare @IdHospedaje int;
+
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+
+    if @IdHospedaje is not null
+    begin
+        select *
+        from Vista_ReporteFacturacion
+        where Year(FechaEmision) = @YearReporte and IdHospedaje = @IdHospedaje
+
+        select
+            sum(ImporteTotal) as TotalImporte,
+            @YearReporte as Año,
+            count(*) as CantidadFacturas
+        from Vista_ReporteFacturacion
+        where Year(FechaEmision) = @YearReporte and IdHospedaje = @IdHospedaje;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
+end
+
+
+
+create procedure ReportePorRangoFechas
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
+    @FechaInicioReporte date,
+    @FechaFinReporte date
+as
+begin
+    declare @IdHospedaje int;
+
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+
+    if @IdHospedaje is not null
+    begin
+         select *
+        from Vista_ReporteFacturacion
+        where FechaEmision between @FechaInicioReporte and @FechaFinReporte and IdHospedaje = @IdHospedaje
+        order by FechaEmision desc;
+
+        select
+            sum(ImporteTotal) as TotalImporte,
+            convert(varchar, @FechaInicioReporte, 23) + ' a ' + convert(varchar, @FechaFinReporte, 23) as RangoConsultado,
+            count(*) as CantidadFacturas
+        from Vista_ReporteFacturacion
+        where FechaEmision between @FechaInicioReporte and @FechaFinReporte and IdHospedaje = @IdHospedaje;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
+end
+
+
+
+create procedure ReportePorNumeroHabitacion
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
+    @NumeroHabitacion int
+as
+begin
+    declare @IdHospedaje int;
+
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+
+    if @IdHospedaje is not null
+    begin
+        select
+            NumeroHabitacion,
+            count(*) AS CantidadFacturas,
+            sum(ImporteTotal) AS TotalFacturado
+        from Vista_ReporteFacturacion
+        where NumeroHabitacion = @NumeroHabitacion
+        group by NumeroHabitacion
+        order by  TotalFacturado DESC;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
+end
+
+EXEC ReportePorNumeroHabitacion
+    @CorreoElectronico = 'sofia.ramirez@hotel.com',
+    @Contrasena = 'Contrasena6',
+    @NumeroHabitacion=11
+
+
+
