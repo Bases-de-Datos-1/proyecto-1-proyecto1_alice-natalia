@@ -2758,3 +2758,52 @@ begin
         error_message() as MensajeError
     end catch
 end
+
+
+----------------------------------
+--Reportes Nueva Funcionalidad
+----------------------------------
+
+----------------------------------------------------------------
+create view Vista_ReporteFacturacion
+as
+    select
+        F.NumeroFacturacion,
+        F.FechaEmision,
+        F.CantidadNoches,
+        F.ImporteTotal,
+        DATEDIFF(YEAR, C.FechaNacimiento, GETDATE()) AS EdadCliente,
+        C.Nombre + ' ' + C.PrimerApellido + ' ' + C.SegundoApellido AS NombreCompletoCliente,
+        C.IdentificacionCliente,
+        tc.NumeroTelefono as TelefonoCliente,
+        C.CorreoElectronico as CorreoCliente,
+        ho.NombreHospedaje,
+        CONCAT(DH.Barrio, ', ', DH.Distrito, ', ', DH.Canton,', ',p.NombreProvincia) AS UbicacionCompletaHospedaje,
+        H.NumeroHabitacion,
+        TH.NombreTipoHabitacion,
+        TP.NombreTipoPago,
+        case --CASE es una estructura condicional que permite evaluar una o varias condiciones y devolver un valor diferente según cuál condición se cumpla
+            when r.FechaIngreso <= GETDATE() and r.Fechasalida >= GETDATE() then 'En curso'
+            when r.FechaIngreso > GETDATE() THEN 'Futura'
+            when r.FechaSalida < GETDATE() THEN 'Pasada'
+            else 'Actual'
+        end as EstadoReserva
+
+    from Facturacion f
+        inner join Reservacion r on f.IdReserva = r.IdReserva
+        inner join Cliente c on r.IdCliente = c.IdCliente
+        inner join Habitacion h on r.IdHabitacion = h.IdHabitacion
+        inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
+        inner join TipoPago tp on f.IdTipoPago = tp.IdTipoPago
+        inner join TelefonoCliente tc on C.IdCliente = tc.IdCliente
+        inner join Hospedaje ho on h.IdHospedaje = ho.IdHospedaje
+        inner join DireccionHospedaje DH on DH.IdHospedaje = ho.IdHospedaje
+        inner join Provincia p on p.IdProvincia = DH.Provincia
+    where f.ImporteTotal > 0
+
+
+
+
+drop view Vista_ReporteFacturacion
+
+select * from Vista_ReporteFacturacion
