@@ -2802,7 +2802,11 @@ end
 --Reportes Nueva Funcionalidad
 ----------------------------------
 
-----------------------------------------------------------------
+-- ===========================================================================================
+-- Nombre: Vista_ReporteFacturacion
+-- Descripción: Vista que muestra información consolidada de facturación,
+-- Se utiliza para generar reportes específicos.
+-- ===========================================================================================
 create view Vista_ReporteFacturacion
 as
     select
@@ -2840,6 +2844,12 @@ as
         inner join Provincia p on p.IdProvincia = DH.Provincia
     where f.ImporteTotal > 0
 
+
+-- ===========================================================================================
+-- Nombre: ReportePorDia
+-- Descripción: Muestra las facturas emitidas en un día específico para un hospedaje.
+--              También devuelve el total facturado y la cantidad de facturas del día.
+-- ===========================================================================================
 create procedure ReportePorDia
     @CorreoElectronico varchar(100),
     @Contrasena varchar(100),
@@ -2871,8 +2881,11 @@ begin
     end
 end
 
-
-
+-- ===========================================================================================
+-- Nombre: ReportePorMes
+-- Descripción: Muestra las facturas emitidas en un mes específico para un hospedaje.
+-- También devuelve el total facturado y la cantidad de facturas del mes.
+-- ===========================================================================================
 create procedure ReportePorMes
     @CorreoElectronico varchar(100),
     @Contrasena varchar(100),
@@ -2904,7 +2917,11 @@ begin
     end
 end
 
-
+-- ===========================================================================================
+-- Nombre: ReportePorYear
+-- Descripción: Muestra las facturas emitidas en un año específico para un hospedaje.
+-- También devuelve el total facturado y la cantidad de facturas del año.
+-- ===========================================================================================
 create procedure ReportePorYear
     @CorreoElectronico varchar(100),
     @Contrasena varchar(100),
@@ -2936,8 +2953,11 @@ begin
     end
 end
 
-
-
+-- ===========================================================================================
+-- Nombre: ReportePorRangoFechas
+-- Descripción: Muestra las facturas emitidas en un rango de fechas para un hospedaje.
+--  También devuelve el total facturado y la cantidad de facturas en ese periodo.
+-- ===========================================================================================
 create procedure ReportePorRangoFechas
     @CorreoElectronico varchar(100),
     @Contrasena varchar(100),
@@ -2953,7 +2973,7 @@ begin
 
     if @IdHospedaje is not null
     begin
-         select *
+        select *
         from Vista_ReporteFacturacion
         where FechaEmision between @FechaInicioReporte and @FechaFinReporte and IdHospedaje = @IdHospedaje
         order by FechaEmision desc;
@@ -2971,8 +2991,11 @@ begin
     end
 end
 
-
-
+-- ===========================================================================================
+-- Nombre: ReportePorNumeroHabitacion
+-- Descripción: Muestra las facturas asociadas a un número de habitación específico.
+--  Incluye el total facturado y la cantidad de facturas agrupadas por habitación.
+-- ===========================================================================================
 create procedure ReportePorNumeroHabitacion
     @CorreoElectronico varchar(100),
     @Contrasena varchar(100),
@@ -2987,6 +3010,11 @@ begin
 
     if @IdHospedaje is not null
     begin
+
+        select * from Vista_ReporteFacturacion
+        where NumeroHabitacion = @NumeroHabitacion
+        order by FechaEmision desc;
+
         select
             NumeroHabitacion,
             count(*) AS CantidadFacturas,
@@ -3001,6 +3029,8 @@ begin
         select -1 as Resultado;
     end
 end
+
+
 
 EXEC ReportePorNumeroHabitacion
     @CorreoElectronico = 'sofia.ramirez@hotel.com',
