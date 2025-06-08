@@ -34,6 +34,33 @@ values
 
 ---------------------------------------------------------------------------------
 
+--Tabla CargoPersonal
+create table CargoPersonal (
+    IdCargo int identity(1,1) primary key,
+    NombreCargo varchar(100) not null UNIQUE
+)
+
+INSERT INTO CargoPersonal (NombreCargo)
+VALUES 
+('Gerente General'),
+('Recepcionista'),
+('Jefe de Limpieza'),
+('Administrativa'),
+('Conserje'),
+('Jefe de Cocina'),
+('Coordinadora de Eventos'),
+('Seguridad'),
+('Contadora'),
+('Mantenimiento'),
+('Gerente de Ventas'),
+('Limpieza'),
+('Camarero'),
+('Jefa de Recepción'),
+('Auxiliar Administrativo');
+
+--select * from CargoPersonal
+---------------------------------------------------------------------------------
+
 --Tabla catalogo RedSocial
 create table RedSocial (
 	IdRedSocial int identity(1,1) primary key,
@@ -431,40 +458,23 @@ values
 --Tabla de PersonalDelHospedaje 
 
 create table PersonalDelHospedaje (
-	IdPersonal int identity(1,1) primary key,
-	IdHospedaje int not null,
-	NombrePersonalCompleto varchar(150) not null,
-	Cargo varchar(50) not null,
-	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
-	Contrasena varchar(255),
-	constraint FK_PersonalHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
+    IdPersonal int identity(1,1) primary key,
+    IdHospedaje int not null,
+    NombrePersonalCompleto varchar(150) not null,
+    IdCargo int not null,
+    CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
+    Contrasena varchar(255),
+    constraint  FK_PersonalHospedaje foreign key  (IdHospedaje) references Hospedaje(IdHospedaje),
+    constraint  FK_CargoPersonal foreign key (IdCargo) references CargoPersonal(IdCargo)
 )
 
-insert into PersonalDelHospedaje (IdHospedaje, NombrePersonalCompleto, Cargo, CorreoElectronico, Contrasena)
+insert into PersonalDelHospedaje (IdHospedaje, NombrePersonalCompleto, IdCargo, CorreoElectronico, Contrasena)
 values
-(1, 'Juan Perez', 'Gerente General', 'juan.perez@hotel.com', 'Contrasena1'),
-(1, 'Maria Lopez', 'Recepcionista', 'maria.lopez@hotel.com', 'Contrasena2'),
-(1, 'Carlos Gomez', 'Jefe de Limpieza', 'carlos.gomez@hotel.com', 'Contrasena3'),
-(1, 'Ana Martinez', 'Administrativa', 'ana.martinez@hotel.com', 'Contrasena4'),
-(1, 'Luis Fernandez', 'Conserje', 'luis.fernandez@hotel.com', 'Contrasena5'),
-
-(2, 'Sofia Ramirez', 'Recepcionista', 'sofia.ramirez@hotel.com', 'Contrasena6'),
-(2, 'Miguel Torres', 'Jefe de Cocina', 'miguel.torres@hotel.com', 'Contrasena7'),
-(2, 'Paula Castillo', 'Coordinadora de Eventos', 'paula.castillo@hotel.com', 'Contrasena8'),
-(2, 'Ricardo Diaz', 'Seguridad', 'ricardo.diaz@hotel.com', 'Contrasena9'),
-(2, 'Laura Herrera', 'Contadora', 'laura.herrera@hotel.com', 'Contrasena10'),
-
-(3, 'Jorge Morales', 'Mantenimiento', 'jorge.morales@hotel.com', 'Contrasena11'),
-(3, 'Claudia Vargas', 'Recepcionista', 'claudia.vargas@hotel.com', 'Contrasena12'),
-(3, 'Pedro Alvarez', 'Gerente de Ventas', 'pedro.alvarez@hotel.com', 'Contrasena13'),
-(4, 'Elena Soto', 'Limpieza', 'elena.soto@hotel.com', 'Contrasena14'),
-(4, 'Andres Rubio', 'Camarero', 'andres.rubio@hotel.com', 'Contrasena15'),
-
-(4, 'Isabel Cruz', 'Jefa de Recepción', 'isabel.cruz@hotel.com', 'Contrasena16'),
-(6, 'Daniel Morales', 'Auxiliar Administrativo', 'daniel.morales@hotel.com', 'Contrasena17'),
-(6, 'Natalia Vargas', 'Recepcionista', 'natalia.vargas@hotel.com', 'Contrasena18'),
-(6, 'Felipe Castillo', 'Conserje', 'felipe.castillo@hotel.com', 'Contrasena19'),
-(6, 'Gabriela Mendez', 'Administrativa', 'gabriela.mendez@hotel.com', 'Contrasena20');
+(1, 'Juan Perez', 1, 'juan.perez@hotel.com', 'Contrasena1'),       
+(2, 'Maria Lopez', 2, 'maria.lopez@hotel.com', 'Contrasena2'),       
+(3, 'Carlos Gomez', 3, 'carlos.gomez@hotel.com', 'Contrasena3'),     
+(1, 'Ana Martinez', 4, 'ana.martinez@hotel.com', 'Contrasena4'),     
+(1, 'Luis Fernandez', 5, 'luis.fernandez@hotel.com', 'Contrasena5')
 
 --select * from PersonalDelHospedaje
 ---------------------------------------------------------------------------------
