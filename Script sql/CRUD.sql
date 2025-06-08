@@ -1502,44 +1502,6 @@ begin
     end catch
 end
 
--- ===========================================================================================
--- Nombre: EliminarCliente
--- Descripción: Este procedimiento elimina un cliente solo si no tiene reservas ni facturas asociadas.
--- Primero verifica que no existan registros en las tablas Reserva o Factura relacionados al cliente.
--- Si existen reservas o facturas, no elimina al cliente y retorna resultado = -1.
--- Si no existen, elimina primero los teléfonos asociados y luego el cliente.
--- Si la operación es exitosa, retorna resultado = 1.
--- En caso de error, retorna el número y mensaje del error capturado.
--- ===========================================================================================
-create procedure EliminarCliente
-    @IdCliente int
-as
-begin
-    begin try
-        if exists (select 1
-        from Reserva
-        where IdCliente = @IdCliente)
-        or exists (select 1
-        from Factura
-        where IdCliente = @IdCliente)
-        begin
-        select -1 as resultado
-    end
-        else
-        begin
-        delete from TelefonoCliente where IdCliente = @IdCliente
-        delete from Cliente where IdCliente = @IdCliente
-
-        select 1 as resultado
-    end
-    end try
-    begin catch
-        select
-        error_number() as NumeroError,
-        error_message() as MensajeError
-    end catch
-end
-
 --------------------------
 --Tabla TelefonoCliente
 --------------------------
@@ -1868,38 +1830,6 @@ begin
     end catch
 end
 
--- ===========================================================================================
--- Nombre: EliminarReservacion
--- Descripción: Elimina una reservación si no tiene ninguna factura asociada.
--- Retorna 1 si la eliminación fue exitosa, -1 si ya está facturada.
--- En caso de error, devuelve el número y mensaje del error.
--- ===========================================================================================
-create procedure EliminarReservacion
-    @IdReserva int
-as
-begin
-    begin try
-        if not exists (select 1
-    from Facturacion
-    where IdReserva = @IdReserva)
-        
-        begin
-        delete from Reservacion
-            where IdReserva = @IdReserva
-
-        select 1 as resultado
-    end
-        else
-        begin
-        select -1 as resultado
-    end
-    end try
-    begin catch
-        select
-        error_number() as NumeroError,
-        error_message() as MensajeError
-    end catch
-end
 
 ---------------------
 --Tabla Facturacion
@@ -2089,28 +2019,6 @@ begin
             IdTipoPago = @IdTipoPago,
             CantidadNoches = @CantidadNoches,
             ImporteTotal = @ImporteTotal
-        where IdFactura = @IdFactura
-        
-        select 1 as resultado 
-    end try
-    begin catch
-        select
-        error_number() as NumeroError,
-        error_message() as MensajeError
-    end catch
-end
-
--- ===========================================================================================
--- Nombre: EliminarFacturacion
--- Descripción: Elimina una factura específica identificada por su ID.
--- Retorna 1 si la eliminación fue exitosa. En caso de error, devuelve el número y mensaje del error.
--- ===========================================================================================
-create procedure EliminarFacturacion
-    @IdFactura int
-as
-begin
-    begin try
-        delete from Facturacion
         where IdFactura = @IdFactura
         
         select 1 as resultado 
@@ -2823,6 +2731,7 @@ as
         ho.NombreHospedaje,
         concat(DH.Barrio, ', ', DH.Distrito, ', ', DH.Canton,', ',p.NombreProvincia) AS UbicacionCompletaHospedaje,
         H.NumeroHabitacion,
+        th.IdTipoHabitacion,
         TH.NombreTipoHabitacion,
         TP.NombreTipoPago,
         case --CASE es una estructura condicional que permite evaluar una o varias condiciones y devolver un valor diferente según cuál condición se cumpla
@@ -2851,34 +2760,20 @@ as
 --              También devuelve el total facturado y la cantidad de facturas del día.
 -- ===========================================================================================
 create procedure ReportePorDia
-    @CorreoElectronico varchar(100),
-    @Contrasena varchar(100),
     @DiaReporte int
 as
 begin
-    declare @IdHospedaje int;
 
-    select @IdHospedaje = IdHospedaje
-    from PersonalDelHospedaje
-    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+    select *
+    from Vista_ReporteFacturacion
+    where day(FechaEmision) = @DiaReporte
 
-    if @IdHospedaje is not null
-    begin
-        select *
-        from Vista_ReporteFacturacion
-        where day(FechaEmision) = @DiaReporte and IdHospedaje = @IdHospedaje
-
-        select
-            sum(ImporteTotal) as TotalImporte,
-            @DiaReporte as Dia,
-            count(*) as CantidadFacturas
-        from Vista_ReporteFacturacion
-        where day(FechaEmision) = @DiaReporte and IdHospedaje = @IdHospedaje;
-    end
-    else
-    begin
-        select -1 as Resultado;
-    end
+    select
+        sum(ImporteTotal) as TotalImporte,
+        @DiaReporte as Dia,
+        count(*) as CantidadFacturas
+    from Vista_ReporteFacturacion
+    where day(FechaEmision) = @DiaReporte
 end
 
 -- ===========================================================================================
@@ -2887,34 +2782,16 @@ end
 -- También devuelve el total facturado y la cantidad de facturas del mes.
 -- ===========================================================================================
 create procedure ReportePorMes
-    @CorreoElectronico varchar(100),
-    @Contrasena varchar(100),
     @MesReporte int
 as
 begin
-    declare @IdHospedaje int;
 
-    select @IdHospedaje = IdHospedaje
-    from PersonalDelHospedaje
-    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
-
-    if @IdHospedaje is not null
-    begin
-        select *
-        from Vista_ReporteFacturacion
-        where Month(FechaEmision) = @MesReporte and IdHospedaje = @IdHospedaje
-
-        select
-            sum(ImporteTotal) as TotalImporte,
-            @MesReporte as Mes,
-            count(*) as CantidadFacturas
-        from Vista_ReporteFacturacion
-        where month(FechaEmision) = @MesReporte and IdHospedaje = @IdHospedaje;
-    end
-    else
-    begin
-        select -1 as Resultado;
-    end
+    select
+        sum(ImporteTotal) as TotalImporte,
+        @MesReporte as Mes,
+        count(*) as CantidadFacturas
+    from Vista_ReporteFacturacion
+    where month(FechaEmision) = @MesReporte
 end
 
 -- ===========================================================================================
@@ -2923,34 +2800,22 @@ end
 -- También devuelve el total facturado y la cantidad de facturas del año.
 -- ===========================================================================================
 create procedure ReportePorYear
-    @CorreoElectronico varchar(100),
-    @Contrasena varchar(100),
     @YearReporte int
 as
 begin
-    declare @IdHospedaje int;
 
-    select @IdHospedaje = IdHospedaje
-    from PersonalDelHospedaje
-    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
 
-    if @IdHospedaje is not null
-    begin
-        select *
-        from Vista_ReporteFacturacion
-        where Year(FechaEmision) = @YearReporte and IdHospedaje = @IdHospedaje
+    select *
+    from Vista_ReporteFacturacion
+    where Year(FechaEmision) = @YearReporte
 
-        select
-            sum(ImporteTotal) as TotalImporte,
-            @YearReporte as Año,
-            count(*) as CantidadFacturas
-        from Vista_ReporteFacturacion
-        where Year(FechaEmision) = @YearReporte and IdHospedaje = @IdHospedaje;
-    end
-    else
-    begin
-        select -1 as Resultado;
-    end
+    select
+        sum(ImporteTotal) as TotalImporte,
+        @YearReporte as Año,
+        count(*) as CantidadFacturas
+    from Vista_ReporteFacturacion
+    where Year(FechaEmision) = @YearReporte
+
 end
 
 -- ===========================================================================================
@@ -2959,36 +2824,23 @@ end
 --  También devuelve el total facturado y la cantidad de facturas en ese periodo.
 -- ===========================================================================================
 create procedure ReportePorRangoFechas
-    @CorreoElectronico varchar(100),
-    @Contrasena varchar(100),
     @FechaInicioReporte date,
     @FechaFinReporte date
 as
 begin
-    declare @IdHospedaje int;
 
-    select @IdHospedaje = IdHospedaje
-    from PersonalDelHospedaje
-    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+    select *
+    from Vista_ReporteFacturacion
+    where FechaEmision between @FechaInicioReporte and @FechaFinReporte
+    order by FechaEmision desc;
 
-    if @IdHospedaje is not null
-    begin
-        select *
-        from Vista_ReporteFacturacion
-        where FechaEmision between @FechaInicioReporte and @FechaFinReporte and IdHospedaje = @IdHospedaje
-        order by FechaEmision desc;
+    select
+        sum(ImporteTotal) as TotalImporte,
+        convert(varchar, @FechaInicioReporte, 23) + ' a ' + convert(varchar, @FechaFinReporte, 23) as RangoConsultado,
+        count(*) as CantidadFacturas
+    from Vista_ReporteFacturacion
+    where FechaEmision between @FechaInicioReporte and @FechaFinReporte
 
-        select
-            sum(ImporteTotal) as TotalImporte,
-            convert(varchar, @FechaInicioReporte, 23) + ' a ' + convert(varchar, @FechaFinReporte, 23) as RangoConsultado,
-            count(*) as CantidadFacturas
-        from Vista_ReporteFacturacion
-        where FechaEmision between @FechaInicioReporte and @FechaFinReporte and IdHospedaje = @IdHospedaje;
-    end
-    else
-    begin
-        select -1 as Resultado;
-    end
 end
 
 -- ===========================================================================================
@@ -2997,45 +2849,26 @@ end
 --  Incluye el total facturado y la cantidad de facturas agrupadas por habitación.
 -- ===========================================================================================
 create procedure ReportePorNumeroHabitacion
-    @CorreoElectronico varchar(100),
-    @Contrasena varchar(100),
     @NumeroHabitacion int
 as
 begin
-    declare @IdHospedaje int;
 
-    select @IdHospedaje = IdHospedaje
-    from PersonalDelHospedaje
-    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+    select *
+    from Vista_ReporteFacturacion
+    where NumeroHabitacion = @NumeroHabitacion
+    order by FechaEmision desc;
 
-    if @IdHospedaje is not null
-    begin
+    select
+        NumeroHabitacion,
+        count(*) AS CantidadFacturas,
+        sum(ImporteTotal) AS TotalFacturado
+    from Vista_ReporteFacturacion
+    where NumeroHabitacion = @NumeroHabitacion
+    group by NumeroHabitacion
+    order by  TotalFacturado DESC;
 
-        select * from Vista_ReporteFacturacion
-        where NumeroHabitacion = @NumeroHabitacion
-        order by FechaEmision desc;
-
-        select
-            NumeroHabitacion,
-            count(*) AS CantidadFacturas,
-            sum(ImporteTotal) AS TotalFacturado
-        from Vista_ReporteFacturacion
-        where NumeroHabitacion = @NumeroHabitacion
-        group by NumeroHabitacion
-        order by  TotalFacturado DESC;
-    end
-    else
-    begin
-        select -1 as Resultado;
-    end
 end
 
-
-
-EXEC ReportePorNumeroHabitacion
-    @CorreoElectronico = 'sofia.ramirez@hotel.com',
-    @Contrasena = 'Contrasena6',
-    @NumeroHabitacion=11
 
 
 
