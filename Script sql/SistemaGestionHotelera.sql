@@ -1,8 +1,7 @@
--- Bases de datos I
--- Sistema de Gestion Hotelera
+--Bases de datos I
+--Sistema de Gestion Hotelera
 
-
--- Creacion de la base de datos con la verificacion de que si existe o no la base de datos.
+--Creacion de la base de datos con la verificacion de que si existe o no la base de datos.
 if not exists (select [name] from sys.databases where [name] = N'SistemaGestionHotelera')
 begin
 	create database SistemaGestionHotelera
@@ -33,12 +32,11 @@ values
 --select * from Provincia
 
 ---------------------------------------------------------------------------------
-
 --Tabla CargoPersonal
 create table CargoPersonal (
     IdCargo int identity(1,1) primary key,
     NombreCargo varchar(100) not null UNIQUE
-)
+);
 
 INSERT INTO CargoPersonal (NombreCargo)
 VALUES 
@@ -59,8 +57,8 @@ VALUES
 ('Auxiliar Administrativo');
 
 --select * from CargoPersonal
----------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------
 --Tabla catalogo RedSocial
 create table RedSocial (
 	IdRedSocial int identity(1,1) primary key,
@@ -78,10 +76,11 @@ values
     ('WhatsApp'),
     ('Telegram')
 
+create nonclustered index idx_RedSocial_IdRedSocial on RedSocial(IdRedSocial);
+
 --select * from RedSocial 
 
 ---------------------------------------------------------------------------------
-
 --Tabla catalogo TipoHospedaje
 create table TipoHospedaje(
 	IdTipoHospedaje int identity(1,1) primary key,
@@ -104,7 +103,6 @@ values
 --select * from TipoHospedaje
 
 ---------------------------------------------------------------------------------
-
 --Tabla catalogo Servicio
 create table Servicio(
 	IdServicio int identity(1,1) primary key,
@@ -125,10 +123,11 @@ values
     ('Servicio a la habitacion', 'Room service disponible'),
     ('Gimnasio', 'Area de ejercicio disponible');
 
+create nonclustered index idx_Servicio_IdServicio on Servicio(IdServicio);
+
 --select * from Servicio
 
 ---------------------------------------------------------------------------------
-
 --Tabla catalogo TipoCama
 create table TipoCama(
 	IdTipoCama int identity(1,1) primary key,
@@ -146,10 +145,11 @@ values
     ('Litera', 'Camas apiladas'),
     ('Sofa cama', 'Sofa que se convierte en cama');
 
+create nonclustered index idx_TipoCama_IdTipoCama on TipoCama(IdTipoCama);
+
 --select * from TipoCama
 
 ---------------------------------------------------------------------------------
-
 --Tabla catalogo Comodidad
 create table Comodidad(
 	IdComodidad int identity(1,1) primary key,
@@ -174,10 +174,11 @@ values
     ('Jacuzzi'),
     ('Balcon');
 
+create nonclustered index idx_Comodidad_IdComodidad on Comodidad(IdComodidad);
+
 --select * from Comodidad
 
 ---------------------------------------------------------------------------------
-
 --Tabla catalogo TipoIdentidad
 create table TipoIdentidad(
 	IdTipoIdentidad int identity(1,1) primary key,
@@ -194,10 +195,11 @@ values
 	('Pasaporte', 'Documento de identidad internacional para extranjeros'),
 	('Cedula de residencia', 'Documento para extranjeros con estatus de residentes permanentes');
 
+create nonclustered index idx_TipoIdentidad_IdTipoIdentidad on TipoIdentidad(IdTipoIdentidad);
+
 --select * from TipoIdentidad
 
 ---------------------------------------------------------------------------------
-
 --Tabla Catalogo Pais
 create table Pais(
 	IdPais int identity(1,1) primary key,
@@ -249,10 +251,11 @@ values
 	('Israel', '972', 'ISR'),
 	('Emiratos arabes Unidos', '971', 'ARE');
 
+create nonclustered index idx_Pais_IdPais on Pais(IdPais);
+
 --select * from Pais
 
 ---------------------------------------------------------------------------------
-
 --Tabla catalogo TipoPago
 create table TipoPago(
 	IdTipoPago int identity(1,1) primary key,
@@ -267,7 +270,6 @@ values
 --select * from TipoPago
 
 ---------------------------------------------------------------------------------
-
 --Tabla catalogo TipoServicio
 create table TipoServicio (
 	IdServicio int identity(1,1) primary key, 
@@ -290,7 +292,6 @@ values
 --select * from TipoServicio
 
 ---------------------------------------------------------------------------------
-
 --Tabla catalogo TipoActividad
 create table TipoActividad (
 	IdActividad int identity(1,1) primary key not null,
@@ -315,14 +316,12 @@ values
 
 --select * from TipoActividad
 
+--Creacion de las tablas principales Hospedajes
 ---------------------------------------------------------------------------------
-
---Creacion de las tablas principal Hospedajes
-
 --Tabla de Hospedaje
 create table Hospedaje (
 	IdHospedaje int identity(1,1) primary key,
-    CedulaJuridica varchar(20) not null check(CedulaJuridica like '[0-9]%' and len(CedulaJuridica) between 10 and 20),
+    CedulaJuridica varchar(20) not null check(CedulaJuridica like '[0-9]%' and len(CedulaJuridica) between 10 and 11),
     NombreHospedaje varchar(50) not null,
     TipoHospedaje int not null,
     UrlSitioWeb varchar(255) null check(UrlSitioWeb is null or UrlSitioWeb like 'http%'),
@@ -331,9 +330,9 @@ create table Hospedaje (
     constraint FK_TipoHospedaje foreign key (TipoHospedaje) references TipoHospedaje(IdTipoHospedaje)
 );
 
--- Se agrega la restriccion de cedula juridica para que inicie con un numero del 1 al 8 y tenga una longitud entre 10 y 20 caracteres
+--Se agrega la restriccion de cedula juridica para que inicie con un numero del 1 al 8 y tenga una longitud entre 10 y 11 caracteres
 ALTER TABLE Hospedaje
-ADD CONSTRAINT chk_CedulaJuridica CHECK (CedulaJuridica LIKE '[1-8]%' AND LEN(CedulaJuridica) BETWEEN 10 AND 20);
+ADD CONSTRAINT chk_CedulaJuridica CHECK (CedulaJuridica LIKE '[1-8]%' AND LEN(CedulaJuridica) BETWEEN 10 AND 11);
 
 insert into Hospedaje (CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS) 
 values
@@ -349,7 +348,6 @@ values
 --select * from Hospedaje
 
 ---------------------------------------------------------------------------------
-
 --Tabla de DireccionHospedaje
 create table DireccionHospedaje (
     IdDireccion int identity(1,1) primary key,
@@ -376,7 +374,6 @@ values
 --select * from DireccionHospedaje
 
 ---------------------------------------------------------------------------------
-
 --Tabla de TelefonoHospedaje
 create table TelefonoHospedaje(
 	IdTelefonoHospedaje int identity(1,1) primary key,
@@ -399,7 +396,6 @@ values
 --select * from TelefonoHospedaje
 
 ---------------------------------------------------------------------------------
-
 --Tabla de ServicioHospedaje
 create table ServicioHospedaje (
 	IdServicioHospedaje int identity(1,1) primary key,
@@ -427,7 +423,6 @@ values
 --select * from ServicioHospedaje
 
 ---------------------------------------------------------------------------------
-
 --Tabla de RedSocialHospedaje
 create table RedSocialHospedaje(
 	IdRedSocialHospedaje int identity(1,1) primary key,
@@ -454,9 +449,7 @@ values
 --select * from RedSocialHospedaje 
 
 ---------------------------------------------------------------------------------
-
 --Tabla de PersonalDelHospedaje 
-
 create table PersonalDelHospedaje (
     IdPersonal int identity(1,1) primary key,
     IdHospedaje int not null,
@@ -466,7 +459,7 @@ create table PersonalDelHospedaje (
     Contrasena varchar(255),
     constraint  FK_PersonalHospedaje foreign key  (IdHospedaje) references Hospedaje(IdHospedaje),
     constraint  FK_CargoPersonal foreign key (IdCargo) references CargoPersonal(IdCargo)
-)
+);
 
 insert into PersonalDelHospedaje (IdHospedaje, NombrePersonalCompleto, IdCargo, CorreoElectronico, Contrasena)
 values
@@ -477,8 +470,8 @@ values
 (1, 'Luis Fernandez', 5, 'luis.fernandez@hotel.com', 'Contrasena5')
 
 --select * from PersonalDelHospedaje
----------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------
 --Tabla de TipoHabitacion
 create table TipoHabitacion(
 	IdTipoHabitacion int identity(1,1) primary key,
@@ -507,7 +500,6 @@ values
 --select * from TipoHabitacion
 
 ---------------------------------------------------------------------------------
-
 --Tabla de ComodidadHabitacion 
 create table ComodidadHabitacion (
 	IdComodidadHabitacion int identity(1,1) primary key,
@@ -548,7 +540,6 @@ values
 --select * from ComodidadHabitacion
 
 ---------------------------------------------------------------------------------
-
 --Tabla de FotoHabitacion
 create table FotoHabitacion (
 	IdFotoHabitacion int identity(1,1) primary key,
@@ -577,7 +568,6 @@ values
 --select * from FotoHabitacion 
 
 ---------------------------------------------------------------------------------
-
 --Tabla de Habitacion
 create table Habitacion (
 	IdHabitacion int identity(1,1) primary key,
@@ -607,8 +597,8 @@ values
 
 --select * from Habitacion
 
+--Creacion de las tablas principales del sistema
 ---------------------------------------------------------------------------------
-
 --Tabla de Cliente
 create table Cliente (
 	IdCliente int identity(1,1) primary key,
@@ -636,7 +626,6 @@ values
 --select * from  Cliente
 
 ---------------------------------------------------------------------------------
-
 --Tabla de TelefonoCliente
 create table TelefonoCliente (
 	IdTelefonoCliente int identity(1,1) primary key,
@@ -658,7 +647,7 @@ values
 --select * from  TelefonoCliente
 
 ---------------------------------------------------------------------------------
-
+--tabla de DireccionCliente
 create table DireccionCliente (
 	IdDirreccionCliente int identity(1,1) primary key,
 	IdCliente int not null unique, --para que cada cliente solo pueda tener una direccion
@@ -681,8 +670,8 @@ values
 
 --select * from  DireccionCliente
 
+--Creacion de las tablas Reservacion y Facturacion
 ---------------------------------------------------------------------------------
-
 --Tabla de Reservacion
 create table Reservacion (
 	IdReserva int identity(1,1) primary key,
@@ -712,7 +701,6 @@ values
 --select * from  Reservacion
 
 ---------------------------------------------------------------------------------
-
 --Tabla de Facturacion
 create table Facturacion (
 	IdFactura int identity(1,1) primary key,
@@ -736,10 +724,8 @@ values
 
 --select * from  Facturacion
 
+--Creacion de las tablas de Empresas Recreativas
 ---------------------------------------------------------------------------------
-
---Empresas Recreativas
-
 --Tabla de EmpresaRecreativa
 create table EmpresaRecreativa (
 	IdEmpresaRecreativa int identity(1,1) primary key,
@@ -761,8 +747,7 @@ values
 --select * from  EmpresaRecreativa 
 
 ---------------------------------------------------------------------------------
---Tabla de PersonalDeEmpresaRecreativa 
-
+--Tabla de PersonalDeEmpresaRecreativa
 create table PersonalDeEmpresaRecreativa  (
 	IdPersonal int identity(1,1) primary key,
 	IdEmpresaRecreativa int not null,
@@ -771,7 +756,7 @@ create table PersonalDeEmpresaRecreativa  (
 	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
 	Contrasena varchar(255),
 	constraint FK_PersonalIdEmpresaRecreativa foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa)
-)
+);
 
 insert into PersonalDeEmpresaRecreativa  (IdEmpresaRecreativa, NombrePersonalCompleto, Cargo, CorreoElectronico, Contrasena)
 values
@@ -802,7 +787,6 @@ values
 --select * from PersonalDeEmpresaRecreativa 
 
 ---------------------------------------------------------------------------------
-
 --Tabla de EmpresaServicio
 create table EmpresaServicio(
 	IdEmpresaServicio int identity(1,1) primary key,
@@ -830,7 +814,6 @@ values
 --select * from  EmpresaServicio
 
 ---------------------------------------------------------------------------------
-
 --Tabla de EmpresaActividad
 create table EmpresaActividad(
 	IdEmpresaActividad int identity(1,1) primary key,
@@ -861,7 +844,6 @@ values
 --select * from  EmpresaActividad
 
 ---------------------------------------------------------------------------------
-
 --Tabla de DireccionEmpresa
 create table DireccionEmpresa (
     IdDireccionEmpresa int identity(1,1) primary key,
@@ -882,7 +864,4 @@ values
 	(4, '3 km al sur de la entrada a Veragua Rainforest', 7, 'Limon', 'Matama');
 
 --select * from  DireccionEmpresa
-
 ---------------------------------------------------------------------------------
-
-
