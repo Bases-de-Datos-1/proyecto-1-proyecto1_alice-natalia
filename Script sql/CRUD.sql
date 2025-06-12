@@ -2862,20 +2862,34 @@ as
 --También devuelve el total facturado y la cantidad de facturas del día.
 --===========================================================================================
 create procedure ReportePorDia
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
     @DiaReporte int
 as
 begin
+    declare @IdHospedaje int;
 
-    select *
-    from Vista_ReporteFacturacion
-    where day(FechaEmision) = @DiaReporte
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
 
-    select
-        sum(ImporteTotal) as TotalImporte,
-        @DiaReporte as Dia,
-        count(*) as CantidadFacturas
-    from Vista_ReporteFacturacion
-    where day(FechaEmision) = @DiaReporte
+    if @IdHospedaje is not null
+    begin
+        select *
+        from Vista_ReporteFacturacion
+        where day(FechaEmision) = @DiaReporte and IdHospedaje = @IdHospedaje
+
+        select
+            sum(ImporteTotal) as TotalImporte,
+            @DiaReporte as Dia,
+            count(*) as CantidadFacturas
+        from Vista_ReporteFacturacion
+        where day(FechaEmision) = @DiaReporte and IdHospedaje = @IdHospedaje;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
 end
 
 --===========================================================================================
@@ -2884,17 +2898,36 @@ end
 --También devuelve el total facturado y la cantidad de facturas del mes.
 --===========================================================================================
 create procedure ReportePorMes
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
     @MesReporte int
 as
 begin
+    declare @IdHospedaje int;
 
-    select
-        sum(ImporteTotal) as TotalImporte,
-        @MesReporte as Mes,
-        count(*) as CantidadFacturas
-    from Vista_ReporteFacturacion
-    where month(FechaEmision) = @MesReporte
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+
+    if @IdHospedaje is not null
+    begin
+        select *
+        from Vista_ReporteFacturacion
+        where Month(FechaEmision) = @MesReporte and IdHospedaje = @IdHospedaje
+
+        select
+            sum(ImporteTotal) as TotalImporte,
+            @MesReporte as Mes,
+            count(*) as CantidadFacturas
+        from Vista_ReporteFacturacion
+        where month(FechaEmision) = @MesReporte and IdHospedaje = @IdHospedaje;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
 end
+
 
 --===========================================================================================
 --Nombre: ReportePorYear
@@ -2902,22 +2935,34 @@ end
 --También devuelve el total facturado y la cantidad de facturas del año.
 --===========================================================================================
 create procedure ReportePorYear
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
     @YearReporte int
 as
 begin
+    declare @IdHospedaje int;
 
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
 
-    select *
-    from Vista_ReporteFacturacion
-    where Year(FechaEmision) = @YearReporte
+    if @IdHospedaje is not null
+    begin
+        select *
+        from Vista_ReporteFacturacion
+        where Year(FechaEmision) = @YearReporte and IdHospedaje = @IdHospedaje
 
-    select
-        sum(ImporteTotal) as TotalImporte,
-        @YearReporte as Año,
-        count(*) as CantidadFacturas
-    from Vista_ReporteFacturacion
-    where Year(FechaEmision) = @YearReporte
-
+        select
+            sum(ImporteTotal) as TotalImporte,
+            @YearReporte as Año,
+            count(*) as CantidadFacturas
+        from Vista_ReporteFacturacion
+        where Year(FechaEmision) = @YearReporte and IdHospedaje = @IdHospedaje;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
 end
 
 --===========================================================================================
@@ -2926,23 +2971,36 @@ end
 --También devuelve el total facturado y la cantidad de facturas en ese periodo.
 --===========================================================================================
 create procedure ReportePorRangoFechas
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
     @FechaInicioReporte date,
     @FechaFinReporte date
 as
 begin
+    declare @IdHospedaje int;
 
-    select *
-    from Vista_ReporteFacturacion
-    where FechaEmision between @FechaInicioReporte and @FechaFinReporte
-    order by FechaEmision desc;
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
 
-    select
-        sum(ImporteTotal) as TotalImporte,
-        convert(varchar, @FechaInicioReporte, 23) + ' a ' + convert(varchar, @FechaFinReporte, 23) as RangoConsultado,
-        count(*) as CantidadFacturas
-    from Vista_ReporteFacturacion
-    where FechaEmision between @FechaInicioReporte and @FechaFinReporte
+    if @IdHospedaje is not null
+    begin
+         select *
+        from Vista_ReporteFacturacion
+        where FechaEmision between @FechaInicioReporte and @FechaFinReporte and IdHospedaje = @IdHospedaje
+        order by FechaEmision desc;
 
+        select
+            sum(ImporteTotal) as TotalImporte,
+            convert(varchar, @FechaInicioReporte, 23) + ' a ' + convert(varchar, @FechaFinReporte, 23) as RangoConsultado,
+            count(*) as CantidadFacturas
+        from Vista_ReporteFacturacion
+        where FechaEmision between @FechaInicioReporte and @FechaFinReporte and IdHospedaje = @IdHospedaje;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
 end
 
 --===========================================================================================
@@ -2951,22 +3009,96 @@ end
 --Incluye el total facturado y la cantidad de facturas agrupadas por habitación.
 --===========================================================================================
 create procedure ReportePorNumeroHabitacion
+    @CorreoElectronico varchar(100),
+    @Contrasena varchar(100),
     @NumeroHabitacion int
 as
 begin
+    declare @IdHospedaje int;
 
+    select @IdHospedaje = IdHospedaje
+    from PersonalDelHospedaje
+    where CorreoElectronico = @CorreoElectronico and Contrasena = @Contrasena;
+
+    if @IdHospedaje is not null
+    begin
+        select
+            NumeroHabitacion,
+            count(*) AS CantidadFacturas,
+            sum(ImporteTotal) AS TotalFacturado
+        from Vista_ReporteFacturacion
+        where NumeroHabitacion = @NumeroHabitacion
+        group by NumeroHabitacion
+        order by  TotalFacturado DESC;
+    end
+    else
+    begin
+        select -1 as Resultado;
+    end
+end
+
+
+
+create procedure ReporteTipoHabitacion
+    @IdTipoHabitacion int
+as 
+begin
     select *
     from Vista_ReporteFacturacion
-    where NumeroHabitacion = @NumeroHabitacion
+    where IdTipoHabitacion = @IdTipoHabitacion
     order by FechaEmision desc;
 
     select
-        NumeroHabitacion,
+        NombreTipoHabitacion,
         count(*) AS CantidadFacturas,
         sum(ImporteTotal) AS TotalFacturado
-    from Vista_ReporteFacturacion
-    where NumeroHabitacion = @NumeroHabitacion
-    group by NumeroHabitacion
-    order by  TotalFacturado DESC;
+    from Vista_ReporteFacturacion 
+    where IdTipoHabitacion = @IdTipoHabitacion
+    group by NombreTipoHabitacion;
 
 end
+
+create procedure RangoEdadClientesReservaron
+as
+begin
+    select
+        MIN(EdadCliente) as EdadMinima,
+        MAX(EdadCliente) as EdadMaxima
+    from Vista_ReporteFacturacion;
+end
+
+
+--EXEC RangoEdadClientesReservaron;
+
+
+create procedure ReporteMayorDemandaHotelesPorFecha
+as
+begin
+    select CONVERT(date, FechaEmision) as Fecha,
+        NombreHospedaje,
+        COUNT(*) as CantidadReservas,
+        SUM(ImporteTotal) as TotalFacturado
+    from Vista_ReporteFacturacion
+    group by CONVERT(date, FechaEmision), NombreHospedaje
+    order by Fecha asc,CantidadReservas desc;
+end;
+
+--EXEC ReporteMayorDemandaHotelesPorFecha
+
+
+create procedure  ReporteHotelesMayorDemandaPorUbicacion
+as
+begin
+    select 
+        UbicacionCompletaHospedaje,
+        NombreHospedaje,
+        COUNT(*) as CantidadReservas,
+        SUM(ImporteTotal) as TotalFacturado
+    from Vista_ReporteFacturacion
+    group by  UbicacionCompletaHospedaje, NombreHospedaje
+    order by  CantidadReservas desc,TotalFacturado desc;
+end
+
+--EXEC ReporteHotelesMayorDemandaPorUbicacion
+
+
