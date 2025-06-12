@@ -865,3 +865,51 @@ values
 
 --select * from  DireccionEmpresa
 ---------------------------------------------------------------------------------
+
+
+
+---------------------------------------------------------------------------------
+--Creacion de los usuarios y sus roles.
+---------------------------------------------------------------------------------
+
+create role administradores;
+create role Usuario;
+
+create login usuario_administrador with password='admin2025.';
+create login usuario_cliente with password='cliente2025.';
+
+create user usuario_administrador for login usuario_administrador;
+create user usuario_cliente for login usuario_cliente;
+
+--Asignacion de roles a los usuarios
+alter role administradores add member usuario_administrador;
+alter role Usuario add member usuario_cliente;
+
+--Asignacion de permisos a los roles
+
+--administradores podrán realizar el CRUD a todas las tablas
+grant select, insert, update, delete on Hospedaje to administradores;
+grant select, insert, update, delete on DireccionHospedaje to administradores;
+grant select, insert, update, delete on TelefonoHospedaje to administradores;
+grant select, insert, update, delete on ServicioHospedaje to administradores;
+grant select, insert, update, delete on RedSocialHospedaje to administradores;
+grant select, insert, update, delete on PersonalDelHospedaje to administradores;
+grant select, insert, update, delete on TipoHabitacion to administradores;
+grant select, insert, update, delete on ComodidadHabitacion to administradores;
+grant select, insert, update, delete on FotoHabitacion to administradores;
+grant select, insert, update, delete on Habitacion to administradores;
+grant select, insert, update, delete on Cliente to administradores;
+grant select, insert, update, delete on TelefonoCliente to administradores;
+grant select, insert, update, delete on DireccionCliente to administradores;
+grant select, insert, update, delete on Reservacion to administradores;
+grant select, insert, update, delete on Facturacion to administradores;
+grant select, insert, update, delete on EmpresaRecreativa to administradores;
+grant select, insert, update, delete on PersonalDeEmpresaRecreativa to administradores;
+grant select, insert, update, delete on EmpresaServicio to administradores;
+grant select, insert, update, delete on EmpresaActividad to administradores;
+grant select, insert, update, delete on DireccionEmpresa to administradores;
+
+
+--Usuario solo podrá consultar habitaciones, disponibilidad y realizar una reserva
+grant select on Habitacion to Usuario;
+grant select,insert on Reservacion to Usuario;
