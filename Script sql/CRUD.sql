@@ -562,8 +562,8 @@ as
 begin
     if exists(
         select 1
-        from ServicioHospedaje
-        where IdServicioHospedaje = @IdServicioHospedaje
+    from ServicioHospedaje
+    where IdServicioHospedaje = @IdServicioHospedaje
     )
     begin
         update ServicioHospedaje
@@ -749,8 +749,10 @@ end
 --Se crean índices para mejorar el rendimiento de las consultas en la tabla RedSocialHospedaje,
 --agilizando la búsqueda por IdRedSocialHospedaje, IdHospedaje e IdRedSocial.
 --===========================================================================================
-create noncloustered index idx_RedSocialHospedaje_IdRedSocial on RedSocialHospedaje(IdRedSocial);
-create noncloustered index idx_RedSocialHospedaje_IdHospedaje on RedSocialHospedaje(IdHospedaje);
+create noncloustered index idx_RedSocialHospedaje_IdRedSocial on RedSocialHospedaje
+(IdRedSocial);
+create noncloustered index idx_RedSocialHospedaje_IdHospedaje on RedSocialHospedaje
+(IdHospedaje);
 
 --============================================= ============================================= =============================================
 --Nombre: Vista_RedSocialHospedaje
@@ -888,9 +890,12 @@ end
 --Se crean índices para mejorar el rendimiento de las consultas en la tabla TipoHabitacion,
 --agilizando la búsqueda por IdTipoHabitacion, IdHospedaje e IdTipoCama.
 --===========================================================================================
-create noncloustered index idx_TipoHabitacion_IdTipoHabitacion on TipoHabitacion(IdTipoHabitacion);
-create noncloustered index idx_TipoHabitacion_IdHospedaje on TipoHabitacion(IdHospedaje);
-create noncloustered index idx_TipoHabitacion_IdTipoCama on TipoHabitacion(IdTipoCama);
+create noncloustered index idx_TipoHabitacion_IdTipoHabitacion on TipoHabitacion
+(IdTipoHabitacion);
+create noncloustered index idx_TipoHabitacion_IdHospedaje on TipoHabitacion
+(IdHospedaje);
+create noncloustered index idx_TipoHabitacion_IdTipoCama on TipoHabitacion
+(IdTipoCama);
 
 --============================================= ============================================= =============================================
 --Nombre: Vista_TipoHabitacion
@@ -1241,6 +1246,7 @@ begin
         error_message() as MensajeError
 	end catch
 end
+
 
 --===============================================================================================
 --Nombre: ActualizarHabitacion
@@ -1782,6 +1788,7 @@ begin
     end catch
 end
 
+
 --===========================================================================================
 --Nombre: ActualizarReservacion
 --Descripción: Actualiza los datos de una reservación si no hay traslape con otra reservación
@@ -2209,6 +2216,18 @@ begin
         error_message() as MensajeError
     end catch
 end
+
+create view Vista_OcupacionPorFecha
+as
+    select
+        CONVERT(date, r.FechaIngreso) as Fecha,
+        h.NombreHospedaje,
+        COUNT(distinct ha.IdHabitacion) as HabitacionesOcupadas
+    from Reservacion r
+        inner join Habitacion ha on r.IdHabitacion = ha.IdHabitacion
+        inner join Hospedaje h  onN
+ha.IdHospedaje = h.IdHospedaje
+group by  CONVERT(date, r.FechaIngreso), h.NombreHospedaje;
 
 -- ===========================================================================================
 -- Nombre: ConsultarEmpresasRecreativas
@@ -2985,7 +3004,7 @@ begin
 
     if @IdHospedaje is not null
     begin
-         select *
+        select *
         from Vista_ReporteFacturacion
         where FechaEmision between @FechaInicioReporte and @FechaFinReporte and IdHospedaje = @IdHospedaje
         order by FechaEmision desc;
@@ -3049,7 +3068,7 @@ end
 
 create procedure ReporteTipoHabitacion
     @IdTipoHabitacion int
-as 
+as
 begin
     select *
     from Vista_ReporteFacturacion
@@ -3060,7 +3079,7 @@ begin
         NombreTipoHabitacion,
         count(*) AS CantidadFacturas,
         sum(ImporteTotal) AS TotalFacturado
-    from Vista_ReporteFacturacion 
+    from Vista_ReporteFacturacion
     where IdTipoHabitacion = @IdTipoHabitacion
     group by NombreTipoHabitacion;
 
@@ -3112,7 +3131,7 @@ end;
 create procedure  ReporteHotelesMayorDemandaPorUbicacion
 as
 begin
-    select 
+    select
         UbicacionCompletaHospedaje,
         NombreHospedaje,
         COUNT(*) as CantidadReservas,
@@ -3156,12 +3175,14 @@ end
 --@TiposHabitacion varchar(500): Lista de IDs de tipos de habitación separados por comas, ejemplo: '1,3,5'.
 --===================================================================================================
 create procedure ReservasPorMasDeUnTiposHabitacion
-    @TiposHabitacion varchar(500) 
+    @TiposHabitacion varchar(500)
 as
 begin
-    select * from Vista_ReporteFacturacion
+    select *
+    from Vista_ReporteFacturacion
     where IdTipoHabitacion in 
-    ( select TRY_CAST(value as int) from STRING_SPLIT(@TiposHabitacion, ','))--este seloecyt lo que hace es que vamos a meter los id de los tipos de habitacion que quiero buscar entonces va a sacarlos ya que esta separados por comas
+    ( select TRY_CAST(value as int)
+    from STRING_SPLIT(@TiposHabitacion, ','))--este seloecyt lo que hace es que vamos a meter los id de los tipos de habitacion que quiero buscar entonces va a sacarlos ya que esta separados por comas
     order by FechaEmision desc;
 end
 

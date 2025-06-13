@@ -7,17 +7,378 @@ begin
 	create database SistemaGestionHotelera
 end
 
---Uso de la base de datos
 use SistemaGestionHotelera
 
+--------------------------------------------------
 --Creacion de las tablas catalogo 
+--------------------------------------------------
 
----------------------------------------------------------------------------------
 --Tabla catalogo Provincia
 create table Provincia (
 	IdProvincia int identity(1,1) primary key,
 	NombreProvincia varchar(50) not null
 );
+
+
+--Tabla CargoPersonal
+create table CargoPersonal (
+    IdCargo int identity(1,1) primary key,
+    NombreCargo varchar(100) not null UNIQUE
+);
+
+
+--Tabla catalogo RedSocial
+create table RedSocial (
+	IdRedSocial int identity(1,1) primary key,
+	NombreRedSocial varchar(50) not null
+);
+
+
+--Tabla catalogo TipoHospedaje
+create table TipoHospedaje(
+	IdTipoHospedaje int identity(1,1) primary key,
+	NombreTipoHospedaje varchar(50) not null
+);
+
+
+
+--Tabla catalogo Servicio
+create table Servicio(
+	IdServicio int identity(1,1) primary key,
+	NombreServicio varchar(50) not null,
+	Descripcion text not null
+);
+
+
+--Tabla catalogo TipoCama
+create table TipoCama(
+	IdTipoCama int identity(1,1) primary key,
+	NombreTipoCama varchar(50) not null, 
+	Descripcion text not null
+);
+
+
+--Tabla catalogo Comodidad
+create table Comodidad(
+	IdComodidad int identity(1,1) primary key,
+	NombreComodidad varchar(50) not null
+);
+
+
+--Tabla catalogo TipoIdentidad
+create table TipoIdentidad(
+	IdTipoIdentidad int identity(1,1) primary key,
+	NombreTipoIdentidad varchar(50) not null,
+	Descripcion text not null
+);
+
+
+--Tabla Catalogo Pais
+create table Pais(
+	IdPais int identity(1,1) primary key,
+	NombrePais varchar(75) not null,
+	CodigoPais varchar(5) not null,
+	Abrebiacion varchar(3) not null
+);
+
+
+--Tabla catalogo TipoPago
+create table TipoPago(
+	IdTipoPago int identity(1,1) primary key,
+	NombreTipoPago varchar(50) not null,
+);
+
+
+--Tabla catalogo TipoServicio
+create table TipoServicio (
+	IdServicio int identity(1,1) primary key, 
+	NombreServicio varchar(50) not null,
+	Descripcion text not null
+);
+
+
+--Tabla catalogo TipoActividad
+create table TipoActividad (
+	IdActividad int identity(1,1) primary key not null,
+	NombreActividad varchar(50) not null,
+	Descripcion text not null
+);
+
+
+----------------------------------------
+--Creacion de las tablas principales 
+---------------------------------------
+
+
+--Tabla de Hospedaje
+create table Hospedaje (
+	IdHospedaje int identity(1,1) primary key,
+    CedulaJuridica varchar(20) not null check(CedulaJuridica like '[0-9]%' and len(CedulaJuridica) between 10 and 11),
+    NombreHospedaje varchar(50) not null,
+    TipoHospedaje int not null,
+    UrlSitioWeb varchar(255) null check(UrlSitioWeb is null or UrlSitioWeb like 'http%'),
+    CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '_%@_%._%'),
+    ReferenciasGPS varchar(100) not null,
+    constraint FK_TipoHospedaje foreign key (TipoHospedaje) references TipoHospedaje(IdTipoHospedaje)
+);
+
+--Se agrega la restriccion de cedula juridica para que inicie con un numero del 1 al 8 y tenga una longitud entre 10 y 11 caracteres
+ALTER TABLE Hospedaje
+ADD CONSTRAINT chk_CedulaJuridica CHECK (CedulaJuridica LIKE '[1-8]%' AND LEN(CedulaJuridica) BETWEEN 10 AND 11);
+
+
+--Tabla de DireccionHospedaje
+create table DireccionHospedaje (
+    IdDireccion int identity(1,1) primary key,
+	IdHospedaje int not null,
+	SenasExactas varchar(255) not null,
+	Barrio varchar(100)not null,
+    Provincia int not null,
+    Canton varchar(50) not null,
+    Distrito varchar(50) not null,
+	constraint FK_DireccionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje),
+	constraint FK_ProvinciaHospedaje foreign key (Provincia) references Provincia(IdProvincia)
+);
+
+
+--Tabla de TelefonoHospedaje
+create table TelefonoHospedaje(
+	IdTelefonoHospedaje int identity(1,1) primary key,
+	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+506%' and NumeroTelefono not like '%[^0-9+ -]%'), --permite el ingreso de n�meros y el caracter + y - para el codigo
+	IdHospedaje int not null,
+	constraint FK_TelefonoHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
+);
+
+
+
+--Tabla de ServicioHospedaje
+create table ServicioHospedaje (
+	IdServicioHospedaje int identity(1,1) primary key,
+	IdHospedaje int not null,
+	IdServicio int not null,
+	constraint FK_ServicioHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje),
+	constraint FK_Servicio foreign key (IdServicio) references Servicio(IdServicio)
+);
+
+
+--Tabla de RedSocialHospedaje
+create table RedSocialHospedaje(
+	IdRedSocialHospedaje int identity(1,1) primary key,
+	IdHospedaje int not null, 
+	IdRedSocial int not null,
+	NombreUsuario varchar(50) not null,
+	UrlPerfil varchar(255) not null check(UrlPerfil like 'http%'),
+	constraint FK_RedSocialHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje),
+	constraint FK_RedSocial foreign key (IdRedSocial) references RedSocial(IdRedSocial)
+);
+
+
+
+--Tabla de PersonalDelHospedaje 
+create table PersonalDelHospedaje (
+    IdPersonal int identity(1,1) primary key,
+    IdHospedaje int not null,
+    NombrePersonalCompleto varchar(150) not null,
+    IdCargo int not null,
+    CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
+    Contrasena varchar(255),
+    constraint  FK_PersonalHospedaje foreign key  (IdHospedaje) references Hospedaje(IdHospedaje),
+    constraint  FK_CargoPersonal foreign key (IdCargo) references CargoPersonal(IdCargo)
+);
+
+
+
+--Tabla de TipoHabitacion
+create table TipoHabitacion(
+	IdTipoHabitacion int identity(1,1) primary key,
+	NombreTipoHabitacion varchar(50) not null,
+	IdTipoCama int not null,
+	IdHospedaje int not null,
+	Capacidad int not null check(Capacidad > 0),
+	Descripcion text not null,
+	Precio decimal(10,2) not null check(Precio > 0),
+	constraint FK_TipoCamaHabitacion foreign key (IdTipoCama) references TipoCama(IdTipoCama),
+	constraint FK_TipoHabitacionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
+);
+
+
+--Tabla de ComodidadHabitacion 
+create table ComodidadHabitacion (
+	IdComodidadHabitacion int identity(1,1) primary key,
+	IdComodidad int not null,
+	IdTipoHabitacion int not null,
+	constraint FK_ComodidadHabitacion foreign key (IdComodidad) references Comodidad(IdComodidad),
+	constraint FK_TipoHabitacionComodidad foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion)
+);
+
+
+--Tabla de FotoHabitacion
+create table FotoHabitacion (
+	IdFotoHabitacion int identity(1,1) primary key,
+	IdTipoHabitacion int not null,
+	Foto image not null,
+	constraint FK_FotoTipoHabotacion foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion)
+);
+
+
+--Tabla de Habitacion
+create table Habitacion (
+	IdHabitacion int identity(1,1) primary key,
+	NumeroHabitacion int not null check(NumeroHabitacion > 0),
+	IdTipoHabitacion int not null,
+	IdHospedaje int not null,
+	CantidadPersonas int not null check(CantidadPersonas > 0),
+	constraint FK_TipoHabitacion foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion),
+	constraint FK_HabitacionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
+);
+
+
+--Tabla de Cliente
+create table Cliente (
+	IdCliente int identity(1,1) primary key,
+	IdentificacionCliente varchar(20) not null,
+	PrimerApellido varchar(50) not null,
+	SegundoApellido varchar(50) not null,
+	Nombre varchar(50) not null,
+	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
+	FechaNacimiento date not null check(FechaNacimiento < getdate()), --para que la fecha de nacimiento no sea futura
+	TipoIdentidad int not null,
+	PaisResidencia int not null,
+	constraint FK_IdTipoIdentidad foreign key (TipoIdentidad) references TipoIdentidad(IdTipoIdentidad),
+	constraint FK_PaisResidencia foreign key (PaisResidencia) references Pais(IdPais)
+);
+
+
+--Tabla de TelefonoCliente
+create table TelefonoCliente (
+	IdTelefonoCliente int identity(1,1) primary key,
+	IdCliente int not null,
+	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+%' and NumeroTelefono not like '%[^0-9+ -]%'),
+	TipoTelefono varchar(20) not null check(TipoTelefono in ('Movil', 'Casa', 'Trabajo', 'Otro')),
+	constraint FK_TelefonoCliente foreign key (IdCliente) references Cliente(IdCliente)
+);
+
+
+--tabla de DireccionCliente
+create table DireccionCliente (
+	IdDirreccionCliente int identity(1,1) primary key,
+	IdCliente int not null unique, --para que cada cliente solo pueda tener una direccion
+	Provincia int null,
+	Canton varchar(50) null,
+	Distrito varchar(50) null,
+	constraint FK_DireccionCliente foreign key (IdCliente) references Cliente(IdCliente),
+	constraint FK_ProvinciaCliente foreign key (Provincia) references Provincia(IdProvincia),
+	constraint CHK_DireccionCostarricense check((Provincia is null and Canton is null and Distrito is null) or (Provincia is not null and Canton is not null and Distrito is not null))
+);
+
+
+--Tabla de Reservacion
+create table Reservacion (
+	IdReserva int identity(1,1) primary key,
+	NumeroReserva varchar(12) not null unique,
+	IdHabitacion int not null,
+	CantidadPersonas int not null check(CantidadPersonas > 0),
+	IdCliente int not null,
+	FechaIngreso date not null check(FechaIngreso >= cast(getdate() as date)),--se valida que la fecha de ingreso este en una fecha valida
+	FechaSalida  date not null,
+	HoraIngreso time not null, 
+	HoraSalida time not null check(HoraSalida <= '12:00:00'),--se valida que la hora de salida sea antes o a las 12:00
+	PoseeVehiculo Bit not null default 0,
+	constraint Ck_validacionFechas check((FechaIngreso <= FechaSalida)), --se valida que la fecha de ingreso sea menor que la de salida
+	constraint FK_ReservaHabitacion foreign key (IdHabitacion) references Habitacion(IdHabitacion),
+	constraint FK_ReservaCliente foreign key (IdCliente) references Cliente(IdCliente)
+);
+
+alter table Reservacion add Estado varchar(20) not null default  'Activo';
+
+--Tabla de Facturacion
+create table Facturacion (
+	IdFactura int identity(1,1) primary key,
+	NumeroFacturacion varchar(12),
+	IdReserva int not null unique,
+	FechaEmision  date not null default cast(getdate() as date),-- que la fecha sea por omision la fecha actual
+	CantidadNoches int null,
+	ImporteTotal decimal(10,2) null,
+	IdTipoPago int not null,
+	constraint FK_ReservaFacturada foreign key (IdReserva) references Reservacion(IdReserva),
+	constraint FK_MetodoPago foreign key (IdTipoPago) references TipoPago(IdTipoPago)
+);
+
+alter table Facturacion add Estado VARCHAR(20) not null default 'Pendiente de pago ';
+
+-------------------------------------------------
+--Creacion de las tablas de Empresas Recreativas
+-------------------------------------------------
+
+
+--Tabla de EmpresaRecreativa
+create table EmpresaRecreativa (
+	IdEmpresaRecreativa int identity(1,1) primary key,
+	CedulaJuridicaEmpresa varchar(20) not null check(CedulaJuridicaEmpresa like '%[1-8]%' and len(CedulaJuridicaEmpresa) between 10 and 20),
+	NombreEmpresas varchar(50) not null,
+	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%@%.%'),--correo que sea unico
+	NombrePersonal varchar(150) not null, 
+	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+506%' and NumeroTelefono not like '%[^0-9+ -]%') --permite el ingreso de numeros y el caracter + y - para el codigo
+);
+
+
+--Tabla de PersonalDeEmpresaRecreativa
+create table PersonalDeEmpresaRecreativa  (
+	IdPersonal int identity(1,1) primary key,
+	IdEmpresaRecreativa int not null,
+	NombrePersonalCompleto varchar(150) not null,
+	Cargo varchar(50) not null,
+	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
+	Contrasena varchar(255),
+	constraint FK_PersonalIdEmpresaRecreativa foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa)
+);
+
+
+--Tabla de EmpresaServicio
+create table EmpresaServicio(
+	IdEmpresaServicio int identity(1,1) primary key,
+	CostoAdicional decimal(10,2) null,
+	Descripcion text not null,
+	IdServicio int not null,
+	IdEmpresaRecreativa int not null,
+	constraint FK_ServicioEmpresa foreign key (IdServicio) references TipoServicio(IdServicio),
+	constraint FK_EmpresaRecreativaServicio foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa)
+);
+
+
+--Tabla de EmpresaActividad
+create table EmpresaActividad(
+	IdEmpresaActividad int identity(1,1) primary key,
+	precio decimal(10,2) not null check(Precio > 0),
+	MaximoParticipantes int not null check(MaximoParticipantes > 0),
+	MinimoParticipantes int not null check(MinimoParticipantes > 0),
+	Duracion int not null check(Duracion > 0),
+	Descripcion text null,
+	Horarios text null,
+	IdActividad int not null,
+	IdEmpresaRecreativa int not null,
+	constraint FK_actividadEmpresa foreign key (IdActividad) references TipoActividad(IdActividad),
+	constraint FK_EmpresaRecreativaActividad foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa),
+	constraint CHK_MaxMinParticipantes check(MinimoParticipantes <= MaximoParticipantes)
+);
+
+
+--Tabla de DireccionEmpresa
+create table DireccionEmpresa (
+    IdDireccionEmpresa int identity(1,1) primary key,
+	IdEmpresaRecreativa int not null,
+	SenasExactas varchar(255) not null,
+    Provincia int not null,
+    Canton varchar(50) not null,
+    Distrito varchar(50) not null,
+	constraint FK_DireccionEmpresaRecreativa foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa),
+	constraint FK_ProvinciaEmpresa foreign key (Provincia) references Provincia(IdProvincia)
+);
+
+
+-----------------------------------
+--        Insert
+-----------------------------------
 
 insert into Provincia(NombreProvincia) 
 values
@@ -31,12 +392,7 @@ values
 
 --select * from Provincia
 
----------------------------------------------------------------------------------
---Tabla CargoPersonal
-create table CargoPersonal (
-    IdCargo int identity(1,1) primary key,
-    NombreCargo varchar(100) not null UNIQUE
-);
+-------------------------------------------------------------
 
 INSERT INTO CargoPersonal (NombreCargo)
 VALUES 
@@ -58,12 +414,7 @@ VALUES
 
 --select * from CargoPersonal
 
----------------------------------------------------------------------------------
---Tabla catalogo RedSocial
-create table RedSocial (
-	IdRedSocial int identity(1,1) primary key,
-	NombreRedSocial varchar(50) not null
-);
+-------------------------------------------------------------
 
 insert into RedSocial (NombreRedSocial)
 values 
@@ -76,16 +427,9 @@ values
     ('WhatsApp'),
     ('Telegram')
 
-create nonclustered index idx_RedSocial_IdRedSocial on RedSocial(IdRedSocial);
-
 --select * from RedSocial 
 
----------------------------------------------------------------------------------
---Tabla catalogo TipoHospedaje
-create table TipoHospedaje(
-	IdTipoHospedaje int identity(1,1) primary key,
-	NombreTipoHospedaje varchar(50) not null
-);
+-------------------------------------------------------------
 
 insert into TipoHospedaje(NombreTipoHospedaje) 
 values
@@ -102,13 +446,7 @@ values
 
 --select * from TipoHospedaje
 
----------------------------------------------------------------------------------
---Tabla catalogo Servicio
-create table Servicio(
-	IdServicio int identity(1,1) primary key,
-	NombreServicio varchar(50) not null,
-	Descripcion text not null
-);
+-------------------------------------------------------------
 
 insert into Servicio(NombreServicio, Descripcion)
 values
@@ -123,17 +461,9 @@ values
     ('Servicio a la habitacion', 'Room service disponible'),
     ('Gimnasio', 'Area de ejercicio disponible');
 
-create nonclustered index idx_Servicio_IdServicio on Servicio(IdServicio);
-
 --select * from Servicio
 
----------------------------------------------------------------------------------
---Tabla catalogo TipoCama
-create table TipoCama(
-	IdTipoCama int identity(1,1) primary key,
-	NombreTipoCama varchar(50) not null, 
-	Descripcion text not null
-);
+-------------------------------------------------------------
 
 insert into TipoCama(NombreTipoCama, Descripcion)
 values
@@ -145,16 +475,9 @@ values
     ('Litera', 'Camas apiladas'),
     ('Sofa cama', 'Sofa que se convierte en cama');
 
-create nonclustered index idx_TipoCama_IdTipoCama on TipoCama(IdTipoCama);
-
 --select * from TipoCama
 
----------------------------------------------------------------------------------
---Tabla catalogo Comodidad
-create table Comodidad(
-	IdComodidad int identity(1,1) primary key,
-	NombreComodidad varchar(50) not null
-);
+-------------------------------------------------------------
 
 insert into Comodidad(NombreComodidad)
 values
@@ -174,17 +497,10 @@ values
     ('Jacuzzi'),
     ('Balcon');
 
-create nonclustered index idx_Comodidad_IdComodidad on Comodidad(IdComodidad);
-
 --select * from Comodidad
 
----------------------------------------------------------------------------------
---Tabla catalogo TipoIdentidad
-create table TipoIdentidad(
-	IdTipoIdentidad int identity(1,1) primary key,
-	NombreTipoIdentidad varchar(50) not null,
-	Descripcion text not null
-);
+
+-------------------------------------------------------------
 
 --Inserts TipoIdentidad
 insert into TipoIdentidad(NombreTipoIdentidad, Descripcion) 
@@ -195,18 +511,9 @@ values
 	('Pasaporte', 'Documento de identidad internacional para extranjeros'),
 	('Cedula de residencia', 'Documento para extranjeros con estatus de residentes permanentes');
 
-create nonclustered index idx_TipoIdentidad_IdTipoIdentidad on TipoIdentidad(IdTipoIdentidad);
-
 --select * from TipoIdentidad
 
----------------------------------------------------------------------------------
---Tabla Catalogo Pais
-create table Pais(
-	IdPais int identity(1,1) primary key,
-	NombrePais varchar(75) not null,
-	CodigoPais varchar(5) not null,
-	Abrebiacion varchar(3) not null
-);
+-------------------------------------------------------------
 
 insert into Pais(NombrePais, CodigoPais, Abrebiacion)
 values 
@@ -251,16 +558,10 @@ values
 	('Israel', '972', 'ISR'),
 	('Emiratos arabes Unidos', '971', 'ARE');
 
-create nonclustered index idx_Pais_IdPais on Pais(IdPais);
-
 --select * from Pais
 
----------------------------------------------------------------------------------
---Tabla catalogo TipoPago
-create table TipoPago(
-	IdTipoPago int identity(1,1) primary key,
-	NombreTipoPago varchar(50) not null,
-);
+
+-------------------------------------------------------------
 
 insert into TipoPago(NombreTipoPago)
 values
@@ -269,13 +570,7 @@ values
 
 --select * from TipoPago
 
----------------------------------------------------------------------------------
---Tabla catalogo TipoServicio
-create table TipoServicio (
-	IdServicio int identity(1,1) primary key, 
-	NombreServicio varchar(50) not null,
-	Descripcion text not null
-);
+-------------------------------------------------------------
 
 insert into TipoServicio(NombreServicio, Descripcion)
 values
@@ -291,13 +586,7 @@ values
 
 --select * from TipoServicio
 
----------------------------------------------------------------------------------
---Tabla catalogo TipoActividad
-create table TipoActividad (
-	IdActividad int identity(1,1) primary key not null,
-	NombreActividad varchar(50) not null,
-	Descripcion text not null
-);
+-------------------------------------------------------------
 
 insert into TipoActividad(NombreActividad, Descripcion)
 values 
@@ -316,23 +605,7 @@ values
 
 --select * from TipoActividad
 
---Creacion de las tablas principales Hospedajes
----------------------------------------------------------------------------------
---Tabla de Hospedaje
-create table Hospedaje (
-	IdHospedaje int identity(1,1) primary key,
-    CedulaJuridica varchar(20) not null check(CedulaJuridica like '[0-9]%' and len(CedulaJuridica) between 10 and 11),
-    NombreHospedaje varchar(50) not null,
-    TipoHospedaje int not null,
-    UrlSitioWeb varchar(255) null check(UrlSitioWeb is null or UrlSitioWeb like 'http%'),
-    CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '_%@_%._%'),
-    ReferenciasGPS varchar(100) not null,
-    constraint FK_TipoHospedaje foreign key (TipoHospedaje) references TipoHospedaje(IdTipoHospedaje)
-);
-
---Se agrega la restriccion de cedula juridica para que inicie con un numero del 1 al 8 y tenga una longitud entre 10 y 11 caracteres
-ALTER TABLE Hospedaje
-ADD CONSTRAINT chk_CedulaJuridica CHECK (CedulaJuridica LIKE '[1-8]%' AND LEN(CedulaJuridica) BETWEEN 10 AND 11);
+-------------------------------------------------------------
 
 insert into Hospedaje (CedulaJuridica, NombreHospedaje, TipoHospedaje, UrlSitioWeb, CorreoElectronico, ReferenciasGPS) 
 values
@@ -347,19 +620,7 @@ values
 
 --select * from Hospedaje
 
----------------------------------------------------------------------------------
---Tabla de DireccionHospedaje
-create table DireccionHospedaje (
-    IdDireccion int identity(1,1) primary key,
-	IdHospedaje int not null,
-	SenasExactas varchar(255) not null,
-	Barrio varchar(100)not null,
-    Provincia int not null,
-    Canton varchar(50) not null,
-    Distrito varchar(50) not null,
-	constraint FK_DireccionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje),
-	constraint FK_ProvinciaHospedaje foreign key (Provincia) references Provincia(IdProvincia)
-);
+-------------------------------------------------------------
 
 insert into DireccionHospedaje (IdHospedaje, SenasExactas, Barrio, Provincia, Canton, Distrito) 
 values
@@ -373,14 +634,7 @@ values
 
 --select * from DireccionHospedaje
 
----------------------------------------------------------------------------------
---Tabla de TelefonoHospedaje
-create table TelefonoHospedaje(
-	IdTelefonoHospedaje int identity(1,1) primary key,
-	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+506%' and NumeroTelefono not like '%[^0-9+ -]%'), --permite el ingreso de n�meros y el caracter + y - para el codigo
-	IdHospedaje int not null,
-	constraint FK_TelefonoHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
-);
+-------------------------------------------------------------
 
 insert into TelefonoHospedaje (NumeroTelefono, IdHospedaje)
 values
@@ -395,15 +649,7 @@ values
 
 --select * from TelefonoHospedaje
 
----------------------------------------------------------------------------------
---Tabla de ServicioHospedaje
-create table ServicioHospedaje (
-	IdServicioHospedaje int identity(1,1) primary key,
-	IdHospedaje int not null,
-	IdServicio int not null,
-	constraint FK_ServicioHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje),
-	constraint FK_Servicio foreign key (IdServicio) references Servicio(IdServicio)
-);
+-------------------------------------------------------------
 
 insert into	ServicioHospedaje (IdHospedaje, IdServicio) 
 values
@@ -422,17 +668,8 @@ values
 
 --select * from ServicioHospedaje
 
----------------------------------------------------------------------------------
---Tabla de RedSocialHospedaje
-create table RedSocialHospedaje(
-	IdRedSocialHospedaje int identity(1,1) primary key,
-	IdHospedaje int not null, 
-	IdRedSocial int not null,
-	NombreUsuario varchar(50) not null,
-	UrlPerfil varchar(255) not null check(UrlPerfil like 'http%'),
-	constraint FK_RedSocialHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje),
-	constraint FK_RedSocial foreign key (IdRedSocial) references RedSocial(IdRedSocial)
-);
+-------------------------------------------------------------
+
 
 insert into RedSocialHospedaje (IdHospedaje, IdRedSocial, NombreUsuario, UrlPerfil)
 values 
@@ -448,18 +685,7 @@ values
 
 --select * from RedSocialHospedaje 
 
----------------------------------------------------------------------------------
---Tabla de PersonalDelHospedaje 
-create table PersonalDelHospedaje (
-    IdPersonal int identity(1,1) primary key,
-    IdHospedaje int not null,
-    NombrePersonalCompleto varchar(150) not null,
-    IdCargo int not null,
-    CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
-    Contrasena varchar(255),
-    constraint  FK_PersonalHospedaje foreign key  (IdHospedaje) references Hospedaje(IdHospedaje),
-    constraint  FK_CargoPersonal foreign key (IdCargo) references CargoPersonal(IdCargo)
-);
+-------------------------------------------------------------
 
 insert into PersonalDelHospedaje (IdHospedaje, NombrePersonalCompleto, IdCargo, CorreoElectronico, Contrasena)
 values
@@ -471,19 +697,7 @@ values
 
 --select * from PersonalDelHospedaje
 
----------------------------------------------------------------------------------
---Tabla de TipoHabitacion
-create table TipoHabitacion(
-	IdTipoHabitacion int identity(1,1) primary key,
-	NombreTipoHabitacion varchar(50) not null,
-	IdTipoCama int not null,
-	IdHospedaje int not null,
-	Capacidad int not null check(Capacidad > 0),
-	Descripcion text not null,
-	Precio decimal(10,2) not null check(Precio > 0),
-	constraint FK_TipoCamaHabitacion foreign key (IdTipoCama) references TipoCama(IdTipoCama),
-	constraint FK_TipoHabitacionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
-);
+-------------------------------------------------------------
 
 insert into TipoHabitacion (NombreTipoHabitacion, IdTipoCama, IdHospedaje, Capacidad, Descripcion, Precio) 
 values
@@ -499,15 +713,8 @@ values
 
 --select * from TipoHabitacion
 
----------------------------------------------------------------------------------
---Tabla de ComodidadHabitacion 
-create table ComodidadHabitacion (
-	IdComodidadHabitacion int identity(1,1) primary key,
-	IdComodidad int not null,
-	IdTipoHabitacion int not null,
-	constraint FK_ComodidadHabitacion foreign key (IdComodidad) references Comodidad(IdComodidad),
-	constraint FK_TipoHabitacionComodidad foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion)
-);
+
+-------------------------------------------------------------
 
 insert into ComodidadHabitacion (IdComodidad, IdTipoHabitacion) 
 values
@@ -539,14 +746,7 @@ values
 
 --select * from ComodidadHabitacion
 
----------------------------------------------------------------------------------
---Tabla de FotoHabitacion
-create table FotoHabitacion (
-	IdFotoHabitacion int identity(1,1) primary key,
-	IdTipoHabitacion int not null,
-	Foto image not null,
-	constraint FK_FotoTipoHabotacion foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion)
-);
+-------------------------------------------------------------
 
 insert into FotoHabitacion (IdTipoHabitacion, Foto) 
 values
@@ -567,17 +767,8 @@ values
 
 --select * from FotoHabitacion 
 
----------------------------------------------------------------------------------
---Tabla de Habitacion
-create table Habitacion (
-	IdHabitacion int identity(1,1) primary key,
-	NumeroHabitacion int not null check(NumeroHabitacion > 0),
-	IdTipoHabitacion int not null,
-	IdHospedaje int not null,
-	CantidadPersonas int not null check(CantidadPersonas > 0),
-	constraint FK_TipoHabitacion foreign key (IdTipoHabitacion) references TipoHabitacion(IdTipoHabitacion),
-	constraint FK_HabitacionHospedaje foreign key (IdHospedaje) references Hospedaje(IdHospedaje)
-);
+-------------------------------------------------------------
+
 
 insert into Habitacion (NumeroHabitacion, IdTipoHabitacion, IdHospedaje, CantidadPersonas) 
 values 
@@ -597,22 +788,7 @@ values
 
 --select * from Habitacion
 
---Creacion de las tablas principales del sistema
----------------------------------------------------------------------------------
---Tabla de Cliente
-create table Cliente (
-	IdCliente int identity(1,1) primary key,
-	IdentificacionCliente varchar(20) not null,
-	PrimerApellido varchar(50) not null,
-	SegundoApellido varchar(50) not null,
-	Nombre varchar(50) not null,
-	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
-	FechaNacimiento date not null check(FechaNacimiento < getdate()), --para que la fecha de nacimiento no sea futura
-	TipoIdentidad int not null,
-	PaisResidencia int not null,
-	constraint FK_IdTipoIdentidad foreign key (TipoIdentidad) references TipoIdentidad(IdTipoIdentidad),
-	constraint FK_PaisResidencia foreign key (PaisResidencia) references Pais(IdPais)
-);
+-------------------------------------------------------------
 
 insert into Cliente (IdentificacionCliente, PrimerApellido, SegundoApellido, Nombre, CorreoElectronico, FechaNacimiento, TipoIdentidad, PaisResidencia) 
 values
@@ -625,15 +801,7 @@ values
 
 --select * from  Cliente
 
----------------------------------------------------------------------------------
---Tabla de TelefonoCliente
-create table TelefonoCliente (
-	IdTelefonoCliente int identity(1,1) primary key,
-	IdCliente int not null,
-	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+%' and NumeroTelefono not like '%[^0-9+ -]%'),
-	TipoTelefono varchar(20) not null check(TipoTelefono in ('Movil', 'Casa', 'Trabajo', 'Otro')),
-	constraint FK_TelefonoCliente foreign key (IdCliente) references Cliente(IdCliente)
-);
+-------------------------------------------------------------
 
 insert into TelefonoCliente (IdCliente, NumeroTelefono, TipoTelefono) 
 values
@@ -646,18 +814,7 @@ values
 
 --select * from  TelefonoCliente
 
----------------------------------------------------------------------------------
---tabla de DireccionCliente
-create table DireccionCliente (
-	IdDirreccionCliente int identity(1,1) primary key,
-	IdCliente int not null unique, --para que cada cliente solo pueda tener una direccion
-	Provincia int null,
-	Canton varchar(50) null,
-	Distrito varchar(50) null,
-	constraint FK_DireccionCliente foreign key (IdCliente) references Cliente(IdCliente),
-	constraint FK_ProvinciaCliente foreign key (Provincia) references Provincia(IdProvincia),
-	constraint CHK_DireccionCostarricense check((Provincia is null and Canton is null and Distrito is null) or (Provincia is not null and Canton is not null and Distrito is not null))
-);
+-------------------------------------------------------------
 
 insert into DireccionCliente (IdCliente, Provincia, Canton, Distrito) 
 values
@@ -670,25 +827,7 @@ values
 
 --select * from  DireccionCliente
 
---Creacion de las tablas Reservacion y Facturacion
----------------------------------------------------------------------------------
---Tabla de Reservacion
-create table Reservacion (
-	IdReserva int identity(1,1) primary key,
-	NumeroReserva varchar(12) not null unique,
-	IdHabitacion int not null,
-	CantidadPersonas int not null check(CantidadPersonas > 0),
-	IdCliente int not null,
-	FechaIngreso date not null check(FechaIngreso >= cast(getdate() as date)),--se valida que la fecha de ingreso este en una fecha valida
-	FechaSalida  date not null,
-	HoraIngreso time not null, 
-	HoraSalida time not null check(HoraSalida <= '12:00:00'),--se valida que la hora de salida sea antes o a las 12:00
-	PoseeVehiculo Bit not null default 0,
-	constraint Ck_validacionFechas check((FechaIngreso <= FechaSalida)), --se valida que la fecha de ingreso sea menor que la de salida
-	constraint FK_ReservaHabitacion foreign key (IdHabitacion) references Habitacion(IdHabitacion),
-	constraint FK_ReservaCliente foreign key (IdCliente) references Cliente(IdCliente)
-);
-
+-------------------------------------------------------------
 
 insert into Reservacion (NumeroReserva, IdHabitacion, CantidadPersonas, IdCliente, FechaIngreso, FechaSalida, HoraIngreso, HoraSalida, PoseeVehiculo)
 values 
@@ -700,19 +839,8 @@ values
 
 --select * from  Reservacion
 
----------------------------------------------------------------------------------
---Tabla de Facturacion
-create table Facturacion (
-	IdFactura int identity(1,1) primary key,
-	NumeroFacturacion varchar(12),
-	IdReserva int not null unique,
-	FechaEmision  date not null default cast(getdate() as date),-- que la fecha sea por omision la fecha actual
-	CantidadNoches int null,
-	ImporteTotal decimal(10,2) null,
-	IdTipoPago int not null,
-	constraint FK_ReservaFacturada foreign key (IdReserva) references Reservacion(IdReserva),
-	constraint FK_MetodoPago foreign key (IdTipoPago) references TipoPago(IdTipoPago)
-);
+
+-------------------------------------------------------------
 
 insert into Facturacion (NumeroFacturacion,IdReserva,CantidadNoches, ImporteTotal, IdTipoPago)
 values 
@@ -724,17 +852,7 @@ values
 
 --select * from  Facturacion
 
---Creacion de las tablas de Empresas Recreativas
----------------------------------------------------------------------------------
---Tabla de EmpresaRecreativa
-create table EmpresaRecreativa (
-	IdEmpresaRecreativa int identity(1,1) primary key,
-	CedulaJuridicaEmpresa varchar(20) not null check(CedulaJuridicaEmpresa like '%[1-8]%' and len(CedulaJuridicaEmpresa) between 10 and 20),
-	NombreEmpresas varchar(50) not null,
-	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%@%.%'),--correo que sea unico
-	NombrePersonal varchar(150) not null, 
-	NumeroTelefono varchar(20) not null check(NumeroTelefono like '+506%' and NumeroTelefono not like '%[^0-9+ -]%') --permite el ingreso de numeros y el caracter + y - para el codigo
-);
+-------------------------------------------------------------
 
 insert into EmpresaRecreativa (CedulaJuridicaEmpresa, NombreEmpresas, CorreoElectronico, NombrePersonal, NumeroTelefono)
 values
@@ -746,17 +864,7 @@ values
 
 --select * from  EmpresaRecreativa 
 
----------------------------------------------------------------------------------
---Tabla de PersonalDeEmpresaRecreativa
-create table PersonalDeEmpresaRecreativa  (
-	IdPersonal int identity(1,1) primary key,
-	IdEmpresaRecreativa int not null,
-	NombrePersonalCompleto varchar(150) not null,
-	Cargo varchar(50) not null,
-	CorreoElectronico varchar(100) not null unique check(CorreoElectronico like '%_@_%._%'),
-	Contrasena varchar(255),
-	constraint FK_PersonalIdEmpresaRecreativa foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa)
-);
+-------------------------------------------------------------
 
 insert into PersonalDeEmpresaRecreativa  (IdEmpresaRecreativa, NombrePersonalCompleto, Cargo, CorreoElectronico, Contrasena)
 values
@@ -786,17 +894,8 @@ values
 
 --select * from PersonalDeEmpresaRecreativa 
 
----------------------------------------------------------------------------------
---Tabla de EmpresaServicio
-create table EmpresaServicio(
-	IdEmpresaServicio int identity(1,1) primary key,
-	CostoAdicional decimal(10,2) null,
-	Descripcion text not null,
-	IdServicio int not null,
-	IdEmpresaRecreativa int not null,
-	constraint FK_ServicioEmpresa foreign key (IdServicio) references TipoServicio(IdServicio),
-	constraint FK_EmpresaRecreativaServicio foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa)
-);
+-------------------------------------------------------------
+
 
 insert into EmpresaServicio (CostoAdicional, Descripcion, IdServicio, IdEmpresaRecreativa)
 values 
@@ -812,23 +911,7 @@ values
 	(12.00, 'Transporte desde Puerto Viejo', 1, 4);
 
 --select * from  EmpresaServicio
-
----------------------------------------------------------------------------------
---Tabla de EmpresaActividad
-create table EmpresaActividad(
-	IdEmpresaActividad int identity(1,1) primary key,
-	precio decimal(10,2) not null check(Precio > 0),
-	MaximoParticipantes int not null check(MaximoParticipantes > 0),
-	MinimoParticipantes int not null check(MinimoParticipantes > 0),
-	Duracion int not null check(Duracion > 0),
-	Descripcion text null,
-	Horarios text null,
-	IdActividad int not null,
-	IdEmpresaRecreativa int not null,
-	constraint FK_actividadEmpresa foreign key (IdActividad) references TipoActividad(IdActividad),
-	constraint FK_EmpresaRecreativaActividad foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa),
-	constraint CHK_MaxMinParticipantes check(MinimoParticipantes <= MaximoParticipantes)
-);
+-------------------------------------------------------------
 
 insert into EmpresaActividad (precio, MaximoParticipantes, MinimoParticipantes, Duracion, Descripcion, Horarios, IdActividad, IdEmpresaRecreativa)
 values 
@@ -843,18 +926,7 @@ values
 
 --select * from  EmpresaActividad
 
----------------------------------------------------------------------------------
---Tabla de DireccionEmpresa
-create table DireccionEmpresa (
-    IdDireccionEmpresa int identity(1,1) primary key,
-	IdEmpresaRecreativa int not null,
-	SenasExactas varchar(255) not null,
-    Provincia int not null,
-    Canton varchar(50) not null,
-    Distrito varchar(50) not null,
-	constraint FK_DireccionEmpresaRecreativa foreign key (IdEmpresaRecreativa) references EmpresaRecreativa(IdEmpresaRecreativa),
-	constraint FK_ProvinciaEmpresa foreign key (Provincia) references Provincia(IdProvincia)
-);
+-------------------------------------------------------------
 
 insert into DireccionEmpresa (IdEmpresaRecreativa, SenasExactas, Provincia, Canton, Distrito)
 values 
@@ -864,7 +936,6 @@ values
 	(4, '3 km al sur de la entrada a Veragua Rainforest', 7, 'Limon', 'Matama');
 
 --select * from  DireccionEmpresa
----------------------------------------------------------------------------------
 
 
 
@@ -913,3 +984,4 @@ grant select, insert, update, delete on DireccionEmpresa to administradores;
 --Usuario solo podrá consultar habitaciones, disponibilidad y realizar una reserva
 grant select on Habitacion to Usuario;
 grant select,insert on Reservacion to Usuario;
+
