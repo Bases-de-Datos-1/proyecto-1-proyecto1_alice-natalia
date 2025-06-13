@@ -1984,14 +1984,11 @@ as
 begin
     begin try
         --Debe existir una reservacion para hacer la factura
-        if not exists (select 1
-    from Facturacion
-    where IdReserva = @IdReserva)
+        if not exists (select 1 from Facturacion where IdReserva = @IdReserva)
         begin
         --Si no se proporcionan cantidad de noches o importe total, se calculan
         if @CantidadNoches is null or @ImporteTotal is null
         begin
-            --Obtener las fechas de ingreso y salida, y el precio por noche del tipo de habitación
             declare @FechaIngreso date, @Fechasalida date, @Precionoche decimal(10,2)
 
             select
@@ -2003,7 +2000,6 @@ begin
                 inner join TipoHabitacion th on h.IdTipoHabitacion = th.IdTipoHabitacion
             where r.IdReserva = @IdReserva
 
-            --Calcular cantidad de noches y importe total
             set @CantidadNoches = datediff(day, @FechaIngreso, @Fechasalida)
             set @ImporteTotal = @CantidadNoches * @Precionoche
         end
@@ -2155,6 +2151,28 @@ begin
     order by FechaEmision desc
 end
 
+-- ===========================================================================================
+-- Nombre: Vista_ContarFacturasPendientes
+--  Devuelve la cantidad total de facturas con estado 'Pendiente de pago'.
+-- ===========================================================================================
+create view Vista_ContarFacturasPendientes
+as
+    select COUNT(*) as CantidadFacturasPendientes from Facturacion
+    where Estado = 'Pendiente de pago'
+
+--select * from Vista_ContarFacturasPendientes;
+
+
+-- ===========================================================================================
+-- Nombre: Vista_ContarFacturasPagadas
+-- Devuelve la cantidad total de facturas con estado 'Pagado'.
+-- ===========================================================================================
+create view Vista_ContarFacturasPagadas
+as
+    select COUNT(*) as CantidadFacturasPagadas from Facturacion
+    where Estado = 'Pagado'
+
+
 --===========================================================================================
 --Nombre: ConsultarFacturasPorFecha
 --Descripción: Devuelve todas las facturas emitidas en un rango específico de fechas.
@@ -2172,6 +2190,31 @@ begin
 end
 
 
+-- ===========================================================================================
+-- Nombre: trigger_FacturaPagada
+-- Descripción: Trigger que se ejecuta después de actualizar la tabla Facturacion.
+-- Detecta cuando el estado de una factura cambia a 'Pagado' y muestra un mensaje
+-- indicando que la factura fue pagada exitosamente, junto con el ID de la factura.
+-- ===========================================================================================
+create trigger trigger_FacturaPagada
+on Facturacion
+after update
+as
+begin
+    declare @IdFactura int
+
+    select @IdFactura = i.IdFactura
+    from inserted i
+    inner join deleted d on i.IdFactura = d.IdFactura
+    where i.Estado = 'Pagado' and d.Estado<> 'Pagado';
+
+    if @IdFactura is not null
+    begin
+        PRINT 'Factura pagada con éxito. ID: ' + cast(@IdFactura as varchar);
+    end
+end
+
+--update Facturacion set Estado = 'Pagado' where IdFactura = 5;
 
 
 ----------------------------
