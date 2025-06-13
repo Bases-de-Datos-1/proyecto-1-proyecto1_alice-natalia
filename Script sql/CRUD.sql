@@ -1938,6 +1938,31 @@ begin
     order by FechaIngreso
 end
 
+--===================================================================================================================================
+--Nombre: trigger_ActualizarEstadoReservacion
+--Descripción: Trigger que se ejecuta después de insertar o actualizar registros en la tabla Reservacion.
+--  Actualiza automáticamente el campo Estado de la reservación según la fecha actual:
+--             - 'Futura' si la fecha de ingreso es mayor a la fecha actual.
+--             - 'En curso' si la fecha de ingreso es menor o igual a la fecha actual y la fecha de salida es mayor o igual a la fecha actual.
+--             - 'Pasada' si la fecha de salida es menor que la fecha actual.
+--             - 'Actual' para cualquier otro caso.
+-- Esto asegura que el estado de la reserva siempre refleje su situación temporal correcta.
+--===================================================================================================================================
+
+create TRIGGER trigger_ActualizarEstadoReservacion
+on Reservacion
+after insert, update --si se inserta o se actualiza se hara esto
+as
+begin
+    update r
+    set Estado = case 
+        when r.FechaIngreso > cast(GETDATE() as date) then 'Futura'
+        when r.FechaIngreso <= cast(GETDATE() as date) and r.FechaSalida >= cast(GETDATE() as date) then 'En curso'
+        when r.FechaSalida < cast(GETDATE() as date) then 'Pasada'
+        else 'Actual'
+    end from Reservacion r inner join inserted i on r.IdReserva = i.IdReserva;
+end
+
 ---------------------
 --Tabla Facturacion
 ---------------------
@@ -2145,6 +2170,9 @@ begin
     where FechaEmision between @FechaInicio and @FechaFin
     order by FechaEmision
 end
+
+
+
 
 ----------------------------
 --Tabla EmpresaRecreativa
