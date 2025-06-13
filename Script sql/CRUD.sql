@@ -3038,6 +3038,14 @@ begin
 end
 
 
+--===========================================================================================
+-- Nombre: ReporteTipoHabitacion
+-- Descripción: Muestra todas las facturas asociadas a un tipo de habitación específico,
+-- ordenadas por fecha de emisión descendente.Además, presenta un resumen con la cantidad de facturas y el total facturado
+-- para ese tipo de habitación.
+-- Parámetros:
+--@IdTipoHabitacion int: Identificador del tipo de habitación a filtrar.
+--===========================================================================================
 
 create procedure ReporteTipoHabitacion
     @IdTipoHabitacion int
@@ -3058,6 +3066,12 @@ begin
 
 end
 
+
+--===========================================================================================
+-- Nombre: RangoEdadClientesReservaron
+-- Descripción: Obtiene el rango de edades (mínima y máxima) de los clientes que han realizado
+--              reservas en el hotel, a partir de la vista de facturación.
+--===========================================================================================
 create procedure RangoEdadClientesReservaron
 as
 begin
@@ -3070,7 +3084,11 @@ end
 
 --EXEC RangoEdadClientesReservaron;
 
-
+--===========================================================================================
+-- Nombre: ReporteMayorDemandaHotelesPorFecha
+-- Descripción: Reporta la demanda de hoteles agrupada por fecha y nombre del hospedaje.
+--              Muestra la cantidad de reservas y el total facturado para cada hotel en cada fecha.
+--===========================================================================================
 create procedure ReporteMayorDemandaHotelesPorFecha
 as
 begin
@@ -3085,7 +3103,12 @@ end;
 
 --EXEC ReporteMayorDemandaHotelesPorFecha
 
-
+--===========================================================================================
+-- Nombre: ReporteHotelesMayorDemandaPorUbicacion
+-- Descripción: Reporta los hoteles con mayor demanda agrupados por ubicación completa
+-- (barrio, distrito, cantón y provincia) y nombre del hospedaje.
+--  Muestra la cantidad de reservas y el total facturado para cada ubicación.
+--===========================================================================================
 create procedure  ReporteHotelesMayorDemandaPorUbicacion
 as
 begin
@@ -3100,5 +3123,48 @@ begin
 end
 
 --EXEC ReporteHotelesMayorDemandaPorUbicacion
+
+--===========================================================================================
+-- Nombre: ReservasFinalizadasPorRangoFechas
+-- Descripción: Obtiene las reservas finalizadas (estado 'Pasada') dentro de un rango de fechas
+--especificado por el usuario.
+
+-- Parámetros:
+--@FechaInicio date: Fecha inicial del rango.
+--@FechaFin date: Fecha final del rango.
+--===========================================================================================
+create procedure ReservasFinalizadasPorRangoFechas
+    @FechaInicio date,
+    @FechaFin date
+as
+begin
+    select *
+    from Vista_ReporteFacturacion
+    where EstadoReserva = 'Pasada' and FechaEmision between @FechaInicio and @FechaFin
+    order by FechaEmision desc;
+end
+
+--EXEC ReservasFinalizadasPorRangoFechas '2023-01-01', '2023-12-31';
+
+
+--===================================================================================================
+-- Nombre: ReservasPorMasDeUnTiposHabitacion
+-- Descripción: Muestra las reservas filtradas por uno o más tipos de habitación.
+-- Los tipos de habitación se pasan como una cadena con IDs separados por coma.
+
+-- Parámetros:
+--@TiposHabitacion varchar(500): Lista de IDs de tipos de habitación separados por comas, ejemplo: '1,3,5'.
+--===================================================================================================
+create procedure ReservasPorMasDeUnTiposHabitacion
+    @TiposHabitacion varchar(500) 
+as
+begin
+    select * from Vista_ReporteFacturacion
+    where IdTipoHabitacion in 
+    ( select TRY_CAST(value as int) from STRING_SPLIT(@TiposHabitacion, ','))--este seloecyt lo que hace es que vamos a meter los id de los tipos de habitacion que quiero buscar entonces va a sacarlos ya que esta separados por comas
+    order by FechaEmision desc;
+end
+
+--EXEC ReservasPorMasDeUnTiposHabitacion @TiposHabitacion = '1,3,5';
 
 
