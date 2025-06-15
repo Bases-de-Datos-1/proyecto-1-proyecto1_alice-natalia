@@ -1,0 +1,65 @@
+﻿@model IEnumerable<Aplicacion_Web_Hospedaje.Models.Hospedaje>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CedulaJuridica)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NombreHospedaje)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UrlSitioWeb)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CorreoElectronico)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReferenciasGps)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TipoHospedajeNavigation)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CedulaJuridica)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NombreHospedaje)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UrlSitioWeb)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CorreoElectronico)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReferenciasGps)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TipoHospedajeNavigation.IdTipoHospedaje)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IdHospedaje">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.IdHospedaje">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.IdHospedaje">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
