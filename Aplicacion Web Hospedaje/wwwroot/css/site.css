@@ -7,6 +7,7 @@ body {
     color: #4a3f2a; /* Marrón suave */
 }
 
+
 /* Navbar: contenedor flexible para distribuir elementos (logo y menú) con espacio entre ellos, padding y fondo anaranjado fuerte con sombra sutil */
 .navbar {
     display: flex;
@@ -194,4 +195,13 @@ footer {
 
 .btn-primary:hover {
     background-color: #d46f00; /* naranja más oscuro para hover */
+}
+
+bienvenidos-titulo {
+    font-size: 3.5rem; /* Tamaño grande */
+    font-weight: 800; /* Muy negrita */
+    color: #f77f00; /* Naranja vibrante */
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.2); /* Sombra sutil para dar profundidad */
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 2rem;
 }

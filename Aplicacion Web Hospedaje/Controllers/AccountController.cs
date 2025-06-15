@@ -41,8 +41,14 @@ namespace Aplicacion_Web_Hospedaje.Controllers
             }
 
             // Aquí puedes manejar la sesión o claims para el usuario
-            // Por ahora, solo redireccionamos a Home/Index
             return RedirectToAction("Index", "Home");
+        }
+
+        // GET: Account/About
+        [HttpGet]
+        public IActionResult About()
+        {
+            return View();
         }
     }
 }
