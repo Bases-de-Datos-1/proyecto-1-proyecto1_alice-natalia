@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Aplicacion_Web_Hospedaje.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +19,10 @@ namespace Aplicacion_Web_Hospedaje.Controllers
         }
 
         public IActionResult Privacy()
+        {
+            return View();
+        }
+        public IActionResult About()
         {
             return View();
         }

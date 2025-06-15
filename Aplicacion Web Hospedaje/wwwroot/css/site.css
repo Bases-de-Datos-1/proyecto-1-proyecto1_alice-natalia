@@ -158,3 +158,40 @@ footer {
 .footer-icon {
     filter: brightness(0) saturate(100%) invert(63%) sepia(89%) saturate(648%) hue-rotate(1deg) brightness(99%) contrast(100%);
 }
+
+.text-center {
+    text-align: center;
+}
+
+.mt-5 {
+    margin-top: 3rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+.rounded {
+    border-radius: 15px;
+}
+
+.shadow {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-primary {
+    background-color: #f77f00; /* naranja vibrante */
+    border: none;
+    border-radius: 25px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #d46f00; /* naranja más oscuro para hover */
+}

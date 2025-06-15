@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Aplicacion Web Hospedaje")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cb0ca2cb82eafa8f5ad6daa7e63c78999acabdd6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ea545074bc96c6d2f540ed2149addfa28f10cd9")]
 [assembly: System.Reflection.AssemblyProductAttribute("Aplicacion Web Hospedaje")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Aplicacion Web Hospedaje")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
