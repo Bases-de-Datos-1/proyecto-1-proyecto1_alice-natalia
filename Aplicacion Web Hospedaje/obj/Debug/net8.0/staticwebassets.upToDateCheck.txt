@@ -1,4 +1,12 @@
+wwwroot\css\site.css
 wwwroot\favicon.ico
+wwwroot\images\facebook.png
+wwwroot\images\hotel.jpeg
+wwwroot\images\hotel1.jpeg
+wwwroot\images\hotel2.jpeg
+wwwroot\images\icono.png
+wwwroot\images\instragram.png
+wwwroot\images\twiter.png
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
@@ -57,4 +65,3 @@ wwwroot\lib\jquery\dist\jquery.js
 wwwroot\lib\jquery\dist\jquery.min.js
 wwwroot\lib\jquery\dist\jquery.min.map
 wwwroot\lib\jquery\LICENSE.txt
-wwwroot\css\site.css
