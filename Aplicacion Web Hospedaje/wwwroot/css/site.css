@@ -1,207 +1,106 @@
-/* Estilo global del body: fuente Poppins, sin margen ni padding, fondo beige claro y texto marrón suave */
+/* Estilo general del cuerpo */
 body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #fef6e4; /* Beige claro */
-    color: #4a3f2a; /* Marrón suave */
+    font-family: 'Poppins', sans-serif; /* Fuente moderna y legible */
+    margin: 0; /* Elimina mÃ¡rgenes por defecto del navegador */
+    padding: 0; /* Elimina padding por defecto */
+    background: #fef6e4; /* Beige claro que transmite calidez */
+    color: #4a3f2a; /* MarrÃ³n suave que combina bien con tonos cÃ¡lidos */
 }
 
-
-/* Navbar: contenedor flexible para distribuir elementos (logo y menú) con espacio entre ellos, padding y fondo anaranjado fuerte con sombra sutil */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem 3rem;
-    background-color: #fca311; /* Anaranjado fuerte */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Logo: texto en negrita, tamaño grande, color beige claro */
+/* Logo */
 .logo {
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: #fff1cf; /* Beige claro */
+    font-weight: 700; /* Texto en negrita */
+    font-size: 1.5rem; /* TamaÃ±o grande */
+    color: #fff1cf; /* Beige claro para destacar sobre fondo oscuro */
 }
 
-/* Menú: lista horizontal sin estilos de lista, con espacio entre ítems, alineados verticalmente */
+.navbar {
+    background-color: #ffa600c9; /* naranja */
+    color: white;
+}
+.navbar a {
+    color: rgb(255, 255, 255);
+}
+.navbar a:hover {
+    color: #000000;
+}
+
+/* MenÃº de navegaciÃ³n*/
 .menu {
-    list-style: none;
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
+    list-style: none; /* Elimina viÃ±etas */
+    display: flex; /* AlineaciÃ³n horizontal */
+    gap: 1.5rem; /* Espaciado entre elementos */
+    align-items: center; /* Centrado vertical */
     margin: 0;
     padding: 0;
 }
+.menu li a {
+    text-decoration: none; /* Sin subrayado */
+    color: #fff; /* Texto blanco */
+    font-weight: 600; /* Semi-negrita */
+}
 
-    /* Enlaces del menú: sin subrayado, texto blanco y semi-negrita */
-    .menu li a {
-        text-decoration: none;
-        color: #fff;
-        font-weight: 600;
-    }
-
-/* Botones principales: fondo naranja, texto blanco, padding, bordes redondeados, sin borde y sin subrayado */
+/* Botones */
 .btn-primary,
 .btn-register {
-    background-color: #f77f00;
+    background-color: #f77f00; /* Naranja brillante */
     color: white;
     padding: 0.6rem 1.2rem;
-    border-radius: 25px;
+    border-radius: 25px; /* Bordes redondeados */
     font-weight: 600;
     border: none;
+    text-decoration: none; /* Elimina subrayado si es un <a> */
+}
+
+/*  Imagen del hotel */
+.hotel-img {
+    width: 100%; /* Ocupa todo el contenedor */
+    height: 250px;
+    object-fit: cover; /* Cubre todo el espacio sin distorsiÃ³n */
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Sombra sutil para relieve */
+}
+
+/*  Footer (Pie de pÃ¡gina)*/
+footer {
+    background-color: #ffe8cc;   /* Beige claro */
+    color: #4a3f2a;             /* MarrÃ³n suave */
+    padding: 2rem 3rem;           /* Espaciado interno */
+}
+footer h6 {
+    font-weight: 700; /* Negrita */
+    margin-bottom: 1rem; /* Espacio debajo del tÃ­tulo */
+    font-size: 1rem; /* TamaÃ±o de fuente */
+    text-transform: uppercase; /* MayÃºsculas */
+    color: #f77f00; /* Naranja brillante para destacar */
+}
+footer p, footer a {
+    color: #4a3f2a;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
     text-decoration: none;
 }
-
-/* Sección principal (hero): contenedor flexible con espacio entre texto e imagen, padding y fondo beige muy claro */
-.hero {
-    display: flex;
-    justify-content: space-between;
-    padding: 3rem 5rem;
-    background: #fff4dc;
-}
-
-/* Texto hero: ancho máximo del 45% para control de diseño */
-.hero-text {
-    max-width: 45%;
-}
-
-    /* Título hero: tamaño grande y color naranja vibrante */
-    .hero-text h1 {
-        font-size: 2.8rem;
-        color: #f77f00; /* Naranja vibrante */
-    }
-
-    /* Texto resaltado en hero: color dorado oscuro y negrita */
-    .hero-text span {
-        color: #b0894d; /* Dorado oscuro */
-        font-weight: 700;
-    }
-
-    /* Párrafos hero: margen vertical para separación */
-    .hero-text p {
-        margin: 1rem 0;
-    }
-
-/* Imagen del hotel: ancho completo del contenedor, altura fija, ajuste de imagen para cubrir, bordes redondeados y sombra */
-.hotel-img {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-/* Sección servicios: padding y fondo blanco crema */
-.services {
-    padding: 2rem 5rem;
-    background-color: #fffaf0;
-}
-
-    /* Título servicios: negrita, tamaño grande, color naranja y margen inferior */
-    .services h2 {
-        font-weight: 700;
-        font-size: 2rem;
-        color: #f77f00;
-        margin-bottom: 2rem;
-    }
-
-/* Contenedor de ítems de servicios: flex con espacio entre ellos, centrados horizontalmente */
-.service-items {
-    display: flex;
-    gap: 3rem;
-    justify-content: center;
-}
-
-    /* Cada ítem de servicio: texto centrado y ancho máximo limitado */
-    .service-items div {
-        text-align: center;
-        max-width: 200px;
-    }
-
-    /* Iconos servicios: tamaño fijo y margen inferior para separar del texto */
-    .service-items img {
-        width: 60px;
-        margin-bottom: 1rem;
-    }
-
-    /* Título ítems servicios: margen inferior y color dorado oscuro */
-    .service-items h3 {
-        margin-bottom: 0.5rem;
-        color: #b0894d;
-    }
-
-/* Footer: fondo beige claro, texto marrón suave y padding */
-footer {
-    background-color: #ffe8cc;
-    color: #4a3f2a;
-    padding: 2rem 3rem;
-}
-
-    /* Título footer: negrita, mayúsculas, color naranja y margen inferior */
-    footer h6 {
-        font-weight: 700;
-        margin-bottom: 1rem;
-        font-size: 1rem;
-        text-transform: uppercase;
-        color: #f77f00;
-    }
-
-    /* Texto y enlaces footer: color marrón suave, tamaño de fuente pequeño, sin subrayado, margen inferior */
-    footer p, footer a {
-        color: #4a3f2a;
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-        text-decoration: none;
-    }
-
-/* Iconos del footer con filtro para dar color anaranjado */
 .footer-icon {
-    filter: brightness(0) saturate(100%) invert(63%) sepia(89%) saturate(648%) hue-rotate(1deg) brightness(99%) contrast(100%);
+    filter: brightness(0) saturate(100%) invert(63%) sepia(89%) 
+            saturate(648%) hue-rotate(1deg) brightness(99%) contrast(100%); /* Iconos con filtro para un tono mÃ¡s cÃ¡lido */
 }
 
-.text-center {
-    text-align: center;
-}
+/* Clases utilitarias*/
+.text-center { text-align: center; }
+.mt-5 { margin-top: 3rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.img-fluid { max-width: 100%; height: auto; } /* Para imÃ¡genes responsivas */
+.rounded { border-radius: 15px; }
+.shadow { box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
 
-.mt-5 {
-    margin-top: 3rem;
-}
-
-.mb-4 {
-    margin-bottom: 1.5rem;
-}
-
-.img-fluid {
-    max-width: 100%;
-    height: auto;
-}
-
-.rounded {
-    border-radius: 15px;
-}
-
-.shadow {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
+/* Estilo especÃ­fico de botÃ³n y hover*/
 .btn-primary {
-    background-color: #f77f00; /* naranja vibrante */
+    background-color: #f77f00;
     border: none;
     border-radius: 25px;
     padding: 0.6rem 1.2rem;
     font-weight: 600;
 }
-
 .btn-primary:hover {
-    background-color: #d46f00; /* naranja más oscuro para hover */
-}
-
-bienvenidos-titulo {
-    font-size: 3.5rem; /* Tamaño grande */
-    font-weight: 800; /* Muy negrita */
-    color: #f77f00; /* Naranja vibrante */
-    text-shadow: 2px 2px 6px rgba(0,0,0,0.2); /* Sombra sutil para dar profundidad */
-    font-family: 'Poppins', sans-serif;
-    margin-bottom: 2rem;
+    background-color: #d46f00; /* Oscurece al pasar el cursor */
 }

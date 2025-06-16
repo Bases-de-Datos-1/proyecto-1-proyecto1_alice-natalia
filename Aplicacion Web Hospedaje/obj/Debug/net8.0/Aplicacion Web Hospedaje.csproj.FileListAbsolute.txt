@@ -154,7 +154,6 @@ C:\Users\arias\OneDrive\Documents\GitHub\proyecto-1-proyecto1_alice-natalia\Apli
 C:\Users\arias\OneDrive\Documents\GitHub\proyecto-1-proyecto1_alice-natalia\Aplicacion Web Hospedaje\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\arias\OneDrive\Documents\GitHub\proyecto-1-proyecto1_alice-natalia\Aplicacion Web Hospedaje\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\arias\OneDrive\Documents\GitHub\proyecto-1-proyecto1_alice-natalia\Aplicacion Web Hospedaje\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\arias\OneDrive\Documents\GitHub\proyecto-1-proyecto1_alice-natalia\Aplicacion Web Hospedaje\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\arias\OneDrive\Documents\GitHub\proyecto-1-proyecto1_alice-natalia\Aplicacion Web Hospedaje\obj\Debug\net8.0\Aplicaci.52131786.Up2Date
 C:\Users\arias\OneDrive\Documents\GitHub\proyecto-1-proyecto1_alice-natalia\Aplicacion Web Hospedaje\obj\Debug\net8.0\Aplicacion Web Hospedaje.dll
 C:\Users\arias\OneDrive\Documents\GitHub\proyecto-1-proyecto1_alice-natalia\Aplicacion Web Hospedaje\obj\Debug\net8.0\refint\Aplicacion Web Hospedaje.dll

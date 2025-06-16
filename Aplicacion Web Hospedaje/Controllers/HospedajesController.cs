@@ -19,41 +19,46 @@ namespace Aplicacion_Web_Hospedaje.Controllers
         }
 
         // GET: Hospedajes
-        public async Task<IActionResult> Index()
+        // Agregamos parámetro searchString para buscar por nombre
+        public async Task<IActionResult> Index(string searchString)
         {
-            var appDbContext = _context.Hospedajes.Include(h => h.TipoHospedajeNavigation);
-            return View(await appDbContext.ToListAsync());
+            ViewData["CurrentFilter"] = searchString;
+
+            var hospedajes = _context.Hospedajes
+                .Include(h => h.TipoHospedajeNavigation)
+                .AsQueryable();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                hospedajes = hospedajes.Where(h => h.NombreHospedaje.Contains(searchString));
+            }
+
+            return View(await hospedajes.ToListAsync());
         }
 
-        // GET: Hospedajes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var hospedaje = await _context.Hospedajes
                 .Include(h => h.TipoHospedajeNavigation)
+                .Include(h => h.Habitacions)
+                    .ThenInclude(h => h.IdTipoHabitacionNavigation)
                 .FirstOrDefaultAsync(m => m.IdHospedaje == id);
+
             if (hospedaje == null)
-            {
                 return NotFound();
-            }
 
             return View(hospedaje);
         }
 
-        // GET: Hospedajes/Create
         public IActionResult Create()
         {
             ViewData["TipoHospedaje"] = new SelectList(_context.TipoHospedajes, "IdTipoHospedaje", "IdTipoHospedaje");
             return View();
         }
 
-        // POST: Hospedajes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdHospedaje,CedulaJuridica,NombreHospedaje,TipoHospedaje,UrlSitioWeb,CorreoElectronico,ReferenciasGps")] Hospedaje hospedaje)
@@ -68,34 +73,25 @@ namespace Aplicacion_Web_Hospedaje.Controllers
             return View(hospedaje);
         }
 
-        // GET: Hospedajes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var hospedaje = await _context.Hospedajes.FindAsync(id);
             if (hospedaje == null)
-            {
                 return NotFound();
-            }
+
             ViewData["TipoHospedaje"] = new SelectList(_context.TipoHospedajes, "IdTipoHospedaje", "IdTipoHospedaje", hospedaje.TipoHospedaje);
             return View(hospedaje);
         }
 
-        // POST: Hospedajes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdHospedaje,CedulaJuridica,NombreHospedaje,TipoHospedaje,UrlSitioWeb,CorreoElectronico,ReferenciasGps")] Hospedaje hospedaje)
         {
             if (id != hospedaje.IdHospedaje)
-            {
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
@@ -107,13 +103,9 @@ namespace Aplicacion_Web_Hospedaje.Controllers
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!HospedajeExists(hospedaje.IdHospedaje))
-                    {
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -121,26 +113,21 @@ namespace Aplicacion_Web_Hospedaje.Controllers
             return View(hospedaje);
         }
 
-        // GET: Hospedajes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var hospedaje = await _context.Hospedajes
                 .Include(h => h.TipoHospedajeNavigation)
                 .FirstOrDefaultAsync(m => m.IdHospedaje == id);
+
             if (hospedaje == null)
-            {
                 return NotFound();
-            }
 
             return View(hospedaje);
         }
 
-        // POST: Hospedajes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -149,9 +136,9 @@ namespace Aplicacion_Web_Hospedaje.Controllers
             if (hospedaje != null)
             {
                 _context.Hospedajes.Remove(hospedaje);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

@@ -32,6 +32,6 @@ public partial class Hospedaje
     public virtual ICollection<TelefonoHospedaje> TelefonoHospedajes { get; set; } = new List<TelefonoHospedaje>();
 
     public virtual ICollection<TipoHabitacion> TipoHabitacions { get; set; } = new List<TipoHabitacion>();
-
+    
     public virtual TipoHospedaje TipoHospedajeNavigation { get; set; } = null!;
 }

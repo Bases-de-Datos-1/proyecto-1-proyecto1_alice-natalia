@@ -4,39 +4,42 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Detalles de la Habitación</h1>
 
 <div>
-    <h4>Habitacion</h4>
+    <h4>Habitación</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.NumeroHabitacion)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.NumeroHabitacion)
         </dd>
-        <dt class = "col-sm-2">
+
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.CantidadPersonas)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.CantidadPersonas)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdHospedajeNavigation)
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IdHospedajeNavigation.NombreHospedaje)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdHospedajeNavigation.IdHospedaje)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IdHospedajeNavigation.NombreHospedaje)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdTipoHabitacionNavigation)
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IdTipoHabitacionNavigation.NombreTipoHabitacion)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdTipoHabitacionNavigation.IdTipoHabitacion)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IdTipoHabitacionNavigation.NombreTipoHabitacion)
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.IdHabitacion">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.IdHabitacion">Editar</a> |
+    <a asp-action="Index">Volver a la lista</a>
 </div>
